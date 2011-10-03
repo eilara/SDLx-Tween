@@ -14,6 +14,7 @@
  * turn build_struct case into vector of func pointers
  * check stack size instead of using SvIOK in start
  * error checking in perl
+ * "Floating point division with a constant or repeated division with the same value should of course be done by multiplying with the reciprocal"
  */
 
 typedef struct sdl_tween {
@@ -33,7 +34,7 @@ typedef struct sdl_tween {
     Uint32   last_tick_time;
     Uint32   last_cycle_complete_time;
 
-    double (*ease_func) (double);
+    double   (*ease_func) (double);
 
 } sdl_tween;
 

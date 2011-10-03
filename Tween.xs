@@ -97,3 +97,22 @@ SDLx__Tween_tick(SV* self, Uint32 now)
     CODE:
         SDLx__Tween this = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ self);
         tick(self, this, now);
+
+
+MODULE = SDLx::Tween		PACKAGE = SDLx::Tween		PREFIX = SDLx__Tween_
+
+
+INCLUDE: const-xs.inc
+
+void
+SDLx__Tween__Path__Linear1D(self, from, to)
+    SV*    self
+    double from
+    double to
+    CODE:
+        SDLx__Tween__Path__Linear1D this = safemalloc(sizeof(sdl_tween_path_linear_1D));
+        if(this == NULL) {
+            warn("unable to create new struct for SDLx::Tween::Path::Linear");
+        }
+        this->from = from;
+        this->to   = to;
