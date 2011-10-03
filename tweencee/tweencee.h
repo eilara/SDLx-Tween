@@ -8,9 +8,12 @@
  * TODO
  * should be using sv_setsv(SV*, SV*); to set SV* if it is already set
  * freeing a struct frees all SV*? need to clean 3 SV* callbacks
- * start/stop should be in xs
  * what is correct dance with stack when calling perl from xs?
  * how to use SDL.h portably?
+ * when I push this SV* into stack for call_sv, should I mortalize it?
+ * turn build_struct case into vector of func pointers
+ * check stack size instead of using SvIOK in start
+ * error checking in perl
  */
 
 typedef struct sdl_tween {
@@ -42,4 +45,12 @@ extern double ease_out_bounce    (double t);
 extern double ease_in_bounce     (double t);
 extern double ease_in_out_bounce (double t);
 
+typedef struct sdl_tween_path_linear_1D {
 
+    double   from;
+    double   to;
+    double   (*solve_func) (double);
+
+} sdl_tween_path_linear_1D;
+
+typedef sdl_tween_path_linear_1D* SDLx__Tween__Path__Linear1D;

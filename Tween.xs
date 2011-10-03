@@ -11,8 +11,8 @@ MODULE = SDLx::Tween		PACKAGE = SDLx::Tween		PREFIX = SDLx__Tween_
 INCLUDE: const-xs.inc
 
 void
-SDLx__Tween_build_struct(this, register_cb, unregister_cb, tick_cb, duration, forever, repeat, bounce, ease)
-    SV*    this
+SDLx__Tween_build_struct(self, register_cb, unregister_cb, tick_cb, duration, forever, repeat, bounce, ease)
+    SV*    self
     SV*    register_cb
     SV*    unregister_cb
     SV*    tick_cb
@@ -22,8 +22,8 @@ SDLx__Tween_build_struct(this, register_cb, unregister_cb, tick_cb, duration, fo
     bool   bounce
     int    ease
     CODE:
-        SDLx__Tween self = safemalloc(sizeof(sdl_tween));
-        if(self == NULL) {
+        SDLx__Tween this = safemalloc(sizeof(sdl_tween));
+        if(this == NULL) {
             warn("unable to create new struct for SDLx::Tween");
         }
         SV* register_cb_clone   = newSVsv(register_cb);
@@ -39,7 +39,7 @@ SDLx__Tween_build_struct(this, register_cb, unregister_cb, tick_cb, duration, fo
                                                   ease_linear;
 
         build_struct(
-            this, self,
+            self, this,
             register_cb_clone,
             unregister_cb_clone,
             tick_cb_clone,
@@ -51,49 +51,49 @@ SDLx__Tween_build_struct(this, register_cb, unregister_cb, tick_cb, duration, fo
         );
 
 void
-SDLx__Tween_free_struct(SV* this)
+SDLx__Tween_free_struct(SV* self)
     CODE:
-        SDLx__Tween self = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ this);
-        SvREFCNT_dec(self->unregister_cb);
-        SvREFCNT_dec(self->tick_cb);
-        SvREFCNT_dec(self->register_cb);
-        safefree(self);
+        SDLx__Tween this = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ self);
+        SvREFCNT_dec(this->unregister_cb);
+        SvREFCNT_dec(this->tick_cb);
+        SvREFCNT_dec(this->register_cb);
+        safefree(this);
 
 Uint32
-SDLx__Tween_get_cycle_start_time(SV* this)
+SDLx__Tween_get_cycle_start_time(SV* self)
     CODE:
-        SDLx__Tween self = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ this);
-        RETVAL = self->cycle_start_time;
+        SDLx__Tween this = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ self);
+        RETVAL = this->cycle_start_time;
     OUTPUT:
         RETVAL
 
 bool
-SDLx__Tween_is_active(SV* this)
+SDLx__Tween_is_active(SV* self)
     CODE:
-        SDLx__Tween self = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ this);
-        RETVAL = self->is_active;
+        SDLx__Tween this = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ self);
+        RETVAL = this->is_active;
     OUTPUT:
         RETVAL
 
 void
-SDLx__Tween_start(SV* this, ...)
+SDLx__Tween_start(SV* self, ...)
     CODE:
-        SDLx__Tween self = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ this);
+        SDLx__Tween this = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ self);
         SV* cycle_start_time_sv = ST(1);
         Uint32 cycle_start_time =
             SvIOK(cycle_start_time_sv)?
                 (Uint32) SvIV(cycle_start_time_sv):
                 (Uint32) SDL_GetTicks();
-        start(this, self, cycle_start_time);
+        start(self, this, cycle_start_time);
 
 void
-SDLx__Tween_stop(SV* this)
+SDLx__Tween_stop(SV* self)
     CODE:
-        SDLx__Tween self = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ this);
-        stop(this, self);
+        SDLx__Tween this = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ self);
+        stop(self, this);
 
 void
-SDLx__Tween_tick(SV* this, Uint32 now)
+SDLx__Tween_tick(SV* self, Uint32 now)
     CODE:
-        SDLx__Tween self = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ this);
-        tick(this, self, now);
+        SDLx__Tween this = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ self);
+        tick(self, this, now);

@@ -5,8 +5,8 @@
 const double PI = 2 * acos(0.0);
 
 void build_struct(
-    SV*         this,
-    SDLx__Tween self,
+    SV*         self,
+    SDLx__Tween this,
     SV*         register_cb,
     SV*         unregister_cb,
     SV*         tick_cb,
@@ -16,61 +16,61 @@ void build_struct(
     bool        bounce,
     double      (*ease_func) (double)
 ) {
-    self->register_cb   = register_cb;
-    self->unregister_cb = unregister_cb;
-    self->tick_cb       = tick_cb;
-    self->duration      = duration;
-    self->forever       = forever;
-    self->repeat        = repeat;
-    self->bounce        = bounce;
-    self->ease_func     = ease_func;
-    self->is_active     = 0;
+    this->register_cb   = register_cb;
+    this->unregister_cb = unregister_cb;
+    this->tick_cb       = tick_cb;
+    this->duration      = duration;
+    this->forever       = forever;
+    this->repeat        = repeat;
+    this->bounce        = bounce;
+    this->ease_func     = ease_func;
+    this->is_active     = 0;
 
-    xs_object_magic_attach_struct(aTHX_ SvRV(this), self);
+    xs_object_magic_attach_struct(aTHX_ SvRV(self), this);
 }
 
-void start(SV* this, SDLx__Tween self, Uint32 cycle_start_time) {
-    self->is_active                = 1;
-    self->cycle_start_time         = cycle_start_time;
-    self->last_tick_time           = cycle_start_time;
-    self->last_cycle_complete_time = 0;
-    self->is_reversed              = 0;
+void start(SV* self, SDLx__Tween this, Uint32 cycle_start_time) {
+    this->is_active                = 1;
+    this->cycle_start_time         = cycle_start_time;
+    this->last_tick_time           = cycle_start_time;
+    this->last_cycle_complete_time = 0;
+    this->is_reversed              = 0;
 
     dSP;
     ENTER;
     SAVETMPS;
     PUSHMARK(SP);
-    XPUSHs(this);
+    XPUSHs(self);
     PUTBACK;
 
-    call_sv(self->register_cb, G_DISCARD);
+    call_sv(this->register_cb, G_DISCARD);
 
     FREETMPS;
     LEAVE;
 }
 
-void stop(SV* this, SDLx__Tween self) {
-    self->is_active                = 0;
-    self->last_cycle_complete_time = self->cycle_start_time + self->duration;
+void stop(SV* self, SDLx__Tween this) {
+    this->is_active                = 0;
+    this->last_cycle_complete_time = this->cycle_start_time + this->duration;
 
     dSP;
     ENTER;
     SAVETMPS;
     PUSHMARK(SP);
-    XPUSHs(this);
+    XPUSHs(self);
     PUTBACK;
 
-    call_sv(self->unregister_cb, G_DISCARD);
+    call_sv(this->unregister_cb, G_DISCARD);
 
     FREETMPS;
     LEAVE;
 }
 
-void tick(SV* this, SDLx__Tween self, Uint32 now) {
+void tick(SV* self, SDLx__Tween this, Uint32 now) {
     bool is_complete = 0;
-    Uint32 duration  = self->duration;
-    Uint32 dt        = now - self->last_tick_time;
-    Uint32 elapsed   = now - self->cycle_start_time;
+    Uint32 duration  = this->duration;
+    Uint32 dt        = now - this->last_tick_time;
+    Uint32 elapsed   = now - this->cycle_start_time;
 
     if (elapsed >= duration) {
         is_complete = 1;
@@ -78,12 +78,12 @@ void tick(SV* this, SDLx__Tween self, Uint32 now) {
     }
 
     double t_normal = (double) elapsed / duration;
-    double eased    = self->ease_func(t_normal);
-    if (self->is_reversed) {
+    double eased    = this->ease_func(t_normal);
+    if (this->is_reversed) {
         eased = 1 - eased;
     }
 
-    self->last_tick_time = now;
+    this->last_tick_time = now;
 
     dSP;
     ENTER;
@@ -93,28 +93,28 @@ void tick(SV* this, SDLx__Tween self, Uint32 now) {
     XPUSHs(sv_2mortal(newSViv(dt)));
     PUTBACK;
 
-    call_sv(self->tick_cb, G_DISCARD);
+    call_sv(this->tick_cb, G_DISCARD);
 
     FREETMPS;
     LEAVE;
 
-    if (!self->is_active) { return; } /* perl code could have stoped the tween */
+    if (!this->is_active) { return; } /* perl code could have stopped the tween */
     if (!is_complete    ) { return; }
 
-    bool forever = self->forever;
-    bool repeat  = self->repeat;
+    bool forever = this->forever;
+    bool repeat  = this->repeat;
 
     if (!forever && repeat <= 1) {
-        stop(this, self);
+        stop(self, this);
         return;
     }
 
-    if (!forever)     { self->repeat = repeat - 1; }
-    if (self->bounce) { self->is_reversed = !self->is_reversed; }
+    if (!forever)     { this->repeat = repeat - 1; }
+    if (this->bounce) { this->is_reversed = !this->is_reversed; }
 
-    self->cycle_start_time        += elapsed;
-    self->last_tick_time           = self->cycle_start_time;
-    self->last_cycle_complete_time = 0;
+    this->cycle_start_time        += elapsed;
+    this->last_tick_time           = this->cycle_start_time;
+    this->last_cycle_complete_time = 0;
 }
 
 /* ------------------ easing functions ----------------- */
