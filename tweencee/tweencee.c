@@ -98,19 +98,23 @@ void tick(SV* this, SDLx__Tween self, Uint32 now) {
     FREETMPS;
     LEAVE;
 
-    if (is_complete) {
-        bool forever = self->forever;
-        bool repeat  = self->repeat;
-        if (forever || repeat > 1) {
-            if (!forever)     { self->repeat = repeat - 1; }
-            if (self->bounce) { self->is_reversed = !self->is_reversed; }
-            self->cycle_start_time        += elapsed;
-            self->last_tick_time           = self->cycle_start_time;
-            self->last_cycle_complete_time = 0;
-       } else {
-            stop(this, self);
-       }
+    if (!self->is_active) { return; } /* perl code could have stoped the tween */
+    if (!is_complete    ) { return; }
+
+    bool forever = self->forever;
+    bool repeat  = self->repeat;
+
+    if (!forever && repeat <= 1) {
+        stop(this, self);
+        return;
     }
+
+    if (!forever)     { self->repeat = repeat - 1; }
+    if (self->bounce) { self->is_reversed = !self->is_reversed; }
+
+    self->cycle_start_time        += elapsed;
+    self->last_tick_time           = self->cycle_start_time;
+    self->last_cycle_complete_time = 0;
 }
 
 /* ------------------ easing functions ----------------- */
