@@ -1,0 +1,36 @@
+SDLx-Tween version 0.01
+======================
+
+NOT READY YET
+
+Will be an XS tween engine in for SDL Perl.
+
+Only built on Linux so far.
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+DEPENDENCIES
+
+This module requires these other modules and libraries:
+
+    SDL
+    XS::Object::Magic
+
+COPYRIGHT AND LICENCE
+
+Put the correct copyright and licence information here.
+
+Copyright (C) 2011 by Ran Eilam
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.10.1 or,
+at your option, any later version of Perl 5 you may have available.
+
+
