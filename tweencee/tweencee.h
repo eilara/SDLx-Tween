@@ -15,6 +15,7 @@
  * check stack size instead of using SvIOK in start
  * error checking in perl
  * "Floating point division with a constant or repeated division with the same value should of course be done by multiplying with the reciprocal"
+ * final and initial ticks even if stopped externally with accurate init and final values from solver
  */
 
 /* ------------------------------ tween ------------------------------ */
@@ -39,8 +40,9 @@ typedef struct sdl_tween {
     double   (*ease_func) (double);
 
      void*   path; /* for path_solve_func to cast */
-    double   (*path_solve_func) (void*, double);
-      void   (*path_free_func ) (void*);
+     void*   (*path_build_func ) ();
+      void   (*path_free_func  ) (void*);
+    double   (*path_solve_func ) (void*, double);
 
 } sdl_tween;
 
@@ -60,12 +62,12 @@ typedef struct sdl_tween_path_linear_1D {
 
     double   from;
     double   to;
-    /* double   (*solve_func) (double); */
 
 } sdl_tween_path_linear_1D;
 
 typedef sdl_tween_path_linear_1D* SDLx__Tween__Path__Linear1D;
 
+extern void*  path_linear_1D_build ();
+extern void   path_linear_1D_free  (void*);
 extern double path_linear_1D_solve (void*, double t);
-extern double path_linear_1D_free  (void*);
 

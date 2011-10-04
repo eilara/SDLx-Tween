@@ -30,13 +30,11 @@ void build_struct(
     this->ease_func     = ease_func;
     this->is_active     = 0;
 
-    SDLx__Tween__Path__Linear1D path = safemalloc(sizeof(sdl_tween_path_linear_1D));
-    if(path == NULL) { warn("unable to create new struct for path"); }
-    path->to              = 111.0;
-    path->from            = 299.0;
-    this->path            = path;
-    this->path_solve_func = path_linear_1D_solve;
+    this->path_build_func = path_linear_1D_build;
     this->path_free_func  = path_linear_1D_free;
+    this->path_solve_func = path_linear_1D_solve;
+
+    this->path = this->path_build_func();
 
     xs_object_magic_attach_struct(aTHX_ SvRV(self), this);
 }
@@ -94,6 +92,8 @@ void tick(SV* self, SDLx__Tween this, Uint32 now) {
     if (this->is_reversed) {
         eased = 1 - eased;
     }
+
+    double solved = this->path_solve_func(this->path, eased);
 
     this->last_tick_time = now;
 
@@ -161,13 +161,21 @@ double ease_in_out_bounce(double t) {
 
 /* ------------------ solvers ----------------- */
 
+void* path_linear_1D_build() {
+    SDLx__Tween__Path__Linear1D this = safemalloc(sizeof(sdl_tween_path_linear_1D));
+    if(this == NULL) { warn("unable to create new struct for path"); }
+    this->to   = 111.0;
+    this->from = 299.0;
+    return this;
+}
+
+void path_linear_1D_free(void* thisp) {
+    SDLx__Tween__Path__Linear1D this = (SDLx__Tween__Path__Linear1D) thisp;
+    safefree(this);
+}
+
 double path_linear_1D_solve(void* thisp, double t) {
     SDLx__Tween__Path__Linear1D this = (SDLx__Tween__Path__Linear1D) thisp;
     return t;
-}
-
-double path_linear_1D_free(void* thisp) {
-    SDLx__Tween__Path__Linear1D this = (SDLx__Tween__Path__Linear1D) thisp;
-    safefree(this);
 }
 

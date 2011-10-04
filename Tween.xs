@@ -29,7 +29,7 @@ SDLx__Tween_build_struct(self, register_cb, unregister_cb, tick_cb, duration, fo
         SV* unregister_cb_clone = newSVsv(unregister_cb);
         SV* tick_cb_clone       = newSVsv(tick_cb);
 
-        // TODO static array access?
+        // TODO static array access
         double (*ease_func) (double) = ease == 0? ease_linear:
                                        ease == 1? ease_swing:
                                        ease == 2? ease_out_bounce:
