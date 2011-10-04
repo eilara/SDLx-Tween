@@ -17,8 +17,7 @@ void build_struct(
     Uint32      duration,
     bool        forever,
     int         repeat,
-    bool        bounce,
-    double      (*ease_func) (double)
+    bool        bounce
 ) {
     this->register_cb   = register_cb;
     this->unregister_cb = unregister_cb;
@@ -27,7 +26,6 @@ void build_struct(
     this->forever       = forever;
     this->repeat        = repeat;
     this->bounce        = bounce;
-    this->ease_func     = ease_func;
     this->is_active     = 0;
 
     this->path_build_func = path_linear_1D_build;

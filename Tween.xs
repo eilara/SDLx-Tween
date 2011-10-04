@@ -36,6 +36,7 @@ SDLx__Tween_build_struct(self, register_cb, unregister_cb, tick_cb, duration, fo
                                        ease == 3? ease_in_bounce:
                                        ease == 4? ease_in_out_bounce:
                                                   ease_linear;
+        this->ease_func = ease_func;
 
         build_struct(
             self, this,
@@ -45,8 +46,7 @@ SDLx__Tween_build_struct(self, register_cb, unregister_cb, tick_cb, duration, fo
             duration,
             forever,
             repeat,
-            bounce,
-            ease_func
+            bounce
         );
 
 void
