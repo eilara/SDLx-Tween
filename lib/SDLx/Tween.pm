@@ -8,7 +8,6 @@ use SDL;
 use XS::Object::Magic;
 
 our $VERSION = '0.01';
-
 require XSLoader;
 XSLoader::load('SDLx::Tween', $VERSION);
 

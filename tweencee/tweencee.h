@@ -17,6 +17,8 @@
  * "Floating point division with a constant or repeated division with the same value should of course be done by multiplying with the reciprocal"
  */
 
+/* ------------------------------ tween ------------------------------ */
+
 typedef struct sdl_tween {
 
        SV*   register_cb;
@@ -36,9 +38,15 @@ typedef struct sdl_tween {
 
     double   (*ease_func) (double);
 
+     void*   path; /* for path_solve_func to cast */
+    double   (*path_solve_func) (void*, double);
+      void   (*path_free_func ) (void*);
+
 } sdl_tween;
 
 typedef sdl_tween* SDLx__Tween;
+
+/* --------------------------- easing funcs -------------------------- */
 
 extern double ease_linear        (double t);
 extern double ease_swing         (double t);
@@ -46,12 +54,18 @@ extern double ease_out_bounce    (double t);
 extern double ease_in_bounce     (double t);
 extern double ease_in_out_bounce (double t);
 
+/* ------------------------------ paths ------------------------------ */
+
 typedef struct sdl_tween_path_linear_1D {
 
     double   from;
     double   to;
-    double   (*solve_func) (double);
+    /* double   (*solve_func) (double); */
 
 } sdl_tween_path_linear_1D;
 
 typedef sdl_tween_path_linear_1D* SDLx__Tween__Path__Linear1D;
+
+extern double path_linear_1D_solve (void*, double t);
+extern double path_linear_1D_free  (void*);
+

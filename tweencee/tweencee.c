@@ -2,6 +2,10 @@
 #include <math.h>
 #include "./tweencee.h"
 
+// this throws warning:
+// warning: initializer element is not constant
+// because some compilers cannot run a func here?
+// what to do? static block?
 const double PI = 2 * acos(0.0);
 
 void build_struct(
@@ -25,6 +29,14 @@ void build_struct(
     this->bounce        = bounce;
     this->ease_func     = ease_func;
     this->is_active     = 0;
+
+    SDLx__Tween__Path__Linear1D path = safemalloc(sizeof(sdl_tween_path_linear_1D));
+    if(path == NULL) { warn("unable to create new struct for path"); }
+    path->to              = 111.0;
+    path->from            = 299.0;
+    this->path            = path;
+    this->path_solve_func = path_linear_1D_solve;
+    this->path_free_func  = path_linear_1D_free;
 
     xs_object_magic_attach_struct(aTHX_ SvRV(self), this);
 }
@@ -145,5 +157,17 @@ double ease_in_out_bounce(double t) {
     return
         t < 0.5?  in_bounce(2.0 * t    ) / 2.0:
                  out_bounce(2.0 * t - 1) / 2.0 + 0.5;
+}
+
+/* ------------------ solvers ----------------- */
+
+double path_linear_1D_solve(void* thisp, double t) {
+    SDLx__Tween__Path__Linear1D this = (SDLx__Tween__Path__Linear1D) thisp;
+    return t;
+}
+
+double path_linear_1D_free(void* thisp) {
+    SDLx__Tween__Path__Linear1D this = (SDLx__Tween__Path__Linear1D) thisp;
+    safefree(this);
 }
 

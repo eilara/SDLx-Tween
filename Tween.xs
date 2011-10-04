@@ -23,9 +23,8 @@ SDLx__Tween_build_struct(self, register_cb, unregister_cb, tick_cb, duration, fo
     int    ease
     CODE:
         SDLx__Tween this = safemalloc(sizeof(sdl_tween));
-        if(this == NULL) {
-            warn("unable to create new struct for SDLx::Tween");
-        }
+        if(this == NULL) { warn("unable to create new struct for SDLx::Tween"); }
+
         SV* register_cb_clone   = newSVsv(register_cb);
         SV* unregister_cb_clone = newSVsv(unregister_cb);
         SV* tick_cb_clone       = newSVsv(tick_cb);
@@ -57,6 +56,7 @@ SDLx__Tween_free_struct(SV* self)
         SvREFCNT_dec(this->unregister_cb);
         SvREFCNT_dec(this->tick_cb);
         SvREFCNT_dec(this->register_cb);
+        this->path_free_func(this->path);
         safefree(this);
 
 Uint32
@@ -99,20 +99,3 @@ SDLx__Tween_tick(SV* self, Uint32 now)
         tick(self, this, now);
 
 
-MODULE = SDLx::Tween		PACKAGE = SDLx::Tween		PREFIX = SDLx__Tween_
-
-
-INCLUDE: const-xs.inc
-
-void
-SDLx__Tween__Path__Linear1D(self, from, to)
-    SV*    self
-    double from
-    double to
-    CODE:
-        SDLx__Tween__Path__Linear1D this = safemalloc(sizeof(sdl_tween_path_linear_1D));
-        if(this == NULL) {
-            warn("unable to create new struct for SDLx::Tween::Path::Linear");
-        }
-        this->from = from;
-        this->to   = to;
