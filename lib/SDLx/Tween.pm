@@ -46,7 +46,7 @@ sub new {
     # for other paths, no path_args or special keys in args needed
     my $path_args = delete $args{path_args};
     unless ($path_args) {
-        $path_args = $args{path} eq 'linear'? {
+        $path_args = $path == 0? {
             from => (delete($args{from}) || die 'No "from" value given'),
             to   => (delete($args{to})   || die 'No "to" value given'),
         }: {};

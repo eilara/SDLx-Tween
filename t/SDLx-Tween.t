@@ -13,6 +13,8 @@ my $iut = SDLx::Tween->new(
     unregister_cb => sub { $unregistered = shift },
     tick_cb       => sub { @last_tick = @_ },
     duration      => 30,
+    from          => 500,
+    to            => 600,
 );
 
 is($registered, undef, 'not yet registered with clock');

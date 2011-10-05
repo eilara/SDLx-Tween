@@ -41,16 +41,13 @@ void start(SV* self, SDLx__Tween this, Uint32 cycle_start_time) {
     this->is_reversed              = 0;
 
     dSP;
-    ENTER;
-    SAVETMPS;
-    PUSHMARK(SP);
+    ENTER; SAVETMPS; PUSHMARK (SP); EXTEND (SP, 1);
     XPUSHs(self);
     PUTBACK;
 
     call_sv(this->register_cb, G_DISCARD);
 
-    FREETMPS;
-    LEAVE;
+    FREETMPS; LEAVE;
 }
 
 void stop(SV* self, SDLx__Tween this) {
@@ -58,16 +55,13 @@ void stop(SV* self, SDLx__Tween this) {
     this->last_cycle_complete_time = this->cycle_start_time + this->duration;
 
     dSP;
-    ENTER;
-    SAVETMPS;
-    PUSHMARK(SP);
+    ENTER; SAVETMPS; PUSHMARK (SP); EXTEND (SP, 1);
     XPUSHs(self);
     PUTBACK;
 
     call_sv(this->unregister_cb, G_DISCARD);
 
-    FREETMPS;
-    LEAVE;
+    FREETMPS; LEAVE;
 }
 
 void tick(SV* self, SDLx__Tween this, Uint32 now) {
@@ -92,17 +86,14 @@ void tick(SV* self, SDLx__Tween this, Uint32 now) {
     this->last_tick_time = now;
 
     dSP;
-    ENTER;
-    SAVETMPS;
-    PUSHMARK(SP);
+    ENTER; SAVETMPS; PUSHMARK (SP); EXTEND (SP, 2);
     XPUSHs(sv_2mortal(newSViv(elapsed)));
     XPUSHs(sv_2mortal(newSViv(dt)));
     PUTBACK;
 
     call_sv(this->tick_cb, G_DISCARD);
 
-    FREETMPS;
-    LEAVE;
+    FREETMPS; LEAVE;
 
     if (!this->is_active) { return; } /* perl code could have stopped the tween */
     if (!is_complete    ) { return; }
@@ -158,8 +149,15 @@ double ease_in_out_bounce(double t) {
 void* path_linear_1D_build(SV* path_args) {
     SDLx__Tween__Path__Linear1D this = safemalloc(sizeof(sdl_tween_path_linear_1D));
     if(this == NULL) { warn("unable to create new struct for path"); }
-    this->to   = 111.0;
-    this->from = 299.0;
+
+    HV* args     = (HV*) SvRV(path_args);
+    SV** from_sv = hv_fetch(args, "from", 4, 0);
+    SV** to_sv   = hv_fetch(args, "to"  , 2, 0);
+    double from  = (double) SvNV(*from_sv);
+    double to    = (double) SvNV(*to_sv);
+    this->to     = to;
+    this->from   = from;
+
     return this;
 }
 
