@@ -155,7 +155,7 @@ double ease_in_out_bounce(double t) {
 
 /* ------------------ solvers ----------------- */
 
-void* path_linear_1D_build() {
+void* path_linear_1D_build(SV* path_args) {
     SDLx__Tween__Path__Linear1D this = safemalloc(sizeof(sdl_tween_path_linear_1D));
     if(this == NULL) { warn("unable to create new struct for path"); }
     this->to   = 111.0;

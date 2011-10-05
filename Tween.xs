@@ -17,7 +17,7 @@ static double (*ease_table[5]) (double) = {
 #define PATH_FUNCS(kind) \
     path_linear_1D_##kind
 
-static void* (*path_build_table[5]) () = {
+static void* (*path_build_table[5]) (SV*) = {
     PATH_FUNCS(build)
 };
 
@@ -34,7 +34,7 @@ MODULE = SDLx::Tween		PACKAGE = SDLx::Tween		PREFIX = SDLx__Tween_
 INCLUDE: const-xs.inc
 
 void
-SDLx__Tween_build_struct(self, register_cb, unregister_cb, tick_cb, duration, forever, repeat, bounce, ease, path)
+SDLx__Tween_build_struct(self, register_cb, unregister_cb, tick_cb, duration, forever, repeat, bounce, ease, path, path_args)
     SV*    self
     SV*    register_cb
     SV*    unregister_cb
@@ -45,6 +45,7 @@ SDLx__Tween_build_struct(self, register_cb, unregister_cb, tick_cb, duration, fo
     bool   bounce
     int    ease
     int    path
+    SV*    path_args
     CODE:
         SDLx__Tween this = safemalloc(sizeof(sdl_tween));
         if(this == NULL) { warn("unable to create new struct for SDLx::Tween"); }
@@ -59,7 +60,7 @@ SDLx__Tween_build_struct(self, register_cb, unregister_cb, tick_cb, duration, fo
         this->path_free_func  = path_free_table[path];
         this->path_solve_func = path_solve_table[path];
 
-        this->path = this->path_build_func();
+        this->path = this->path_build_func(path_args);
 
         build_struct(
             self, this,

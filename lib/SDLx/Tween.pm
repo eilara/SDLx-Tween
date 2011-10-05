@@ -34,11 +34,24 @@ do {
 # TODO
 #   duration non zero
 #   required params
+#   auto from setting
 sub new {
     my ($class, %args) = @_;
     my $self = bless {}, $class;
+
     my $ease = $Ease_Lookup{ delete $args{ease} || 'linear' };
     my $path = $Path_Lookup{ delete $args{path} || 'linear' };
+
+    # you must provide path_args or from+to in args for linear paths,
+    # for other paths, no path_args or special keys in args needed
+    my $path_args = delete $args{path_args};
+    unless ($path_args) {
+        $path_args = $args{path} eq 'linear'? {
+            from => (delete($args{from}) || die 'No "from" value given'),
+            to   => (delete($args{to})   || die 'No "to" value given'),
+        }: {};
+    }
+
     $self->build_struct(
         delete($args{register_cb}),
         delete($args{unregister_cb}),
@@ -47,7 +60,7 @@ sub new {
         delete($args{forever}) || 0,
         delete($args{repeat} ) || 1,
         delete($args{bounce} ) || 0,
-        $ease, $path
+        $ease, $path, $path_args,
     );
     return $self;
 }

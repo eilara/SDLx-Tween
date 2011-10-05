@@ -41,7 +41,7 @@ typedef struct sdl_tween {
     double   (*ease_func) (double);
 
      void*   path; /* for path_solve_func to cast */
-     void*   (*path_build_func ) ();
+     void*   (*path_build_func ) (SV*);
       void   (*path_free_func  ) (void*);
     double   (*path_solve_func ) (void*, double);
 
@@ -68,7 +68,7 @@ typedef struct sdl_tween_path_linear_1D {
 
 typedef sdl_tween_path_linear_1D* SDLx__Tween__Path__Linear1D;
 
-void*  path_linear_1D_build ();
-void   path_linear_1D_free  (void*);
-double path_linear_1D_solve (void*, double t);
+void*  path_linear_1D_build (SV* path_args);
+void   path_linear_1D_free  (void* thisp);
+double path_linear_1D_solve (void* thisp, double t);
 
