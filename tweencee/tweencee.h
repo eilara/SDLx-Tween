@@ -16,6 +16,7 @@
  * error checking in perl
  * "Floating point division with a constant or repeated division with the same value should of course be done by multiplying with the reciprocal"
  * final and initial ticks even if stopped externally with accurate init and final values from solver
+ * call a perl cb, set a hash, method call, tick cb is what?
  */
 
 /* ------------------------------ tween ------------------------------ */
@@ -50,11 +51,11 @@ typedef sdl_tween* SDLx__Tween;
 
 /* --------------------------- easing funcs -------------------------- */
 
-extern double ease_linear        (double t);
-extern double ease_swing         (double t);
-extern double ease_out_bounce    (double t);
-extern double ease_in_bounce     (double t);
-extern double ease_in_out_bounce (double t);
+double ease_linear        (double t);
+double ease_swing         (double t);
+double ease_out_bounce    (double t);
+double ease_in_bounce     (double t);
+double ease_in_out_bounce (double t);
 
 /* ------------------------------ paths ------------------------------ */
 
@@ -67,7 +68,7 @@ typedef struct sdl_tween_path_linear_1D {
 
 typedef sdl_tween_path_linear_1D* SDLx__Tween__Path__Linear1D;
 
-extern void*  path_linear_1D_build ();
-extern void   path_linear_1D_free  (void*);
-extern double path_linear_1D_solve (void*, double t);
+void*  path_linear_1D_build ();
+void   path_linear_1D_free  (void*);
+double path_linear_1D_solve (void*, double t);
 

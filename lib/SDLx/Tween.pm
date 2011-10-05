@@ -23,6 +23,14 @@ do {
     );
 };
 
+my %Path_Lookup;
+do {
+    my $i = 0;
+    %Path_Lookup = map { $_ => $i++ } qw(
+        linear
+    );
+};
+
 # TODO
 #   duration non zero
 #   required params
@@ -30,6 +38,7 @@ sub new {
     my ($class, %args) = @_;
     my $self = bless {}, $class;
     my $ease = $Ease_Lookup{ delete $args{ease} || 'linear' };
+    my $path = $Path_Lookup{ delete $args{path} || 'linear' };
     $self->build_struct(
         delete($args{register_cb}),
         delete($args{unregister_cb}),
@@ -38,7 +47,7 @@ sub new {
         delete($args{forever}) || 0,
         delete($args{repeat} ) || 1,
         delete($args{bounce} ) || 0,
-        $ease
+        $ease, $path
     );
     return $self;
 }

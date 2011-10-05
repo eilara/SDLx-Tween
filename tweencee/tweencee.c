@@ -2,6 +2,8 @@
 #include <math.h>
 #include "./tweencee.h"
 
+#define LERP(T, A, B)  ( (A) + (T) * ((B) - (A)) )
+
 // this throws warning:
 // warning: initializer element is not constant
 // because some compilers cannot run a func here?
@@ -27,12 +29,6 @@ void build_struct(
     this->repeat        = repeat;
     this->bounce        = bounce;
     this->is_active     = 0;
-
-    this->path_build_func = path_linear_1D_build;
-    this->path_free_func  = path_linear_1D_free;
-    this->path_solve_func = path_linear_1D_solve;
-
-    this->path = this->path_build_func();
 
     xs_object_magic_attach_struct(aTHX_ SvRV(self), this);
 }
@@ -174,6 +170,6 @@ void path_linear_1D_free(void* thisp) {
 
 double path_linear_1D_solve(void* thisp, double t) {
     SDLx__Tween__Path__Linear1D this = (SDLx__Tween__Path__Linear1D) thisp;
-    return t;
+    return LERP(t, this->from, this->to);
 }
 
