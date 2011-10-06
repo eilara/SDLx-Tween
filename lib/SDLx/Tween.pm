@@ -12,24 +12,23 @@ use base 'DynaLoader';
 bootstrap SDLx::Tween;
 
 my %Ease_Lookup;
-do {
-    my $i = 0;
-    %Ease_Lookup = map { $_ => $i++ } qw(
-        linear
-        swing
-        out_bounce
-        in_bounce
-        in_out_bounce
-    );
-};
+do { my $i = 0; %Ease_Lookup = map { $_ => $i++ } qw(
+    linear
+    swing
+    out_bounce
+    in_bounce
+    in_out_bounce
+)};
 
 my %Path_Lookup;
-do {
-    my $i = 0;
-    %Path_Lookup = map { $_ => $i++ } qw(
-        linear
-    );
-};
+do { my $i = 0; %Path_Lookup = map { $_ => $i++ } qw(
+    linear
+)};
+
+my %Proxy_Lookup;
+do { my $i = 0; %Proxy_Lookup = map { $_ => $i++ } qw(
+    int_method
+)};
 
 # TODO
 #   auto from setting
@@ -37,32 +36,47 @@ sub new {
     my ($class, %args) = @_;
     my $self = bless {}, $class;
 
-    my $ease = $Ease_Lookup{ delete $args{ease} || 'linear' };
-    my $path = $Path_Lookup{ delete $args{path} || 'linear' };
+    my $ease  = $Ease_Lookup{  $args{ease}  || 'linear'     };
+    my $path  = $Path_Lookup{  $args{path}  || 'linear'     };
+    my $proxy = $Proxy_Lookup{ $args{proxy} || 'int_method' };
+
+    my $path_args  = $args{path_args};
+    my $proxy_args = $args{proxy_args};
 
     # you must provide path_args or from+to in args for linear paths,
-    my $path_args = delete $args{path_args};
     if (!$path_args && $path == 0) {
         die 'No from/to given' unless exists($args{from}) && exists ($args{to});
         $path_args  = {
-            from => delete($args{from}),
-            to   => delete($args{to}),
+            from => $args{from},
+            to   => $args{to},
         };
     }
-    my $register_cb   = delete($args{register_cb})   || die 'No register_cb given';
-    my $unregister_cb = delete($args{unregister_cb}) || die 'No unregister_cb given';
-    my $tick_cb       = delete($args{tick_cb})       || die 'No tick_cb given';
-    my $duration      = delete($args{duration})      || die 'No positive duration given';
+
+    if (!$proxy_args) {
+        if ($proxy == 0) {
+            die 'No set/on given' unless exists($args{set}) && exists ($args{on});
+            $proxy_args  = {
+                target => $args{on},
+                method => $args{set},
+            };
+        }
+    }
+
+    my $register_cb   = $args{register_cb}   || die 'No register_cb given';
+    my $unregister_cb = $args{unregister_cb} || die 'No unregister_cb given';
+    my $duration      = $args{duration}      || die 'No positive duration given';
 
     $self->build_struct(
 
-        $register_cb, $unregister_cb, $tick_cb, $duration,
+        $register_cb, $unregister_cb, $duration,
 
-        delete($args{forever}) || 0,
-        delete($args{repeat} ) || 0,
-        delete($args{bounce} ) || 0,
+        $args{forever} || 0,
+        $args{repeat}  || 0,
+        $args{bounce}  || 0,
 
-        $ease, $path, $path_args,
+        $ease,
+        $path, $path_args,
+        $proxy, $proxy_args,
     );
     return $self;
 }

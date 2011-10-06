@@ -6,6 +6,8 @@
 
 #include <tweencee/tweencee.h>
 
+/* ------------------------------ easing ----------------------------- */
+
 static double (*ease_table[5]) (double) = {
     ease_linear,
     ease_swing,
@@ -13,6 +15,8 @@ static double (*ease_table[5]) (double) = {
     ease_in_bounce,
     ease_in_out_bounce,
 };
+
+/* ------------------------------ path ------------------------------- */
 
 #define PATH_FUNCS(kind) \
     path_linear_1D_##kind
@@ -29,6 +33,25 @@ static double (*path_solve_table[5]) (void*, double) = {
     PATH_FUNCS(solve)
 };
 
+/* ------------------------------ proxy ------------------------------- */
+
+#define PROXY_FUNCS(kind) \
+    proxy_int_method_##kind
+
+static void* (*proxy_build_table[5]) (SV*) = {
+    PROXY_FUNCS(build)
+};
+
+static void (*proxy_free_table[5]) (void*) = {
+    PROXY_FUNCS(free)
+};
+
+static double (*proxy_set_table[5]) (void*, double) = {
+    PROXY_FUNCS(set)
+};
+
+/* ------------------------------ tween ------------------------------- */
+
 MODULE = SDLx::Tween		PACKAGE = SDLx::Tween		PREFIX = SDLx__Tween_
 
 PROTOTYPES: DISABLE
@@ -36,11 +59,10 @@ PROTOTYPES: DISABLE
 INCLUDE: const-xs.inc
 
 void
-SDLx__Tween_build_struct(self, register_cb, unregister_cb, tick_cb, duration, forever, repeat, bounce, ease, path, path_args)
+SDLx__Tween_build_struct(self, register_cb, unregister_cb, duration, forever, repeat, bounce, ease, path, path_args, proxy, proxy_args)
     SV*    self
     SV*    register_cb
     SV*    unregister_cb
-    SV*    tick_cb
     Uint32 duration
     bool   forever
     int    repeat
@@ -48,13 +70,14 @@ SDLx__Tween_build_struct(self, register_cb, unregister_cb, tick_cb, duration, fo
     int    ease
     int    path
     SV*    path_args
+    int    proxy
+    SV*    proxy_args
     CODE:
         SDLx__Tween this = safemalloc(sizeof(sdl_tween));
         if(this == NULL) { warn("unable to create new struct for SDLx::Tween"); }
 
         SV* register_cb_clone   = newSVsv(register_cb);
         SV* unregister_cb_clone = newSVsv(unregister_cb);
-        SV* tick_cb_clone       = newSVsv(tick_cb);
 
         this->ease_func = ease_table[ease];
 
@@ -64,11 +87,16 @@ SDLx__Tween_build_struct(self, register_cb, unregister_cb, tick_cb, duration, fo
 
         this->path = this->path_build_func(path_args);
 
+        this->proxy_build_func = proxy_build_table[proxy];
+        this->proxy_free_func  = proxy_free_table[proxy];
+        this->proxy_set_func   = proxy_set_table[proxy];
+
+        this->proxy = this->proxy_build_func(proxy_args);
+
         build_struct(
             self, this,
             register_cb_clone,
             unregister_cb_clone,
-            tick_cb_clone,
             duration,
             forever,
             repeat,
@@ -80,7 +108,6 @@ SDLx__Tween_free_struct(SV* self)
     CODE:
         SDLx__Tween this = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ self);
         SvREFCNT_dec(this->unregister_cb);
-        SvREFCNT_dec(this->tick_cb);
         SvREFCNT_dec(this->register_cb);
         this->path_free_func(this->path);
         safefree(this);

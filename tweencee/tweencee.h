@@ -17,6 +17,11 @@
  * "Floating point division with a constant or repeated division with the same value should of course be done by multiplying with the reciprocal"
  * final and initial ticks even if stopped externally with accurate init and final values from solver
  * call a perl cb, set a hash, method call, tick cb is what?
+ * each path has an output type
+ * each proxy has an input type and they must match
+ * e.g. circle, path linear, d=1, proxy-> int proxy rounds,distinct,calls method
+ *              path out = double, proxy in  -> double 
+ * mutli d, multi linear, fast set, sdl sprite you draw opt
  */
 
 /* ------------------------------ tween ------------------------------ */
@@ -25,7 +30,6 @@ typedef struct sdl_tween {
 
        SV*   register_cb;
        SV*   unregister_cb;
-       SV*   tick_cb;
 
     Uint32   duration;
       bool   forever;
@@ -40,16 +44,21 @@ typedef struct sdl_tween {
 
     double   (*ease_func) (double);
 
-     void*   path; /* for path_solve_func to cast */
+     void*   path;
      void*   (*path_build_func ) (SV*);
       void   (*path_free_func  ) (void*);
     double   (*path_solve_func ) (void*, double);
+
+     void*   proxy;
+     void*   (*proxy_build_func) (SV*);
+      void   (*proxy_free_func ) (void*);
+      void   (*proxy_set_func  ) (void*, double);
 
 } sdl_tween;
 
 typedef sdl_tween* SDLx__Tween;
 
-/* --------------------------- easing funcs -------------------------- */
+/* ------------------------------ easing ----------------------------- */
 
 double ease_linear        (double t);
 double ease_swing         (double t);
@@ -57,7 +66,7 @@ double ease_out_bounce    (double t);
 double ease_in_bounce     (double t);
 double ease_in_out_bounce (double t);
 
-/* ------------------------------ paths ------------------------------ */
+/* ------------------------------ path ------------------------------- */
 
 typedef struct sdl_tween_path_linear_1D {
 
@@ -71,4 +80,20 @@ typedef sdl_tween_path_linear_1D* SDLx__Tween__Path__Linear1D;
 void*  path_linear_1D_build (SV* path_args);
 void   path_linear_1D_free  (void* thisp);
 double path_linear_1D_solve (void* thisp, double t);
+
+/* ------------------------------ proxy ------------------------------- */
+
+/* in = double, out = call method with distinct int */
+typedef struct sdl_tween_proxy_int_method {
+
+    SV*    target;
+    char*  method;
+
+} sdl_tween_proxy_int_method;
+
+typedef sdl_tween_proxy_int_method* SDLx__Tween__Proxy__Int__Method;
+
+void*  proxy_int_method_build (SV* proxy_args);
+void   proxy_int_method_free  (void* thisp);
+void   proxy_int_method_set   (void* thisp, double inval);
 

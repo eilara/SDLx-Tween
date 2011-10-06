@@ -15,7 +15,6 @@ void build_struct(
     SDLx__Tween this,
     SV*         register_cb,
     SV*         unregister_cb,
-    SV*         tick_cb,
     Uint32      duration,
     bool        forever,
     int         repeat,
@@ -23,7 +22,6 @@ void build_struct(
 ) {
     this->register_cb   = register_cb;
     this->unregister_cb = unregister_cb;
-    this->tick_cb       = tick_cb;
     this->duration      = duration;
     this->forever       = forever;
     this->repeat        = repeat;
@@ -85,16 +83,6 @@ void tick(SV* self, SDLx__Tween this, Uint32 now) {
 
     this->last_tick_time = now;
 
-    dSP;
-    ENTER; SAVETMPS; PUSHMARK (SP); EXTEND (SP, 2);
-    XPUSHs(sv_2mortal(newSViv(elapsed)));
-    XPUSHs(sv_2mortal(newSViv(dt)));
-    PUTBACK;
-
-    call_sv(this->tick_cb, G_DISCARD);
-
-    FREETMPS; LEAVE;
-
     if (!this->is_active) { return; } /* perl code could have stopped the tween */
     if (!is_complete    ) { return; }
 
@@ -144,7 +132,7 @@ double ease_in_out_bounce(double t) {
                  out_bounce(2.0 * t - 1) / 2.0 + 0.5;
 }
 
-/* ------------------ solvers ----------------- */
+/* ------------------ path ------------------ */
 
 void* path_linear_1D_build(SV* path_args) {
     SDLx__Tween__Path__Linear1D this = safemalloc(sizeof(sdl_tween_path_linear_1D));
@@ -169,5 +157,31 @@ void path_linear_1D_free(void* thisp) {
 double path_linear_1D_solve(void* thisp, double t) {
     SDLx__Tween__Path__Linear1D this = (SDLx__Tween__Path__Linear1D) thisp;
     return LERP(t, this->from, this->to);
+}
+
+/* ------------------ proxy ----------------- */
+
+void* proxy_int_method_build(SV* proxy_args) {
+    SDLx__Tween__Proxy__Int__Method this = safemalloc(sizeof(sdl_tween_proxy_int_method));
+    if(this == NULL) { warn("unable to create new struct for proxy"); }
+
+    HV* args       = (HV*) SvRV(proxy_args);
+    SV** target_sv = hv_fetch(args, "target", 6, 0);
+    SV** method_sv = hv_fetch(args, "method", 6, 0);
+    char* method  = (char*) SvPV_nolen(*method_sv);
+    printf("-----------------------------c=%s----------------\n",method);
+
+    return this;
+}
+
+void proxy_int_method_free(void* thisp) {
+    SDLx__Tween__Proxy__Int__Method this = (SDLx__Tween__Proxy__Int__Method) thisp;
+    SvREFCNT_dec(this->target);
+    safefree(this->method);
+    safefree(this);
+}
+
+void proxy_int_method_set(void* thisp, double t) {
+    SDLx__Tween__Proxy__Int__Method this = (SDLx__Tween__Proxy__Int__Method) thisp;
 }
 
