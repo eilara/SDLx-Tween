@@ -31,6 +31,8 @@ static double (*path_solve_table[5]) (void*, double) = {
 
 MODULE = SDLx::Tween		PACKAGE = SDLx::Tween		PREFIX = SDLx__Tween_
 
+PROTOTYPES: DISABLE
+
 INCLUDE: const-xs.inc
 
 void

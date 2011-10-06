@@ -8,7 +8,7 @@
 // warning: initializer element is not constant
 // because some compilers cannot run a func here?
 // what to do? static block?
-const double PI = 2 * acos(0.0);
+static const double PI = 2 * acos(0.0);
 
 void build_struct(
     SV*         self,

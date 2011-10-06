@@ -7,9 +7,9 @@ use Carp;
 use SDL;
 use XS::Object::Magic;
 
-our $VERSION = '0.01';
-require XSLoader;
-XSLoader::load('SDLx::Tween', $VERSION);
+require DynaLoader;
+use base 'DynaLoader';
+bootstrap SDLx::Tween;
 
 my %Ease_Lookup;
 do {
@@ -32,8 +32,6 @@ do {
 };
 
 # TODO
-#   duration non zero
-#   required params
 #   auto from setting
 sub new {
     my ($class, %args) = @_;
@@ -43,23 +41,27 @@ sub new {
     my $path = $Path_Lookup{ delete $args{path} || 'linear' };
 
     # you must provide path_args or from+to in args for linear paths,
-    # for other paths, no path_args or special keys in args needed
     my $path_args = delete $args{path_args};
-    unless ($path_args) {
-        $path_args = $path == 0? {
-            from => (delete($args{from}) || die 'No "from" value given'),
-            to   => (delete($args{to})   || die 'No "to" value given'),
-        }: {};
+    if (!$path_args && $path == 0) {
+        die 'No from/to given' unless exists($args{from}) && exists ($args{to});
+        $path_args  = {
+            from => delete($args{from}),
+            to   => delete($args{to}),
+        };
     }
+    my $register_cb   = delete($args{register_cb})   || die 'No register_cb given';
+    my $unregister_cb = delete($args{unregister_cb}) || die 'No unregister_cb given';
+    my $tick_cb       = delete($args{tick_cb})       || die 'No tick_cb given';
+    my $duration      = delete($args{duration})      || die 'No positive duration given';
 
     $self->build_struct(
-        delete($args{register_cb}),
-        delete($args{unregister_cb}),
-        delete($args{tick_cb}),
-        delete($args{duration}),
+
+        $register_cb, $unregister_cb, $tick_cb, $duration,
+
         delete($args{forever}) || 0,
-        delete($args{repeat} ) || 1,
+        delete($args{repeat} ) || 0,
         delete($args{bounce} ) || 0,
+
         $ease, $path, $path_args,
     );
     return $self;
