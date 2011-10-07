@@ -46,7 +46,7 @@ static void (*proxy_free_table[5]) (void*) = {
     PROXY_FUNCS(free)
 };
 
-static double (*proxy_set_table[5]) (void*, double) = {
+static void (*proxy_set_table[5]) (void*, double) = {
     PROXY_FUNCS(set)
 };
 

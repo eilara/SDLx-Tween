@@ -38,28 +38,22 @@ void start(SV* self, SDLx__Tween this, Uint32 cycle_start_time) {
     this->last_cycle_complete_time = 0;
     this->is_reversed              = 0;
 
-    dSP;
-    ENTER; SAVETMPS; PUSHMARK (SP); EXTEND (SP, 1);
+    dSP; PUSHMARK(SP);
     XPUSHs(self);
     PUTBACK;
 
     call_sv(this->register_cb, G_DISCARD);
-
-    FREETMPS; LEAVE;
 }
 
 void stop(SV* self, SDLx__Tween this) {
     this->is_active                = 0;
     this->last_cycle_complete_time = this->cycle_start_time + this->duration;
 
-    dSP;
-    ENTER; SAVETMPS; PUSHMARK (SP); EXTEND (SP, 1);
+    dSP; PUSHMARK(SP);
     XPUSHs(self);
     PUTBACK;
 
     call_sv(this->unregister_cb, G_DISCARD);
-
-    FREETMPS; LEAVE;
 }
 
 void tick(SV* self, SDLx__Tween this, Uint32 now) {
@@ -80,6 +74,7 @@ void tick(SV* self, SDLx__Tween this, Uint32 now) {
     }
 
     double solved = this->path_solve_func(this->path, eased);
+    this->proxy_set_func(this->proxy, solved);
 
     this->last_tick_time = now;
 
@@ -168,8 +163,8 @@ void* proxy_int_method_build(SV* proxy_args) {
     HV* args       = (HV*) SvRV(proxy_args);
     SV** target_sv = hv_fetch(args, "target", 6, 0);
     SV** method_sv = hv_fetch(args, "method", 6, 0);
-    char* method  = (char*) SvPV_nolen(*method_sv);
-    printf("-----------------------------c=%s----------------\n",method);
+    this->method   = strdup((char*) SvPV_nolen(*method_sv));
+    this->target   = newSVsv(*target_sv);
 
     return this;
 }
@@ -181,7 +176,14 @@ void proxy_int_method_free(void* thisp) {
     safefree(this);
 }
 
-void proxy_int_method_set(void* thisp, double t) {
+void proxy_int_method_set(void* thisp, double inval) {
     SDLx__Tween__Proxy__Int__Method this = (SDLx__Tween__Proxy__Int__Method) thisp;
+
+    dSP; PUSHMARK(SP);
+    XPUSHs(this->target);
+    XPUSHs(sv_2mortal(newSViv((int) inval)));
+    PUTBACK;
+
+    call_method(this->method, G_DISCARD);
 }
 

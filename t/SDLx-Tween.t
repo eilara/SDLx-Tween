@@ -34,13 +34,13 @@ ok($iut->is_active, 'active after start');
 is($registered, $iut, 'registered with clock');
 is($iut->get_cycle_start_time, 100, 'cycle start time');
 
-$iut->tick(110);
+$iut->tick(103);
 
-is($circle->radius, 501, '1st tick radius');
+is($circle->radius, 510, '1st tick radius');
 
 $iut->tick(131);
 
-is($circle->radius, 601, '2nd tick radius');
+is($circle->radius, 600, '2nd tick radius');
 
 ok(!$iut->is_active, 'cycle complete');
 
