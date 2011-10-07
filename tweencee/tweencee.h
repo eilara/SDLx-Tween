@@ -22,7 +22,6 @@
  * e.g. circle, path linear, d=1, proxy-> int proxy rounds,distinct,calls method
  *              path out = double, proxy in  -> double 
  * mutli d, multi linear, fast set, sdl sprite you draw opt
- * distinct opt
  */
 
 /* ------------------------------ tween ------------------------------ */
@@ -84,11 +83,13 @@ double path_linear_1D_solve (void* thisp, double t);
 
 /* ------------------------------ proxy ------------------------------- */
 
-/* in = double, out = call method with int */
+/* in = double, out = call method with distinct int */
 typedef struct sdl_tween_proxy_int_method {
 
     SV*    target;
     char*  method;
+    int    last_value;
+    bool   is_init
 
 } sdl_tween_proxy_int_method;
 

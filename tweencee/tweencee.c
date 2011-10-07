@@ -166,6 +166,9 @@ void* proxy_int_method_build(SV* proxy_args) {
     this->method   = strdup((char*) SvPV_nolen(*method_sv));
     this->target   = newSVsv(*target_sv);
 
+    this->last_value = 0;
+    this->is_init    = 0;
+
     return this;
 }
 
@@ -178,10 +181,19 @@ void proxy_int_method_free(void* thisp) {
 
 void proxy_int_method_set(void* thisp, double inval) {
     SDLx__Tween__Proxy__Int__Method this = (SDLx__Tween__Proxy__Int__Method) thisp;
+    int val = (int) inval;
+
+    if (this->is_init) {
+        if (val == this->last_value) { return; }
+    } else {
+        this->is_init = 1;
+    }
+
+    this->last_value = val;
 
     dSP; PUSHMARK(SP);
     XPUSHs(this->target);
-    XPUSHs(sv_2mortal(newSViv((int) inval)));
+    XPUSHs(sv_2mortal(newSViv(val)));
     PUTBACK;
 
     call_method(this->method, G_DISCARD);
