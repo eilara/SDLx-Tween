@@ -136,6 +136,11 @@ void* path_linear_1D_build(SV* path_args) {
     HV* args     = (HV*) SvRV(path_args);
     SV** from_sv = hv_fetch(args, "from", 4, 0);
     SV** to_sv   = hv_fetch(args, "to"  , 2, 0);
+
+    /* from and to could either be doubles or array ref of doubles */
+    SV*    from_raw = *from_sv;
+    SV*    to_raw   = *to_sv;
+
     double from  = (double) SvNV(*from_sv);
     double to    = (double) SvNV(*to_sv);
     this->to     = to;
@@ -166,7 +171,7 @@ void* proxy_method_build(SV* proxy_args) {
     SV** round_sv  = hv_fetch(args, "round" , 5, 0);
     this->method   = strdup((char*) SvPV_nolen(*method_sv));
     this->target   = newSVsv(*target_sv);
-    this->round    = newSViv(*round_sv); 
+    this->round    = (bool) SvIV(*round_sv); 
 
     this->last_value = 0;
     this->is_init    = 0;

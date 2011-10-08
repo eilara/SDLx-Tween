@@ -69,6 +69,7 @@ typedef struct sdl_tween_path_linear_1D {
 
     double   from;
     double   to;
+    int      dim;
 
 } sdl_tween_path_linear_1D;
 
