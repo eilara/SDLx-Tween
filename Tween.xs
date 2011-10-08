@@ -36,7 +36,7 @@ static double (*path_solve_table[5]) (void*, double) = {
 /* ------------------------------ proxy ------------------------------- */
 
 #define PROXY_FUNCS(kind) \
-    proxy_int_method_##kind
+    proxy_method_##kind
 
 static void* (*proxy_build_table[5]) (SV*) = {
     PROXY_FUNCS(build)

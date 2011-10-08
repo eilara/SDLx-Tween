@@ -7,11 +7,8 @@
  *
  * TODO
  * should be using sv_setsv(SV*, SV*); to set SV* if it is already set
- * freeing a struct frees all SV*? need to clean 3 SV* callbacks
  * what is correct dance with stack when calling perl from xs?
  * how to use SDL.h portably?
- * when I push this SV* into stack for call_sv, should I mortalize it?
- * turn build_struct case into vector of func pointers
  * check stack size instead of using SvIOK in start
  * error checking in perl
  * "Floating point division with a constant or repeated division with the same value should of course be done by multiplying with the reciprocal"
@@ -84,18 +81,19 @@ double path_linear_1D_solve (void* thisp, double t);
 /* ------------------------------ proxy ------------------------------- */
 
 /* in = double, out = call method with distinct int */
-typedef struct sdl_tween_proxy_int_method {
+typedef struct sdl_tween_proxy_method {
 
     SV*    target;
     char*  method;
+    bool   round;
     int    last_value;
-    bool   is_init
+    bool   is_init;
 
-} sdl_tween_proxy_int_method;
+} sdl_tween_proxy_method;
 
-typedef sdl_tween_proxy_int_method* SDLx__Tween__Proxy__Int__Method;
+typedef sdl_tween_proxy_method* SDLx__Tween__Proxy__Method;
 
-void*  proxy_int_method_build (SV* proxy_args);
-void   proxy_int_method_free  (void* thisp);
-void   proxy_int_method_set   (void* thisp, double inval);
+void*  proxy_method_build (SV* proxy_args);
+void   proxy_method_free  (void* thisp);
+void   proxy_method_set   (void* thisp, double inval);
 

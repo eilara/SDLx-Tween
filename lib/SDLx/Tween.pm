@@ -62,6 +62,8 @@ sub new {
         }
     }
 
+    $proxy_args->{round} = $args{round} || 0;
+
     my $register_cb   = $args{register_cb}   || die 'No register_cb given';
     my $unregister_cb = $args{unregister_cb} || die 'No unregister_cb given';
     my $duration      = $args{duration}      || die 'No positive duration given';

@@ -23,6 +23,7 @@ my $iut = SDLx::Tween->new(
     to            => 600,
     on            => $circle,
     set           => 'radius',
+    round         => 1,
 );
 
 is($registered, undef, 'not yet registered with clock');

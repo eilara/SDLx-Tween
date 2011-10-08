@@ -156,15 +156,17 @@ double path_linear_1D_solve(void* thisp, double t) {
 
 /* ------------------ proxy ----------------- */
 
-void* proxy_int_method_build(SV* proxy_args) {
-    SDLx__Tween__Proxy__Int__Method this = safemalloc(sizeof(sdl_tween_proxy_int_method));
+void* proxy_method_build(SV* proxy_args) {
+    SDLx__Tween__Proxy__Method this = safemalloc(sizeof(sdl_tween_proxy_method));
     if(this == NULL) { warn("unable to create new struct for proxy"); }
 
     HV* args       = (HV*) SvRV(proxy_args);
     SV** target_sv = hv_fetch(args, "target", 6, 0);
     SV** method_sv = hv_fetch(args, "method", 6, 0);
+    SV** round_sv  = hv_fetch(args, "round" , 5, 0);
     this->method   = strdup((char*) SvPV_nolen(*method_sv));
     this->target   = newSVsv(*target_sv);
+    this->round    = newSViv(*round_sv); 
 
     this->last_value = 0;
     this->is_init    = 0;
@@ -172,30 +174,39 @@ void* proxy_int_method_build(SV* proxy_args) {
     return this;
 }
 
-void proxy_int_method_free(void* thisp) {
-    SDLx__Tween__Proxy__Int__Method this = (SDLx__Tween__Proxy__Int__Method) thisp;
+void proxy_method_free(void* thisp) {
+    SDLx__Tween__Proxy__Method this = (SDLx__Tween__Proxy__Method) thisp;
     SvREFCNT_dec(this->target);
     safefree(this->method);
     safefree(this);
 }
 
-void proxy_int_method_set(void* thisp, double inval) {
-    SDLx__Tween__Proxy__Int__Method this = (SDLx__Tween__Proxy__Int__Method) thisp;
-    int val = (int) inval;
+void proxy_method_set(void* thisp, double inval) {
+    SDLx__Tween__Proxy__Method this = (SDLx__Tween__Proxy__Method) thisp;
+    SV* sv_value;
 
-    if (this->is_init) {
-        if (val == this->last_value) { return; }
+    if (round) {
+        int val = (int) inval;
+
+        if (this->is_init) {
+            if (val == this->last_value) { return; }
+        } else {
+            this->is_init = 1;
+        }
+
+        this->last_value = val;
+        sv_value = newSViv(val);
     } else {
-        this->is_init = 1;
+        sv_value = newSVnv(inval);
     }
 
-    this->last_value = val;
-
-    dSP; PUSHMARK(SP);
+    dSP; ENTER; SAVETMPS; PUSHMARK (SP); EXTEND (SP, 2);
     XPUSHs(this->target);
-    XPUSHs(sv_2mortal(newSViv(val)));
+    XPUSHs(sv_2mortal(sv_value));
     PUTBACK;
 
     call_method(this->method, G_DISCARD);
+
+    FREETMPS; LEAVE;
 }
 
