@@ -29,7 +29,7 @@ static void (*path_free_table[5]) (void*) = {
     PATH_FUNCS(free)
 };
 
-static double (*path_solve_table[5]) (void*, double) = {
+static void (*path_solve_table[5]) (void*, double, double[]) = {
     PATH_FUNCS(solve)
 };
 

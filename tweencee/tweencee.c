@@ -73,8 +73,9 @@ void tick(SV* self, SDLx__Tween this, Uint32 now) {
         eased = 1 - eased;
     }
 
-    double solved = this->path_solve_func(this->path, eased);
-    this->proxy_set_func(this->proxy, solved);
+    double solved[4];
+    this->path_solve_func(this->path, eased, solved);
+    this->proxy_set_func(this->proxy, solved[0]);
 
     this->last_tick_time = now;
 
@@ -133,18 +134,30 @@ void* path_linear_1D_build(SV* path_args) {
     SDLx__Tween__Path__Linear1D this = safemalloc(sizeof(sdl_tween_path_linear_1D));
     if(this == NULL) { warn("unable to create new struct for path"); }
 
+    /* from and to could either be doubles or array ref of doubles */
     HV* args     = (HV*) SvRV(path_args);
     SV** from_sv = hv_fetch(args, "from", 4, 0);
     SV** to_sv   = hv_fetch(args, "to"  , 2, 0);
+    SV* from_raw = *from_sv;
+    SV* to_raw   = *to_sv;
 
-    /* from and to could either be doubles or array ref of doubles */
-    SV*    from_raw = *from_sv;
-    SV*    to_raw   = *to_sv;
-
-    double from  = (double) SvNV(*from_sv);
-    double to    = (double) SvNV(*to_sv);
-    this->to     = to;
-    this->from   = from;
+    if (SvROK(from_raw) && SvTYPE(from_raw) == SVt_PVAV) {
+        AV* from  = (AV*) SvRV(from_raw);
+        AV* to    = (AV*) SvRV(to_raw);
+        int dim   = av_len(from) + 1;
+        this->dim = dim;
+        int i;
+        for (i = 0; i < dim; i++) {
+            SV** from_el = av_fetch(from, i, 0);
+            SV** to_el   = av_fetch(to  , i, 0);
+            this->from[i] = (double) SvNV(*from_el);
+            this->to[i]   = (double) SvNV(*to_el);
+        }
+    } else {
+        this->dim = 1;
+        this->from[0] = (double) SvNV(from_raw);
+        this->to[0]   = (double) SvNV(to_raw);
+    }
 
     return this;
 }
@@ -154,9 +167,13 @@ void path_linear_1D_free(void* thisp) {
     safefree(this);
 }
 
-double path_linear_1D_solve(void* thisp, double t) {
+void path_linear_1D_solve(void* thisp, double t, double solved[]) {
     SDLx__Tween__Path__Linear1D this = (SDLx__Tween__Path__Linear1D) thisp;
-    return LERP(t, this->from, this->to);
+    int dim  = this->dim;
+    int i;
+    for (i = 0; i < dim; i++) {
+        solved[i] = LERP(t, this->from[i], this->to[i]);
+    }
 }
 
 /* ------------------ proxy ----------------- */

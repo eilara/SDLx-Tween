@@ -44,7 +44,7 @@ typedef struct sdl_tween {
      void*   path;
      void*   (*path_build_func ) (SV*);
       void   (*path_free_func  ) (void*);
-    double   (*path_solve_func ) (void*, double);
+      void   (*path_solve_func ) (void*, double, double[]);
 
      void*   proxy;
      void*   (*proxy_build_func) (SV*);
@@ -67,9 +67,9 @@ double ease_in_out_bounce (double t);
 
 typedef struct sdl_tween_path_linear_1D {
 
-    double   from;
-    double   to;
-    int      dim;
+    double  from[4];
+    double  to[4];
+    int     dim;
 
 } sdl_tween_path_linear_1D;
 
@@ -77,7 +77,7 @@ typedef sdl_tween_path_linear_1D* SDLx__Tween__Path__Linear1D;
 
 void*  path_linear_1D_build (SV* path_args);
 void   path_linear_1D_free  (void* thisp);
-double path_linear_1D_solve (void* thisp, double t);
+void   path_linear_1D_solve (void* thisp, double t, double solved[]);
 
 /* ------------------------------ proxy ------------------------------- */
 
