@@ -67,7 +67,12 @@ $iut->start(10_000);
 $iut->tick(15_000);
 is_deeply($circle->position, [150, 300], '1st tick position');
 
+$iut->tick(17_500);
+is_deeply($circle->position, [175, 350], '2nd tick position');
+
 $iut->stop;
+ok(!$iut->is_active, 'cycle stop');
+is_deeply($circle->position, [175, 350], 'final tick position after stop');
 
 }
 

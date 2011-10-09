@@ -27,7 +27,7 @@ do { my $i = 0; %Path_Lookup = map { $_ => $i++ } qw(
 
 my %Proxy_Lookup;
 do { my $i = 0; %Proxy_Lookup = map { $_ => $i++ } qw(
-    int_method
+    method
 )};
 
 # TODO
@@ -36,9 +36,9 @@ sub new {
     my ($class, %args) = @_;
     my $self = bless {}, $class;
 
-    my $ease  = $Ease_Lookup{  $args{ease}  || 'linear'     };
-    my $path  = $Path_Lookup{  $args{path}  || 'linear'     };
-    my $proxy = $Proxy_Lookup{ $args{proxy} || 'int_method' };
+    my $ease  = $Ease_Lookup{  $args{ease}  || 'linear' };
+    my $path  = $Path_Lookup{  $args{path}  || 'linear' };
+    my $proxy = $Proxy_Lookup{ $args{proxy} || 'method' };
 
     my $path_args  = $args{path_args};
     my $proxy_args = $args{proxy_args};
