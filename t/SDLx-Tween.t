@@ -1,7 +1,8 @@
 
 package SDLx::Tween::tests::Circle;
 use Moose;
-has radius => (is => 'rw');
+has radius   => (is => 'rw');
+has position => (is => 'rw');
 
 package main;
 use strict;
@@ -9,7 +10,7 @@ use warnings;
 use Test::More;
 use SDLx::Tween;
 
-{ # basic complete 1d linear path and ease int method proxy
+{ # 1D basic complete 1d linear path and ease int method proxy
 
 my ($registered, $unregistered);
 
@@ -38,7 +39,7 @@ is($iut->get_cycle_start_time, 20_000, 'cycle start time');
 $iut->tick(23_000);
 is($circle->radius, 510, '1st tick radius');
 
-# 300K ticks a second on a 2005 dual core duo notebook
+# 300k ticks a second on a 2005 dual core duo notebook
 # for (1..6000000) { $iut->tick(20000+ $_); }
 
 $iut->tick(50_100);
@@ -47,9 +48,28 @@ ok(!$iut->is_active, 'cycle complete');
 
 }
 
-#{ # stop
-#
-#}
+{ # 2D basic complete 1d linear path and ease int method proxy
+
+my $circle = SDLx::Tween::tests::Circle->new(position => [100, 200]);
+
+my $iut = SDLx::Tween->new(
+    register_cb   => sub {},
+    unregister_cb => sub {},
+    duration      => 10_000,
+    from          => [100, 200],
+    to            => [200, 400],
+    on            => $circle,
+    set           => 'position',
+);
+
+$iut->start(10_000);
+
+$iut->tick(15_000);
+is_deeply($circle->position, [150, 300], '1st tick position');
+
+$iut->stop;
+
+}
 
 
 done_testing;

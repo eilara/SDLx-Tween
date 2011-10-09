@@ -141,7 +141,7 @@ void* path_linear_1D_build(SV* path_args) {
     SV* from_raw = *from_sv;
     SV* to_raw   = *to_sv;
 
-    if (SvROK(from_raw) && SvTYPE(from_raw) == SVt_PVAV) {
+    if (SvROK(from_raw) && SvTYPE(SvRV(from_raw)) == SVt_PVAV) {
         AV* from  = (AV*) SvRV(from_raw);
         AV* to    = (AV*) SvRV(to_raw);
         int dim   = av_len(from) + 1;
@@ -158,7 +158,6 @@ void* path_linear_1D_build(SV* path_args) {
         this->from[0] = (double) SvNV(from_raw);
         this->to[0]   = (double) SvNV(to_raw);
     }
-
     return this;
 }
 
