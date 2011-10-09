@@ -19,6 +19,7 @@
  * e.g. circle, path linear, d=1, proxy-> int proxy rounds,distinct,calls method
  *              path out = double, proxy in  -> double 
  * mutli d, multi linear, fast set, sdl sprite you draw opt
+ * should call with rv on array ref be mortalized and use freetmps?
  */
 
 /* ------------------------------ tween ------------------------------ */
@@ -44,12 +45,12 @@ typedef struct sdl_tween {
      void*   path;
      void*   (*path_build_func ) (SV*);
       void   (*path_free_func  ) (void*);
-      void   (*path_solve_func ) (void*, double, double[]);
+       int   (*path_solve_func ) (void*, double, double[]);
 
      void*   proxy;
      void*   (*proxy_build_func) (SV*);
       void   (*proxy_free_func ) (void*);
-      void   (*proxy_set_func  ) (void*, double);
+      void   (*proxy_set_func  ) (void*, double[], int);
 
 } sdl_tween;
 
@@ -77,7 +78,7 @@ typedef sdl_tween_path_linear_1D* SDLx__Tween__Path__Linear1D;
 
 void*  path_linear_1D_build (SV* path_args);
 void   path_linear_1D_free  (void* thisp);
-void   path_linear_1D_solve (void* thisp, double t, double solved[]);
+int    path_linear_1D_solve (void* thisp, double t, double solved[]);
 
 /* ------------------------------ proxy ------------------------------- */
 
@@ -96,5 +97,5 @@ typedef sdl_tween_proxy_method* SDLx__Tween__Proxy__Method;
 
 void*  proxy_method_build (SV* proxy_args);
 void   proxy_method_free  (void* thisp);
-void   proxy_method_set   (void* thisp, double inval);
+void   proxy_method_set   (void* thisp, double solved[], int dim);
 

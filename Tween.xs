@@ -29,7 +29,7 @@ static void (*path_free_table[5]) (void*) = {
     PATH_FUNCS(free)
 };
 
-static void (*path_solve_table[5]) (void*, double, double[]) = {
+static int (*path_solve_table[5]) (void*, double, double[]) = {
     PATH_FUNCS(solve)
 };
 
@@ -46,7 +46,7 @@ static void (*proxy_free_table[5]) (void*) = {
     PROXY_FUNCS(free)
 };
 
-static void (*proxy_set_table[5]) (void*, double) = {
+static void (*proxy_set_table[5]) (void*, double[], int dim) = {
     PROXY_FUNCS(set)
 };
 

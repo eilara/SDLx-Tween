@@ -74,8 +74,8 @@ void tick(SV* self, SDLx__Tween this, Uint32 now) {
     }
 
     double solved[4];
-    this->path_solve_func(this->path, eased, solved);
-    this->proxy_set_func(this->proxy, solved[0]);
+    int dim = this->path_solve_func(this->path, eased, solved);
+    this->proxy_set_func(this->proxy, solved, dim);
 
     this->last_tick_time = now;
 
@@ -167,13 +167,14 @@ void path_linear_1D_free(void* thisp) {
     safefree(this);
 }
 
-void path_linear_1D_solve(void* thisp, double t, double solved[]) {
+int path_linear_1D_solve(void* thisp, double t, double solved[]) {
     SDLx__Tween__Path__Linear1D this = (SDLx__Tween__Path__Linear1D) thisp;
     int dim  = this->dim;
     int i;
     for (i = 0; i < dim; i++) {
         solved[i] = LERP(t, this->from[i], this->to[i]);
     }
+    return dim;
 }
 
 /* ------------------ proxy ----------------- */
@@ -203,32 +204,48 @@ void proxy_method_free(void* thisp) {
     safefree(this);
 }
 
-void proxy_method_set(void* thisp, double inval) {
+void proxy_method_set(void* thisp, double solved[], int dim) {
     SDLx__Tween__Proxy__Method this = (SDLx__Tween__Proxy__Method) thisp;
-    SV* sv_value;
-
-    if (round) {
-        int val = (int) inval;
-
-        if (this->is_init) {
-            if (val == this->last_value) { return; }
+    if (dim == 1) {
+        SV* out;
+        if (round) {
+            int val = (int) solved[0];
+            if (this->is_init) {
+                if (val == this->last_value) { return; }
+            } else {
+                this->is_init = 1;
+            }
+            this->last_value = val;
+            out = newSViv(val);
         } else {
-            this->is_init = 1;
+            out = newSVnv(solved[0]);
+        }
+        
+        dSP; ENTER; SAVETMPS;PUSHMARK(SP); EXTEND(SP, 2);
+        XPUSHs(this->target);
+        XPUSHs(sv_2mortal(out));
+        PUTBACK;
+
+        call_method(this->method, G_DISCARD);
+
+        FREETMPS; LEAVE;
+
+    } else {
+        AV* out = newAV();
+        av_extend(out, dim - 1);
+        int i;
+        for (i = 0; i < dim; i++) {
+            av_store(out, i, newSVnv(solved[i]));
         }
 
-        this->last_value = val;
-        sv_value = newSViv(val);
-    } else {
-        sv_value = newSVnv(inval);
+        dSP; ENTER; SAVETMPS;PUSHMARK(SP); EXTEND(SP, 2);
+        XPUSHs(this->target);
+        XPUSHs(sv_2mortal(newRV_noinc((SV*) out)));
+        PUTBACK;
+
+        call_method(this->method, G_DISCARD);
+
+        FREETMPS; LEAVE;
     }
-
-    dSP; ENTER; SAVETMPS; PUSHMARK (SP); EXTEND (SP, 2);
-    XPUSHs(this->target);
-    XPUSHs(sv_2mortal(sv_value));
-    PUTBACK;
-
-    call_method(this->method, G_DISCARD);
-
-    FREETMPS; LEAVE;
 }
 
