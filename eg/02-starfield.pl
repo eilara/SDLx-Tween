@@ -9,11 +9,12 @@ use strict;
 use warnings;
 use FindBin qw($Bin);
 use lib ("$Bin/..", "$Bin/../blib/arch", "$Bin/../blib/lib");
+use Math::Trig;
 use SDL::Events;
 use SDLx::App;
 use SDLx::Tween;
 
-my $STAR_COUNT = 1000;
+my $STAR_COUNT = 2000;
 
 my $app = SDLx::App->new(
     title  => 'Starfield',
@@ -24,27 +25,22 @@ my $app = SDLx::App->new(
 my (@tweens, @stars);
 
 my $i; while($i++ < $STAR_COUNT) {
-    my $to = [int(rand 640), 480];
+    my $theta = rand(2 * pi);
+    my $to    = [cos($theta)*640 + 320, sin($theta)*480 + 240];
     my $star  = SDLx::Tween::eg_02::Star->new;
     my $tween = SDLx::Tween->new(
         register_cb   => sub {},
         unregister_cb => sub {},
-        duration      => (int(rand 5000) + 1000),
+        duration      => (int(rand 10_000) + 1000),
         from          => [320, 200],
         to            => $to,
         on            => $star,
         set           => 'xy',
         forever       => 1,
-        bounce       => 1,
-        ease => 'swing',
     );
     push @tweens, $tween;
     push @stars, $star;
 }
-
-$_->start for @tweens;
-
-my $event_handler = sub { my $e = shift; $_[0]->stop if ( $e->type == SDL_QUIT ) };
 
 my $move_handler  = sub {
     my $ticks = SDL::get_ticks;
@@ -59,9 +55,13 @@ my $show_handler  = sub {
     $app->update;
 };
 
+my $event_handler = sub { my $e = shift; $_[0]->stop if ( $e->type == SDL_QUIT ) };
+
 $app->add_event_handler($event_handler);
 $app->add_show_handler($show_handler);
 $app->add_move_handler($move_handler);
+
+$_->start for @tweens;
 
 $app->run;
 

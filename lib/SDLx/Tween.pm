@@ -7,6 +7,8 @@ use Carp;
 use SDL;
 use XS::Object::Magic;
 
+our $VERSION = '0.01';
+
 require DynaLoader;
 use base 'DynaLoader';
 bootstrap SDLx::Tween;

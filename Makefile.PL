@@ -5,7 +5,10 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME              => 'SDLx::Tween',
     VERSION_FROM      => 'lib/SDLx/Tween.pm', # finds $VERSION
-    PREREQ_PM         => {}, # e.g., Module::Name => 1.1
+    PREREQ_PM         => {
+        'XS::Object::Magic' => 0.04,
+        'SDL'               => 2.533,
+    }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/SDLx/Tween.pm', # retrieve abstract from module
        AUTHOR         => 'Ran Eilam <eilara@cpan.org>') : ()),
