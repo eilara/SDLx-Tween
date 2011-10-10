@@ -133,31 +133,7 @@ double ease_in_out_bounce(double t) {
 void* path_linear_1D_build(SV* path_args) {
     SDLx__Tween__Path__Linear1D this = safemalloc(sizeof(sdl_tween_path_linear_1D));
     if(this == NULL) { warn("unable to create new struct for path"); }
-
-    /* from and to could either be doubles or array ref of doubles */
-    HV* args     = (HV*) SvRV(path_args);
-    SV** from_sv = hv_fetch(args, "from", 4, 0);
-    SV** to_sv   = hv_fetch(args, "to"  , 2, 0);
-    SV* from_raw = *from_sv;
-    SV* to_raw   = *to_sv;
-
-    if (SvROK(from_raw) && SvTYPE(SvRV(from_raw)) == SVt_PVAV) {
-        AV* from  = (AV*) SvRV(from_raw);
-        AV* to    = (AV*) SvRV(to_raw);
-        int dim   = av_len(from) + 1;
-        this->dim = dim;
-        int i;
-        for (i = 0; i < dim; i++) {
-            SV** from_el = av_fetch(from, i, 0);
-            SV** to_el   = av_fetch(to  , i, 0);
-            this->from[i] = (double) SvNV(*from_el);
-            this->to[i]   = (double) SvNV(*to_el);
-        }
-    } else {
-        this->dim = 1;
-        this->from[0] = (double) SvNV(from_raw);
-        this->to[0]   = (double) SvNV(to_raw);
-    }
+    this->dim = extract_egde_points(path_args, this->from, this->to);
     return this;
 }
 
@@ -166,7 +142,7 @@ void path_linear_1D_free(void* thisp) {
     safefree(this);
 }
 
-int path_linear_1D_solve(void* thisp, double t, double solved[]) {
+int path_linear_1D_solve(void* thisp, double t, double solved[4]) {
     SDLx__Tween__Path__Linear1D this = (SDLx__Tween__Path__Linear1D) thisp;
     int dim  = this->dim;
     int i;
@@ -203,7 +179,7 @@ void proxy_method_free(void* thisp) {
     safefree(this);
 }
 
-void proxy_method_set(void* thisp, double solved[], int dim) {
+void proxy_method_set(void* thisp, double solved[4], int dim) {
     SDLx__Tween__Proxy__Method this = (SDLx__Tween__Proxy__Method) thisp;
     if (dim == 1) {
         SV* out;
@@ -247,4 +223,36 @@ void proxy_method_set(void* thisp, double solved[], int dim) {
         FREETMPS; LEAVE;
     }
 }
+
+/* ------------------ utils ------------------ */
+
+int extract_egde_points(SV* hash_ref, double from[4], double to[4]) {
+    int dim;
+
+    /* from and to could either be doubles or array ref of doubles */
+    HV* args     = (HV*) SvRV(hash_ref);
+    SV** from_sv = hv_fetch(args, "from", 4, 0);
+    SV** to_sv   = hv_fetch(args, "to"  , 2, 0);
+    SV* from_raw = *from_sv;
+    SV* to_raw   = *to_sv;
+
+    if (SvROK(from_raw) && SvTYPE(SvRV(from_raw)) == SVt_PVAV) {
+        AV* from_arr = (AV*) SvRV(from_raw);
+        AV* to_arr   = (AV*) SvRV(to_raw);
+        dim          = av_len(from_arr) + 1;
+        int i;
+        for (i = 0; i < dim; i++) {
+            SV** from_el = av_fetch(from_arr, i, 0);
+            SV** to_el   = av_fetch(to_arr  , i, 0);
+            from[i] = (double) SvNV(*from_el);
+            to[i]   = (double) SvNV(*to_el);
+        }
+    } else {
+        dim = 1;
+        from[0] = (double) SvNV(from_raw);
+        to[0]   = (double) SvNV(to_raw);
+    }
+    return dim;
+}
+
 

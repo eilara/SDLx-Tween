@@ -78,7 +78,7 @@ typedef sdl_tween_path_linear_1D* SDLx__Tween__Path__Linear1D;
 
 void*  path_linear_1D_build (SV* path_args);
 void   path_linear_1D_free  (void* thisp);
-int    path_linear_1D_solve (void* thisp, double t, double solved[]);
+int    path_linear_1D_solve (void* thisp, double t, double solved[4]);
 
 /* ------------------------------ proxy ------------------------------- */
 
@@ -97,5 +97,8 @@ typedef sdl_tween_proxy_method* SDLx__Tween__Proxy__Method;
 
 void*  proxy_method_build (SV* proxy_args);
 void   proxy_method_free  (void* thisp);
-void   proxy_method_set   (void* thisp, double solved[], int dim);
+void   proxy_method_set   (void* thisp, double solved[4], int dim);
 
+/* ------------------ utils ------------------ */
+
+int extract_egde_points(SV* hash_ref, double from[], double to[]);
