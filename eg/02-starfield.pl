@@ -32,7 +32,6 @@ my $i; while($i++ < $STAR_COUNT) {
         register_cb   => sub {}, # the stars start and never stop
         unregister_cb => sub {}, # so we will register for ticks ourselves
         duration      => (int(rand 10_000) + 1000),
-        from          => [320, 200],
         to            => $to,
         on            => $star,
         set           => 'xy',

@@ -108,18 +108,6 @@ double ease_swing(double t) {
     return 0.5 - 0.5 * cos(t * PI);
 }
 
-/*
-double ease_out_bounce(double t) {
-    double p = 7.5625;
-    double s = 2.75;
-    return 
-        (t < 1.0/p) ? s * pow(t, 2):
-        (t < 2.0/p) ? s * pow(t - 1.500/p, 2) + 0.75:
-        (t < 2.5/p) ? s * pow(t - 2.250/p, 2) + 0.9375:
-                      s * pow(t - 2.625/p, 2) + 0.984375;
-}
-*/
-
 double ease_out_bounce(double t) {
     if(t < 4/11.0)
 	{

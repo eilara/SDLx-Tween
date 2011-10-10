@@ -55,6 +55,21 @@ sub new {
         }
     }
 
+    if ($path == 0) {                  # paths that need "from" get sugar
+        if ($proxy == 0) {             # for proxies that can get "from"
+            if (!exists($args{from})) { # if "from" not given
+                if (
+                    !$path_args ||
+                    ($path_args && !exists($path_args->{from}))
+                ) {
+                    my $method = $proxy_args->{method};
+                    my $from = $proxy_args->{target}->$method;
+                    ($path_args || \%args)->{from} = $from;
+                }
+            }
+        }
+    }
+
     # you must provide path_args or from+to in args for linear paths,
     if (!$path_args && $path == 0) {
         die 'No from/to given' unless exists($args{from}) && exists ($args{to});
