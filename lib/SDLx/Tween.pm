@@ -55,13 +55,14 @@ sub new {
         }
     }
 
-    if ($path == 0) {                  # paths that need "from" get sugar
-        if ($proxy == 0) {             # for proxies that can get "from"
-            if (!exists($args{from})) { # if "from" not given
-                if (
+    if ($path == 0) {                   # paths that need "from" get sugar
+        if ($proxy == 0) {              # for proxies that can get "from"
+            if (!exists($args{from})) { # if "from" not given then
+                if (                    # you don't need to provide it!
                     !$path_args ||
                     ($path_args && !exists($path_args->{from}))
                 ) {
+                    # get "from" from proxy and put in args
                     my $method = $proxy_args->{method};
                     my $from = $proxy_args->{target}->$method;
                     ($path_args || \%args)->{from} = $from;
