@@ -124,8 +124,8 @@ double ease_in_bounce(double t) {
 
 double ease_in_out_bounce(double t) {
     return
-        t < 0.5?  in_bounce(2.0 * t    ) / 2.0:
-                 out_bounce(2.0 * t - 1) / 2.0 + 0.5;
+        t < 0.5?  ease_in_bounce(2.0 * t      ) / 2.0:
+                 ease_out_bounce(2.0 * t - 1.0) / 2.0 + 0.5;
 }
 
 /* ------------------ path ------------------ */

@@ -43,15 +43,6 @@ sub new {
     my $path_args  = $args{path_args};
     my $proxy_args = $args{proxy_args};
 
-    # you must provide path_args or from+to in args for linear paths,
-    if (!$path_args && $path == 0) {
-        die 'No from/to given' unless exists($args{from}) && exists ($args{to});
-        $path_args  = {
-            from => $args{from},
-            to   => $args{to},
-        };
-    }
-
     if (!$proxy_args) {
         if ($proxy == 0) {
             die 'No set/on given' unless exists($args{set}) && exists ($args{on});
@@ -62,7 +53,16 @@ sub new {
         }
     }
 
-    $proxy_args->{round} = $args{round} || 0;
+    # you must provide path_args or from+to in args for linear paths,
+    if (!$path_args && $path == 0) {
+        die 'No from/to given' unless exists($args{from}) && exists ($args{to});
+        $path_args  = {
+            from => $args{from},
+            to   => $args{to},
+        };
+    }
+
+   $proxy_args->{round} = $args{round} || 0;
 
     my $register_cb   = $args{register_cb}   || die 'No register_cb given';
     my $unregister_cb = $args{unregister_cb} || die 'No unregister_cb given';
