@@ -14,7 +14,7 @@ use SDL::Events;
 use SDLx::App;
 use SDLx::Tween;
 
-my $STAR_COUNT = 3000;
+my $STAR_COUNT = 2500;
 
 my $app = SDLx::App->new(
     title  => 'Starfield',
