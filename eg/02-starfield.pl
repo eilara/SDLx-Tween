@@ -14,7 +14,7 @@ use SDL::Events;
 use SDLx::App;
 use SDLx::Tween;
 
-my $STAR_COUNT = 2000;
+my $STAR_COUNT = 3000;
 
 my $app = SDLx::App->new(
     title  => 'Starfield',
@@ -29,8 +29,8 @@ my $i; while($i++ < $STAR_COUNT) {
     my $to    = [cos($theta)*640 + 320, sin($theta)*480 + 240];
     my $star  = SDLx::Tween::eg_02::Star->new;
     my $tween = SDLx::Tween->new(
-        register_cb   => sub {},
-        unregister_cb => sub {},
+        register_cb   => sub {}, # the stars start and never stop
+        unregister_cb => sub {}, # so we will register for ticks ourselves
         duration      => (int(rand 10_000) + 1000),
         from          => [320, 200],
         to            => $to,
@@ -50,7 +50,7 @@ my $move_handler  = sub {
 my $show_handler  = sub {
     $app->draw_rect(undef, 0x000000FF);
     for my $star (@stars) {
-        $app->draw_rect([@{$star->xy}, 1, 1], 0xFFFFFFFF);
+        $app->draw_rect([@{$star->{xy}}, 1, 1], 0xFFFFFFFF);
     }
     $app->update;
 };
