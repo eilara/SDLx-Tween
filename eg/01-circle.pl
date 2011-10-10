@@ -24,7 +24,7 @@ my $app = SDLx::App->new(
 my $tween = SDLx::Tween->new(
     register_cb   => sub { register(@_) },
     unregister_cb => sub { unregister(@_) },
-    duration      => 2_000,
+    duration      => 4_000,
     from          => 0,
     to            => 200,
     on            => $circle,
@@ -32,7 +32,7 @@ my $tween = SDLx::Tween->new(
     round         => 1,
     bounce        => 1,
     forever       => 1,
-    ease          => 'swing',
+    ease          => 'in_out_bounce',
 );
 
 my $move_handler  = sub { $tween->tick(SDL::get_ticks) };

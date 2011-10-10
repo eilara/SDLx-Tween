@@ -108,14 +108,35 @@ double ease_swing(double t) {
     return 0.5 - 0.5 * cos(t * PI);
 }
 
+/*
 double ease_out_bounce(double t) {
     double p = 7.5625;
     double s = 2.75;
     return 
-        t < 1.0/p ? s * pow(t, 2.0):
-        t < 2.0/p ? s * pow(t - 1.500/p, 2.0) + 0.75:
-        t < 2.5/p ? s * pow(t - 2.250/p, 2.0) + 0.9375:
-                    s * pow(t - 2.625/p, 2.0) + 0.984375;
+        (t < 1.0/p) ? s * pow(t, 2):
+        (t < 2.0/p) ? s * pow(t - 1.500/p, 2) + 0.75:
+        (t < 2.5/p) ? s * pow(t - 2.250/p, 2) + 0.9375:
+                      s * pow(t - 2.625/p, 2) + 0.984375;
+}
+*/
+
+double ease_out_bounce(double t) {
+    if(t < 4/11.0)
+	{
+		return (121 * t * t)/16.0;
+	}
+	else if(t < 8/11.0)
+	{
+		return (363/40.0 * t * t) - (99/10.0 * t) + 17/5.0;
+	}
+	else if(t < 9/10.0)
+	{
+		return (4356/361.0 * t * t) - (35442/1805.0 * t) + 16061/1805.0;
+	}
+	else
+	{
+		return (54/5.0 * t * t) - (513/25.0 * t) + 268/25.0;
+	}
 }
 
 double ease_in_bounce(double t) {
