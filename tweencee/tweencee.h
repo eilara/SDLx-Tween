@@ -75,7 +75,7 @@ int    path_linear_1D_solve (void* thisp, double t, double solved[4]);
 
 /* ------------------------------ proxy ------------------------------- */
 
-/* in = double, out = call method with distinct int */
+/* in = double, out = call method with double or distinct int if round is on */
 typedef struct sdl_tween_proxy_method {
 
     SV*    target;

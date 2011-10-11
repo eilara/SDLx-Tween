@@ -1,8 +1,14 @@
 #!/usr/bin/perl
 
 package SDLx::Tween::eg_02::Star;
-use Moose;
-has xy => (is => 'rw', default => sub{ [320, 200] });
+
+sub new {
+    my $class = shift;
+    my $self = bless [[320, 200], undef, undef], $class;
+    return $self;
+}
+
+sub xy { $_[0]->[0] = $_[1] }
 
 package main;
 use strict;
@@ -14,7 +20,7 @@ use SDL::Events;
 use SDLx::App;
 use SDLx::Tween;
 
-my $STAR_COUNT = 2500;
+my $STAR_COUNT = 3000;
 
 my $app = SDLx::App->new(
     title  => 'Starfield',
@@ -22,7 +28,7 @@ my $app = SDLx::App->new(
     height => 480,
 );
 
-my (@tweens, @stars);
+my ($first_star, $prev_star, @tweens);
 
 my $i; while($i++ < $STAR_COUNT) {
     my $theta = rand(2 * pi);
@@ -31,26 +37,31 @@ my $i; while($i++ < $STAR_COUNT) {
     my $tween = SDLx::Tween->new(
         register_cb   => sub {}, # the stars start and never stop
         unregister_cb => sub {}, # so we will register for ticks ourselves
-        duration      => (int(rand 10_000) + 1000),
+        duration      => (int(rand 7_000) + 1000),
+        from          => [320, 200],
         to            => $to,
         on            => $star,
         set           => 'xy',
         forever       => 1,
-        ease          => 'in_out_bounce',
+        ease          => 'p5_in',
     );
+    $star->[1] = $tween;
+
+    if ($first_star) { $prev_star->[2] = $star }
+    else             { $first_star = $star }
+    
+    $prev_star = $star;
     push @tweens, $tween;
-    push @stars, $star;
 }
 
-my $move_handler  = sub {
-    my $ticks = SDL::get_ticks;
-    $_->tick($ticks) for @tweens;
-};
-
 my $show_handler  = sub {
+    my $ticks = SDL::get_ticks;
+    my $star = $first_star;
     $app->draw_rect(undef, 0x000000FF);
-    for my $star (@stars) {
-        $app->draw_rect([@{$star->{xy}}, 1, 1], 0xFFFFFFFF);
+    while ($star) {
+        $star->[1]->tick($ticks);
+        $app->draw_rect([@{$star->[0]}, 1, 1], 0xFFFFFFFF);
+        $star = $star->[2];
     }
     $app->update;
 };
@@ -59,7 +70,6 @@ my $event_handler = sub { my $e = shift; $_[0]->stop if ( $e->type == SDL_QUIT )
 
 $app->add_event_handler($event_handler);
 $app->add_show_handler($show_handler);
-$app->add_move_handler($move_handler);
 
 $_->start for @tweens;
 
