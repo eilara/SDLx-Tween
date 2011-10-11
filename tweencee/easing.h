@@ -13,11 +13,7 @@
 #ifndef AH_EASING_H
 #define AH_EASING_H
 
-#ifdef AH_EASING_USE_DBL_PRECIS
 #define AHFloat double
-#else
-#define AHFloat float
-#endif
 
 typedef AHFloat (*AHEasingFunction)(AHFloat);
 

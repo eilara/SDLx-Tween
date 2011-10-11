@@ -98,45 +98,6 @@ void tick(SV* self, SDLx__Tween this, Uint32 now) {
     this->last_cycle_complete_time = 0;
 }
 
-/* ------------------ easing functions ----------------- */
-
-double ease_linear(double t) {
-    return t;
-}
-
-double ease_swing(double t) {
-    return 0.5 - 0.5 * cos(t * PI);
-}
-
-double ease_out_bounce(double t) {
-    if(t < 4/11.0)
-	{
-		return (121 * t * t)/16.0;
-	}
-	else if(t < 8/11.0)
-	{
-		return (363/40.0 * t * t) - (99/10.0 * t) + 17/5.0;
-	}
-	else if(t < 9/10.0)
-	{
-		return (4356/361.0 * t * t) - (35442/1805.0 * t) + 16061/1805.0;
-	}
-	else
-	{
-		return (54/5.0 * t * t) - (513/25.0 * t) + 268/25.0;
-	}
-}
-
-double ease_in_bounce(double t) {
-    return 1 - ease_out_bounce(1.0 - t);
-}
-
-double ease_in_out_bounce(double t) {
-    return
-        t < 0.5?  ease_in_bounce(2.0 * t      ) / 2.0:
-                 ease_out_bounce(2.0 * t - 1.0) / 2.0 + 0.5;
-}
-
 /* ------------------ path ------------------ */
 
 void* path_linear_1D_build(SV* path_args) {

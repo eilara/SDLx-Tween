@@ -2,6 +2,7 @@
 #include "perl.h"
 #include "XSUB.h"
 #include "SDL/SDL.h"
+#include "easing.h"
 
 /* all times duration deltas in ticks (1ms)
  *
@@ -55,14 +56,6 @@ typedef struct sdl_tween {
 } sdl_tween;
 
 typedef sdl_tween* SDLx__Tween;
-
-/* ------------------------------ easing ----------------------------- */
-
-double ease_linear        (double t);
-double ease_swing         (double t);
-double ease_out_bounce    (double t);
-double ease_in_bounce     (double t);
-double ease_in_out_bounce (double t);
 
 /* ------------------------------ path ------------------------------- */
 

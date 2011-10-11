@@ -36,6 +36,7 @@ my $i; while($i++ < $STAR_COUNT) {
         on            => $star,
         set           => 'xy',
         forever       => 1,
+        ease          => 'in_out_bounce',
     );
     push @tweens, $tween;
     push @stars, $star;

@@ -32,7 +32,7 @@ my $tween = SDLx::Tween->new(
     round         => 1,
     bounce        => 1,
     forever       => 1,
-    ease          => 'in_out_bounce',
+    ease          => 'p3_in_out',
 );
 
 my $move_handler  = sub { $tween->tick(SDL::get_ticks) };

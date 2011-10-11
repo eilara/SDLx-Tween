@@ -8,12 +8,38 @@
 
 /* ------------------------------ easing ----------------------------- */
 
-static double (*ease_table[5]) (double) = {
-    ease_linear,
-    ease_swing,
-    ease_out_bounce,
-    ease_in_bounce,
-    ease_in_out_bounce,
+static double (*ease_table[31]) (double) = {
+    LinearInterpolation,
+    QuadraticEaseIn,
+    QuadraticEaseOut,
+    QuadraticEaseInOut,
+    CubicEaseIn,
+    CubicEaseOut,
+    CubicEaseInOut,
+    QuarticEaseIn,
+    QuarticEaseOut,
+    QuarticEaseInOut,
+    QuinticEaseIn,
+    QuinticEaseOut,
+    QuinticEaseInOut,
+    SineEaseIn,
+    SineEaseOut,
+    SineEaseInOut,
+    CircularEaseIn,
+    CircularEaseOut,
+    CircularEaseInOut,
+    ExponentialEaseIn,
+    ExponentialEaseOut,
+    ExponentialEaseInOut,
+    ElasticEaseIn,
+    ElasticEaseOut,
+    ElasticEaseInOut,
+    BackEaseIn,
+    BackEaseOut,
+    BackEaseInOut,
+    BounceEaseIn,
+    BounceEaseOut,
+    BounceEaseInOut
 };
 
 /* ------------------------------ path ------------------------------- */
