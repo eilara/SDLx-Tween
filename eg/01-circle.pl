@@ -25,7 +25,6 @@ my $tween = SDLx::Tween->new(
     register_cb   => sub { register(@_) },
     unregister_cb => sub { unregister(@_) },
     duration      => 4_000,
-    from          => 0,
     to            => 200,
     on            => $circle,
     set           => 'radius',

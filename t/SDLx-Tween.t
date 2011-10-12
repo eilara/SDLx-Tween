@@ -53,8 +53,6 @@ ok(!$iut->is_active, 'cycle complete');
 my $circle = SDLx::Tween::tests::Circle->new(position => [100, 200]);
 
 my $iut = SDLx::Tween->new(
-    register_cb   => sub {},
-    unregister_cb => sub {},
     duration      => 10_000,
     from          => [100, 200],
     to            => [200, 400],

@@ -62,7 +62,7 @@ sub new {
         } elsif ($proxy == 1) {
             die 'No "on" given' unless exists $args{on};
             # make sure they are all floats not ints
-            # is there no better way?! SvNOK_on seems to fail
+            # is there no better way?! SvNOK_on seems to fail need to replace scalar?
             for (@{$args{on}}) { $_ += 0.000000000001 }
             $proxy_args  = {on => $args{on}};
         }
