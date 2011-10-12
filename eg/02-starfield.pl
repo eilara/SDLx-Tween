@@ -20,7 +20,7 @@ use SDL::Events;
 use SDLx::App;
 use SDLx::Tween;
 
-my $STAR_COUNT = 3000;
+my $STAR_COUNT = 4000;
 
 my $app = SDLx::App->new(
     title  => 'Starfield',
@@ -40,10 +40,10 @@ my $i; while($i++ < $STAR_COUNT) {
         duration      => (int(rand 7_000) + 1000),
         from          => [320, 200],
         to            => $to,
-        on            => $star,
-        set           => 'xy',
+        on            => $star->[0],
         forever       => 1,
-        ease          => 'p5_in',
+        ease          => 'p2_in',
+        proxy         => 'array',
     );
     $star->[1] = $tween;
 

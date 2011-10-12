@@ -36,6 +36,7 @@ do { my $i = 0; %Path_Lookup = map { $_ => $i++ } qw(
 my %Proxy_Lookup;
 do { my $i = 0; %Proxy_Lookup = map { $_ => $i++ } qw(
     method
+    array
 )};
 
 # TODO
@@ -53,11 +54,17 @@ sub new {
 
     if (!$proxy_args) {
         if ($proxy == 0) {
-            die 'No set/on given' unless exists($args{set}) && exists ($args{on});
+            die 'No "set"/"on" given' unless exists($args{set}) && exists ($args{on});
             $proxy_args  = {
                 target => $args{on},
                 method => $args{set},
             };
+        } elsif ($proxy == 1) {
+            die 'No "on" given' unless exists $args{on};
+            # make sure they are all floats not ints
+            # is there no better way?!
+            for (@{$args{on}}) { $_ += 0.000000000001 }
+            $proxy_args  = {on => $args{on}};
         }
     }
 
@@ -86,7 +93,7 @@ sub new {
         };
     }
 
-   $proxy_args->{round} = $args{round} || 0;
+    $proxy_args->{round} = $args{round} || 0;
 
     my $register_cb   = $args{register_cb}   || die 'No register_cb given';
     my $unregister_cb = $args{unregister_cb} || die 'No unregister_cb given';

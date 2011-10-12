@@ -124,6 +124,8 @@ int path_linear_1D_solve(void* thisp, double t, double solved[4]) {
 
 /* ------------------ proxy ----------------- */
 
+/* method proxy */
+
 void* proxy_method_build(SV* proxy_args) {
     SDLx__Tween__Proxy__Method this = safemalloc(sizeof(sdl_tween_proxy_method));
     if(this == NULL) { warn("unable to create new struct for proxy"); }
@@ -191,6 +193,36 @@ void proxy_method_set(void* thisp, double solved[4], int dim) {
         call_method(this->method, G_DISCARD);
 
         FREETMPS; LEAVE;
+    }
+}
+
+/* array proxy */
+
+void* proxy_array_build(SV* proxy_args) {
+    SDLx__Tween__Proxy__Array this = safemalloc(sizeof(sdl_tween_proxy_array));
+    if(this == NULL) { warn("unable to create new struct for proxy"); }
+    HV* args   = (HV*) SvRV(proxy_args);
+    SV** on_sv = hv_fetch(args, "on", 2, 0);
+    SV* on_raw = *on_sv;
+    this->on   = (AV*) SvRV(on_raw);
+    SvREFCNT_inc(on_raw);
+
+    return this;
+}
+
+void proxy_array_free(void* thisp) {
+    SDLx__Tween__Proxy__Array this = (SDLx__Tween__Proxy__Array) thisp;
+    SvREFCNT_dec(this->on);
+    safefree(this);
+}
+
+void proxy_array_set(void* thisp, double solved[4], int dim) {
+    SDLx__Tween__Proxy__Array this = (SDLx__Tween__Proxy__Array) thisp;
+    AV* on = this->on;
+    int i;
+    for (i = 0; i < dim; i++) {
+        SV** val_sv = av_fetch(on, i, 0);
+        SvNV_set(*val_sv, (int) solved[i]);
     }
 }
 

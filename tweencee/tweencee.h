@@ -92,6 +92,20 @@ void*  proxy_method_build (SV* proxy_args);
 void   proxy_method_free  (void* thisp);
 void   proxy_method_set   (void* thisp, double solved[4], int dim);
 
+
+/* in = double, out = set in array ref as double, no rounding */
+typedef struct sdl_tween_proxy_array {
+
+    AV*    on;
+
+} sdl_tween_proxy_array;
+
+typedef sdl_tween_proxy_array* SDLx__Tween__Proxy__Array;
+
+void*  proxy_array_build (SV* proxy_args);
+void   proxy_array_free  (void* thisp);
+void   proxy_array_set   (void* thisp, double solved[4], int dim);
+
 /* ------------------ utils ------------------ */
 
 int extract_egde_points(SV* hash_ref, double from[], double to[]);
