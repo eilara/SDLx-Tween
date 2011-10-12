@@ -204,8 +204,19 @@ void* proxy_array_build(SV* proxy_args) {
     HV* args   = (HV*) SvRV(proxy_args);
     SV** on_sv = hv_fetch(args, "on", 2, 0);
     SV* on_raw = *on_sv;
-    this->on   = (AV*) SvRV(on_raw);
-    SvREFCNT_inc(on_raw);
+    AV* on     = (AV*) SvRV(on_raw);
+    this->on   = on;
+    SvREFCNT_inc(on);
+
+    /* make sure all svs are floats not ints */
+    /* why dont it do anything? 
+    int i;
+    int dim = av_len(on) + 1;
+    for (i = 0; i < dim; i++) {
+        SV** val_sv = av_fetch(on, i, 0);
+        SvNOK_on(*val_sv);
+    }
+    */
 
     return this;
 }
