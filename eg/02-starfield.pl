@@ -8,8 +8,6 @@ sub new {
     return $self;
 }
 
-sub xy { $_[0]->[0] = $_[1] }
-
 package main;
 use strict;
 use warnings;
@@ -35,8 +33,6 @@ my $i; while($i++ < $STAR_COUNT) {
     my $to    = [cos($theta)*640 + 320, sin($theta)*480 + 240];
     my $star  = SDLx::Tween::eg_02::Star->new;
     my $tween = SDLx::Tween->new(
-        register_cb   => sub {}, # the stars start and never stop
-        unregister_cb => sub {}, # so we will register for ticks ourselves
         duration      => (int(rand 7_000) + 1000),
         from          => [320, 200],
         to            => $to,
