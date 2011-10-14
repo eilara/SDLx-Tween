@@ -38,7 +38,7 @@ my $i; while($i++ < $STAR_COUNT) {
         to            => $to,
         on            => $star->[0],
         forever       => 1,
-        ease          => 'p4_in',
+        ease          => 'exponential_in',
         proxy         => 'array',
     );
     $star->[1] = $tween;

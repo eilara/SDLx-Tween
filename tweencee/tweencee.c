@@ -233,7 +233,11 @@ void proxy_array_set(void* thisp, double solved[4], int dim) {
     int i;
     for (i = 0; i < dim; i++) {
         SV** val_sv = av_fetch(on, i, 0);
-        SvNV_set(*val_sv, (int) solved[i]);
+//    printf("--solved---%e---\n", solved[i]);
+        SvNV_set(*val_sv, solved[i]);
+//        printf("-----------v=%e---\n",(double) SvNV(*val_sv));
+//        SvREFCNT_inc(*val_sv);
+//        av_store(on, i, *val_sv);
     }
 }
 

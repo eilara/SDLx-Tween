@@ -13,20 +13,25 @@ require DynaLoader;
 use base 'DynaLoader';
 bootstrap SDLx::Tween;
 
-my %Ease_Lookup;
-do { my $i = 0; %Ease_Lookup = map { $_ => $i++ } qw(
-    linear
-    p2_in p2_out p2_in_out
-    p3_in p3_out p3_in_out
-    p4_in p4_out p4_in_out
-    p5_in p5_out p5_in_out
-    sine_in sine_out sine_in_out
-    circular_in circular_out circular_in_out
-    exponential_in exponential_out exponential_in_out
-    elastic_in elastic_out elastic_in_out
-    back_in back_out back_in_out
-    bounce_in bounce_out bounce_in_out
-)};
+my (@Ease_Names, %Ease_Lookup);
+{
+    @Ease_Names = qw(
+        linear
+        p2_in p2_out p2_in_out
+        p3_in p3_out p3_in_out
+        p4_in p4_out p4_in_out
+        p5_in p5_out p5_in_out
+        sine_in sine_out sine_in_out
+        circular_in circular_out circular_in_out
+        exponential_in exponential_out exponential_in_out
+        elastic_in elastic_out elastic_in_out
+        back_in back_out back_in_out
+        bounce_in bounce_out bounce_in_out
+    );
+    my $i = 0; %Ease_Lookup = map { $_ => $i++ } @Ease_Names;
+}
+
+sub Ease_Names { @Ease_Names }
 
 my %Path_Lookup;
 do { my $i = 0; %Path_Lookup = map { $_ => $i++ } qw(
