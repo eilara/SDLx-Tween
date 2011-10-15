@@ -36,6 +36,7 @@ sub Ease_Names { @Ease_Names }
 my %Path_Lookup;
 do { my $i = 0; %Path_Lookup = map { $_ => $i++ } qw(
     linear
+    sine
 )};
 
 my %Proxy_Lookup;
@@ -69,11 +70,11 @@ sub new {
             # make sure they are all floats not ints
             # is there no better way?! SvNOK_on seems to fail need to replace scalar?
             for (@{$args{on}}) { $_ += 0.000000000001 }
-            $proxy_args  = {on => $args{on}};
+            $proxy_args = {on => $args{on}};
         }
     }
 
-    if ($path == 0) {                   # paths that need "from" get sugar
+    if ($path < 2) {                    # paths that need "from" get sugar
         if ($proxy == 0) {              # for proxies that can get "from"
             if (!exists($args{from})) { # if "from" not given then
                 if (                    # you don't need to provide it!
@@ -89,13 +90,17 @@ sub new {
         }
     }
 
-    # you must provide path_args or from+to in args for linear paths,
-    if (!$path_args && $path == 0) {
+    # you must provide path_args or from+to in args for some paths
+    if (!$path_args && $path < 2) {
         die 'No from/to given' unless exists($args{from}) && exists ($args{to});
         $path_args  = {
             from => $args{from},
             to   => $args{to},
         };
+    }
+    if ($path < 2 && !exists($path_args->{to})) {
+        die 'No "to" given' unless exists $args{to};
+        $path_args->{to} = $args{to};
     }
 
     $proxy_args->{round} = $args{round} || 0;
@@ -104,7 +109,16 @@ sub new {
     my $unregister_cb = $args{unregister_cb} || sub {};
     my $duration      = $args{duration}      || die 'No positive duration given';
 
-    $self->build_struct(
+    # non linear paths only in 2D
+    if ($path != 0) {
+        # find dim
+        my $dim = $path_args && exists($path_args->{from})? @{$path_args->{from}}:
+                  $proxy == 1                             ? @{$proxy_args->{on}}:
+                  die "Unknown dimension for tween";
+        die "Non-linear paths can only do 2D" unless $dim == 2;
+    }
+
+    my @args = (
 
         $register_cb, $unregister_cb, $duration,
 
@@ -116,6 +130,7 @@ sub new {
         $path, $path_args,
         $proxy, $proxy_args,
     );
+    $self->build_struct(@args);
     return $self;
 }
 

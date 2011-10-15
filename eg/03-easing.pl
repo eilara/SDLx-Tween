@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package SDLx::Tween::eg_01::Circle;
+package SDLx::Tween::eg_03::Circle;
 
 use Moose;
 use SDLx::Text;
@@ -54,7 +54,7 @@ my $w          = 800;
 my $h          = 590;
 my $radius     = ($h - (@names + 1)) / (2 * scalar(@names));
 my $col_1      = 135;
-my $col_2      = 18;
+my $col_2      = $col_1 + 18 + 1;
 my $bg_color   = 0xF3F3F3FF;
 my $grid_color = 0x999999FF;
 my $ball_color = 0x000000FF;
@@ -71,7 +71,7 @@ my $active_tweens = Set::Object->new;
 my $i = 0;
 for my $ease (@names) {
     my $y = 2 * $i * $radius + $radius + 1 + $i;
-    my $circle = SDLx::Tween::eg_01::Circle->new(
+    my $circle = SDLx::Tween::eg_03::Circle->new(
         radius     => $radius,
         position   => [$radius + $col_1, $y],
         ball_color => $ball_color,
@@ -80,7 +80,7 @@ for my $ease (@names) {
     my $tween = SDLx::Tween->new(
         register_cb   => sub { $active_tweens->insert(shift) },
         unregister_cb => sub { $active_tweens->remove(shift) },
-        duration      => 4_000,
+        duration      => 6_000,
         to            => [$w - $radius, $y],
         on            => $circle,
         set           => 'position',
@@ -102,7 +102,7 @@ my $chart = SDLx::Sprite->new(
 my $show_handler  = sub {
     $app->draw_rect(undef, $bg_color);
     $app->draw_line([$col_1, 0], [$col_1, $h], $grid_color);
-    $app->draw_line([$col_1 + $col_2 + 1, 0], [$col_1 + $col_2 + 1, $h], $grid_color);
+    $app->draw_line([$col_2, 0], [$col_2, $h], $grid_color);
     for my $i (0..(@names - 1)) {
         my $y = 2 * $radius * $i + $i;
         $app->draw_line([0, $y], [$w, $y], $grid_color);

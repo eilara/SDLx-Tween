@@ -45,7 +45,8 @@ static double (*ease_table[31]) (double) = {
 /* ------------------------------ path ------------------------------- */
 
 #define PATH_FUNCS(kind) \
-    path_linear_1D_##kind
+    path_linear_##kind,  \
+    path_sine_##kind
 
 static void* (*path_build_table[5]) (SV*) = {
     PATH_FUNCS(build)

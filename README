@@ -7,6 +7,31 @@ Will be an XS tween engine in for SDL Perl.
 
 Only built on Linux so far.
 
+TODO
+
+    - paths
+        * more paths
+        * polyline path
+    - dynamic params
+    - delay before/after tween
+    - timeline control
+        * pause/resume
+        * ffw/rewind/seek
+        * sequence/parallel
+    - callback proxy
+    - custom tweens
+        * color/brightness/opacity
+        * rotation
+        * position - with distinct int optimization in 2D
+    - tween manager
+        * auto connects tween to SDL controller    
+        * weak set of tweens
+    - docs
+    - demos
+        * paths
+    - API
+        * validation should be in validation classes to get rid of all those ifs in constructor    
+
 INSTALLATION
 
 To install this module type the following:

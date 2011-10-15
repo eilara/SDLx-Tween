@@ -100,26 +100,66 @@ void tick(SV* self, SDLx__Tween this, Uint32 now) {
 
 /* ------------------ path ------------------ */
 
-void* path_linear_1D_build(SV* path_args) {
-    SDLx__Tween__Path__Linear1D this = safemalloc(sizeof(sdl_tween_path_linear_1D));
+/* linear path */
+
+void* path_linear_build(SV* path_args) {
+    SDLx__Tween__Path__Linear this = safemalloc(sizeof(sdl_tween_path_linear));
     if(this == NULL) { warn("unable to create new struct for path"); }
     this->dim = extract_egde_points(path_args, this->from, this->to);
     return this;
 }
 
-void path_linear_1D_free(void* thisp) {
-    SDLx__Tween__Path__Linear1D this = (SDLx__Tween__Path__Linear1D) thisp;
+void path_linear_free(void* thisp) {
+    SDLx__Tween__Path__Linear this = (SDLx__Tween__Path__Linear) thisp;
     safefree(this);
 }
 
-int path_linear_1D_solve(void* thisp, double t, double solved[4]) {
-    SDLx__Tween__Path__Linear1D this = (SDLx__Tween__Path__Linear1D) thisp;
+int path_linear_solve(void* thisp, double t, double solved[4]) {
+    SDLx__Tween__Path__Linear this = (SDLx__Tween__Path__Linear) thisp;
     int dim  = this->dim;
     int i;
     for (i = 0; i < dim; i++) {
         solved[i] = LERP(t, this->from[i], this->to[i]);
     }
     return dim;
+}
+
+/* sine path */
+
+void* path_sine_build(SV* path_args) {
+    SDLx__Tween__Path__Sine this = safemalloc(sizeof(sdl_tween_path_sine));
+    if(this == NULL) { warn("unable to create new struct for path"); }
+    this->dim = extract_egde_points(path_args, this->from, this->to);
+
+    HV* args     = (HV*) SvRV(path_args);
+    SV** amp_sv  = hv_fetch(args, "amp" , 3, 0);
+    SV** freq_sv = hv_fetch(args, "freq", 4, 0);
+    this->amp    = (double) SvNV(*amp_sv);
+    this->freq   = 2 * PI * ((double) SvNV(*freq_sv));
+
+    double n0 = this->from[1] - this->to[1];
+    double n1 = this->to[0] - this->from[0];
+    if (n0== 0 && n1 == 0) { n1 = 1; }
+    double len = sqrt(n0 * n0 + n1 * n1);
+    this->normal[0] = n0 / len;
+    this->normal[1] = n1 / len;
+    return this;
+}
+
+void path_sine_free(void* thisp) {
+    SDLx__Tween__Path__Sine this = (SDLx__Tween__Path__Sine) thisp;
+    safefree(this);
+}
+
+int path_sine_solve(void* thisp, double t, double solved[4]) {
+    SDLx__Tween__Path__Sine this = (SDLx__Tween__Path__Sine) thisp;
+    double n0   = this->to[0] - this->from[0];
+    double n1   = this->to[1] - this->from[1];
+    double sine = sin(t * this->freq) * this->amp;
+    solved[0]   = this->from[0] + t * n0 + sine * this->normal[0];
+    solved[1]   = this->from[1] + t * n1 + sine * this->normal[1];
+
+    return this->dim;
 }
 
 /* ------------------ proxy ----------------- */
@@ -233,11 +273,7 @@ void proxy_array_set(void* thisp, double solved[4], int dim) {
     int i;
     for (i = 0; i < dim; i++) {
         SV** val_sv = av_fetch(on, i, 0);
-//    printf("--solved---%e---\n", solved[i]);
         SvNV_set(*val_sv, solved[i]);
-//        printf("-----------v=%e---\n",(double) SvNV(*val_sv));
-//        SvREFCNT_inc(*val_sv);
-//        av_store(on, i, *val_sv);
     }
 }
 

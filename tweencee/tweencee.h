@@ -59,19 +59,37 @@ typedef sdl_tween* SDLx__Tween;
 
 /* ------------------------------ path ------------------------------- */
 
-typedef struct sdl_tween_path_linear_1D {
+typedef struct sdl_tween_path_linear {
 
     double  from[4];
     double  to[4];
     int     dim;
 
-} sdl_tween_path_linear_1D;
+} sdl_tween_path_linear;
 
-typedef sdl_tween_path_linear_1D* SDLx__Tween__Path__Linear1D;
+typedef sdl_tween_path_linear* SDLx__Tween__Path__Linear;
 
-void*  path_linear_1D_build (SV* path_args);
-void   path_linear_1D_free  (void* thisp);
-int    path_linear_1D_solve (void* thisp, double t, double solved[4]);
+void*  path_linear_build (SV* path_args);
+void   path_linear_free  (void* thisp);
+int    path_linear_solve (void* thisp, double t, double solved[4]);
+
+
+typedef struct sdl_tween_path_sine {
+
+    double  from[4];
+    double  to[4];
+    double  amp;
+    double  freq;
+    int     dim;
+    double  normal[2];
+
+} sdl_tween_path_sine;
+
+typedef sdl_tween_path_sine* SDLx__Tween__Path__Sine;
+
+void*  path_sine_build (SV* path_args);
+void   path_sine_free  (void* thisp);
+int    path_sine_solve (void* thisp, double t, double solved[4]);
 
 /* ------------------------------ proxy ------------------------------- */
 
