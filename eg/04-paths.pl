@@ -44,8 +44,8 @@ my $tween = SDLx::Tween->new(
     ease      => 'sine_in_out',
     path      => 'sine',
     path_args => {
-        amp  => 50,
-        freq => 3,
+        amp  => 100,
+        freq => 2,
     },
 );
 

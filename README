@@ -7,11 +7,21 @@ Will be an XS tween engine in for SDL Perl.
 
 Only built on Linux so far.
 
+EXAMPLES
+
+    01-circle.pl       - the hello world of tweening, a growing circle
+    02-starfield.pl    - demo of 4000 concurrent tweens
+    03-easing.pl       - demo of all easing functions
+
 TODO
 
     - paths
-        * more paths
+        * circular
+        * spiral
+        * bezier
         * polyline path
+    - easing
+        * stepped ease for retro shaky animations    
     - dynamic params
     - delay before/after tween
     - timeline control
@@ -23,14 +33,18 @@ TODO
         * color/brightness/opacity
         * rotation
         * position - with distinct int optimization in 2D
+        * shape tweening using lots of particles
     - tween manager
         * auto connects tween to SDL controller    
         * weak set of tweens
     - docs
     - demos
         * paths
+        * add trails to easing demo
+        * follow cursor dynamic properties
     - API
         * validation should be in validation classes to get rid of all those ifs in constructor    
+        * lifecycle events -> start,stop,complete
 
 INSTALLATION
 
@@ -57,5 +71,4 @@ Copyright (C) 2011 by Ran Eilam
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.10.1 or,
 at your option, any later version of Perl 5 you may have available.
-
 
