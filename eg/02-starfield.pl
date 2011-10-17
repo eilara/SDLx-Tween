@@ -34,7 +34,6 @@ my $i; while($i++ < $STAR_COUNT) {
     my $star  = SDLx::Tween::eg_02::Star->new;
     my $tween = SDLx::Tween->new(
         duration      => (int(rand 8_000) + 1000),
-        from          => [320, 200],
         to            => $to,
         on            => $star->[0],
         forever       => 1,

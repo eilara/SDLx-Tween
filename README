@@ -31,7 +31,9 @@ TODO
     - callback proxy
     - custom tweens
         * color/brightness/opacity
-        * rotation
+        * sprite animation
+        * spawner
+        * rotation/scaling
         * position - with distinct int optimization in 2D
         * shape tweening using lots of particles
     - tween manager

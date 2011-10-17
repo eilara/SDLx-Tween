@@ -45,8 +45,22 @@ do { my $i = 0; %Proxy_Lookup = map { $_ => $i++ } qw(
     array
 )};
 
-# TODO
-#   auto from setting
+my %Proxy_Builders = (
+    $Proxy_Lookup{method} => \&build_proxy_method,
+    $Proxy_Lookup{array}  => \&build_proxy_array,
+);
+
+my %Paths_Requiring_Edge_Value_Args = map { $Path_Lookup{$_} => 1 } qw(
+    linear
+    sine
+);
+
+my %Proxies_That_Get_Edge_Values = (
+    $Proxy_Lookup{method} => \&init_value_proxy_method,
+    $Proxy_Lookup{array}  => \&init_value_proxy_array,
+);
+
+# * 
 sub new {
     my ($class, %args) = @_;
     my $self = bless {}, $class;
@@ -55,59 +69,21 @@ sub new {
     my $path  = $Path_Lookup{  $args{path}  || 'linear' };
     my $proxy = $Proxy_Lookup{ $args{proxy} || 'method' };
 
-    my $path_args  = $args{path_args};
-    my $proxy_args = $args{proxy_args};
+    # proxy args built from top level args
+    my $proxy_args = $Proxy_Builders{$proxy}->(\%args);
+    my $path_args  = $args{path_args} || {};
 
-    if (!$proxy_args) {
-        if ($proxy == 0) {
-            die 'No "set"/"on" given' unless exists($args{set}) && exists ($args{on});
-            $proxy_args  = {
-                target => $args{on},
-                method => $args{set},
-            };
-        } elsif ($proxy == 1) {
-            die 'No "on" given' unless exists $args{on};
-            # make sure they are all floats not ints
-            # is there no better way?! SvNOK_on seems to fail need to replace scalar?
-            for (@{$args{on}}) { $_ += 0.000000000001 }
-            $proxy_args = {on => $args{on}};
+    # these paths require "from" and "to" in top level args
+    if ($Paths_Requiring_Edge_Value_Args{$path}) {
+        if (!exists($args{from})) { # auto get "from"
+            die 'Must provide explicit "from" value for this path and proxy'
+                unless $Proxies_That_Get_Edge_Values{$proxy};
+            $args{from} = $Proxies_That_Get_Edge_Values{$proxy}->($proxy_args);
         }
-    }
-
-    if ($path < 2) {                    # paths that need "from" get sugar
-        if ($proxy == 0) {              # for proxies that can get "from"
-            if (!exists($args{from})) { # if "from" not given then
-                if (                    # you don't need to provide it!
-                    !$path_args ||
-                    ($path_args && !exists($path_args->{from}))
-                ) {
-                    # get "from" from proxy and put in args
-                    my $method = $proxy_args->{method};
-                    my $from = $proxy_args->{target}->$method;
-                    ($path_args || \%args)->{from} = $from;
-                }
-            }
-        }
-    }
-
-    # you must provide path_args or from+to in args for some paths
-    if (!$path_args && $path < 2) {
         die 'No from/to given' unless exists($args{from}) && exists ($args{to});
-        $path_args  = {
-            from => $args{from},
-            to   => $args{to},
-        };
-    }
-    if ($path < 2 && !exists($path_args->{to})) {
-        die 'No "to" given' unless exists $args{to};
-        $path_args->{to} = $args{to};
-    }
-
-    $proxy_args->{round} = $args{round} || 0;
-
-    my $register_cb   = $args{register_cb}   || sub {}; 
-    my $unregister_cb = $args{unregister_cb} || sub {};
-    my $duration      = $args{duration}      || die 'No positive duration given';
+        $path_args->{from} = $args{from};
+        $path_args->{to}   = $args{to};
+    } 
 
     # non linear paths only in 2D
     if ($path != 0) {
@@ -117,6 +93,13 @@ sub new {
                   die "Unknown dimension for tween";
         die "Non-linear paths can only do 2D" unless $dim == 2;
     }
+
+  
+    $proxy_args->{round} = $args{round} || 0;
+
+    my $register_cb   = $args{register_cb}   || sub {}; 
+    my $unregister_cb = $args{unregister_cb} || sub {};
+    my $duration      = $args{duration}      || die 'No positive duration given';
 
     my @args = (
 
@@ -135,6 +118,37 @@ sub new {
 }
 
 sub DESTROY { shift->free_struct }
+
+sub build_proxy_array {
+    my $args = shift;
+    my $on = $args->{on} || die 'No "on" array given to array proxy';
+    # make sure they are all floats not ints
+    # is there no better way?! SvNOK_on seems to fail need to replace scalar?
+    for (@$on) { $_ += 0.000000000001 }
+    return {on => $on};
+}
+
+sub build_proxy_method {
+    my $args = shift;
+    die 'No "set"/"on" given' unless exists($args->{set}) && exists ($args->{on});
+    return {
+        target => $args->{on},
+        method => $args->{set},
+    };
+}
+
+sub init_value_proxy_method {
+    my $proxy_args = shift;
+    my $method = $proxy_args->{method};
+    return $proxy_args->{target}->$method;
+}
+
+sub init_value_proxy_array {
+    my $proxy_args = shift;
+    # copy the array
+    my @v = @{ $proxy_args->{on} };
+    return \@v;
+}
 
 1;
 
