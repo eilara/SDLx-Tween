@@ -5,13 +5,11 @@ use strict;
 use warnings;
 use Carp;
 use SDL;
-use XS::Object::Magic;
 
 our $VERSION = '0.01';
 
-require DynaLoader;
-use base 'DynaLoader';
-bootstrap SDLx::Tween;
+require XSLoader;
+XSLoader::load('SDLx::Tween', $VERSION);
 
 my (@Ease_Names, %Ease_Lookup);
 {
@@ -63,7 +61,6 @@ my %Proxies_That_Get_Edge_Values = (
 # * 
 sub new {
     my ($class, %args) = @_;
-    my $self = bless {}, $class;
 
     my $ease  = $Ease_Lookup{  $args{ease}  || 'linear' };
     my $path  = $Path_Lookup{  $args{path}  || 'linear' };
@@ -113,11 +110,10 @@ sub new {
         $path, $path_args,
         $proxy, $proxy_args,
     );
-    $self->build_struct(@args);
+    my $struct = new_struct(@args);
+    my $self = bless($struct, $class);
     return $self;
 }
-
-sub DESTROY { shift->free_struct }
 
 sub build_proxy_array {
     my $args = shift;

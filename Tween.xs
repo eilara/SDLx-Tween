@@ -80,15 +80,19 @@ static void (*proxy_set_table[5]) (void*, double[4], int dim) = {
 
 /* ------------------------------ tween ------------------------------- */
 
+
+
 MODULE = SDLx::Tween		PACKAGE = SDLx::Tween		PREFIX = SDLx__Tween_
 
 PROTOTYPES: DISABLE
 
 INCLUDE: const-xs.inc
 
-void
-SDLx__Tween_build_struct(self, register_cb, unregister_cb, duration, forever, repeat, bounce, ease, path, path_args, proxy, proxy_args)
-    SV*    self
+#define SELF_TO_THIS \
+    SDLx__Tween this = (SDLx__Tween) SvIV((SV*)SvRV(self))
+
+SDLx__Tween
+SDLx__Tween_new_struct(register_cb, unregister_cb, duration, forever, repeat, bounce, ease, path, path_args, proxy, proxy_args)
     SV*    register_cb
     SV*    unregister_cb
     Uint32 duration
@@ -101,8 +105,8 @@ SDLx__Tween_build_struct(self, register_cb, unregister_cb, duration, forever, re
     int    proxy
     SV*    proxy_args
     CODE:
-        SDLx__Tween this = safemalloc(sizeof(sdl_tween));
-        if(this == NULL) { warn("unable to create new struct for SDLx::Tween"); }
+        SDLx__Tween this = (SDLx__Tween) safemalloc(sizeof(sdl_tween));
+        if(this == NULL) { croak("unable to create new struct for SDLx::Tween"); }
 
         SV* register_cb_clone   = newSVsv(register_cb);
         SV* unregister_cb_clone = newSVsv(unregister_cb);
@@ -122,7 +126,7 @@ SDLx__Tween_build_struct(self, register_cb, unregister_cb, duration, forever, re
         this->proxy = this->proxy_build_func(proxy_args);
 
         build_struct(
-            self, this,
+            this,
             register_cb_clone,
             unregister_cb_clone,
             duration,
@@ -130,11 +134,14 @@ SDLx__Tween_build_struct(self, register_cb, unregister_cb, duration, forever, re
             repeat,
             bounce
         );
+        RETVAL = this;
+    OUTPUT:
+        RETVAL    
 
 void
-SDLx__Tween_free_struct(SV* self)
+SDLx__Tween_DESTROY(SV* self)
     CODE:
-        SDLx__Tween this = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ self);
+        SELF_TO_THIS;
         SvREFCNT_dec(this->unregister_cb);
         SvREFCNT_dec(this->register_cb);
         this->path_free_func(this->path);
@@ -143,7 +150,7 @@ SDLx__Tween_free_struct(SV* self)
 Uint32
 SDLx__Tween_get_cycle_start_time(SV* self)
     CODE:
-        SDLx__Tween this = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ self);
+        SELF_TO_THIS;
         RETVAL = this->cycle_start_time;
     OUTPUT:
         RETVAL
@@ -151,7 +158,7 @@ SDLx__Tween_get_cycle_start_time(SV* self)
 bool
 SDLx__Tween_is_active(SV* self)
     CODE:
-        SDLx__Tween this = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ self);
+        SELF_TO_THIS;
         RETVAL = this->is_active;
     OUTPUT:
         RETVAL
@@ -159,7 +166,7 @@ SDLx__Tween_is_active(SV* self)
 void
 SDLx__Tween_start(SV* self, ...)
     CODE:
-        SDLx__Tween this = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ self);
+        SELF_TO_THIS;
         SV* cycle_start_time_sv = ST(1);
         Uint32 cycle_start_time =
             SvIOK(cycle_start_time_sv)?
@@ -170,13 +177,13 @@ SDLx__Tween_start(SV* self, ...)
 void
 SDLx__Tween_stop(SV* self)
     CODE:
-        SDLx__Tween this = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ self);
+        SELF_TO_THIS;
         stop(self, this);
 
 void
 SDLx__Tween_tick(SV* self, Uint32 now)
     CODE:
-        SDLx__Tween this = (SDLx__Tween)xs_object_magic_get_struct_rv(aTHX_ self);
+        SELF_TO_THIS;
         tick(self, this, now);
 
 

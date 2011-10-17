@@ -11,7 +11,6 @@
 static const double PI = 2 * acos(0.0);
 
 void build_struct(
-    SV*         self,
     SDLx__Tween this,
     SV*         register_cb,
     SV*         unregister_cb,
@@ -27,8 +26,6 @@ void build_struct(
     this->repeat        = repeat;
     this->bounce        = bounce;
     this->is_active     = 0;
-
-    xs_object_magic_attach_struct(aTHX_ SvRV(self), this);
 }
 
 void start(SV* self, SDLx__Tween this, Uint32 cycle_start_time) {

@@ -7,7 +7,6 @@ WriteMakefile(
     NAME              => 'SDLx::Tween',
     VERSION_FROM      => 'lib/SDLx/Tween.pm', # finds $VERSION
     PREREQ_PM         => {
-        'XS::Object::Magic' => 0.04,
         'SDL'               => 2.533,
         'Moose'             => 2.0204,
     }, # e.g., Module::Name => 1.1

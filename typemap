@@ -1,3 +1,4 @@
 TYPEMAP
-const char *  T_PV
-Uint32        T_UV
+const char*  T_PV
+Uint32       T_UV
+SDLx__Tween  T_PTROBJ
