@@ -69,7 +69,6 @@ typedef struct sdl_tween_path_sine {
     double  to[4];
     double  amp;
     double  freq;
-    int     dim;
     double  normal[2];
 
 } sdl_tween_path_sine;
@@ -79,6 +78,22 @@ typedef sdl_tween_path_sine* SDLx__Tween__Path__Sine;
 void*  path_sine_build (SV* path_args);
 void   path_sine_free  (void* thisp);
 int    path_sine_solve (void* thisp, double t, double solved[4]);
+
+
+typedef struct sdl_tween_path_circular {
+
+    double  center[2];
+    double  radius;
+    double  begin_angle;
+    double  end_angle;
+
+} sdl_tween_path_circular;
+
+typedef sdl_tween_path_circular* SDLx__Tween__Path__Circular;
+
+void*  path_circular_build (SV* path_args);
+void   path_circular_free  (void* thisp);
+int    path_circular_solve (void* thisp, double t, double solved[4]);
 
 /* ------------------------------ proxy ------------------------------- */
 

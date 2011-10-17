@@ -19,6 +19,7 @@ use strict;
 use warnings;
 use FindBin qw($Bin);
 use lib ("$Bin/..", "$Bin/../blib/arch", "$Bin/../blib/lib");
+use Math::Trig;
 use SDL::Events;
 use SDLx::App;
 use SDLx::Tween;
@@ -36,22 +37,27 @@ my $circle = SDLx::Tween::eg_04::Circle->new(position => [100, 100]);
 
 my $tween = SDLx::Tween->new(
     duration  => 3_000,
-    to        => [700, 500],
     on        => $circle,
     set       => 'position',
     bounce    => 1,
     forever   => 1,
     ease      => 'sine_in_out',
-    path      => 'sine',
+    path      => 'circular',
     path_args => {
-        amp  => 100,
-        freq => 2,
+        center  => [400, 300],
+        radius  => 250,
+        begin   => 0,
+        end     => 2*pi,
     },
+#    path      => 'sine',
+#    path_args => {
+#        amp  => 100,
+#        freq => 2,
+#    },
 );
 
 my $show_handler  = sub {
     $app->draw_rect(undef, 0xF3F3F3FF);
-    $app->draw_line([100, 100], [700, 500], 0x999999FF);
     $circle->paint($app);
     $app->update;
 };

@@ -35,6 +35,7 @@ my %Path_Lookup;
 do { my $i = 0; %Path_Lookup = map { $_ => $i++ } qw(
     linear
     sine
+    circular
 )};
 
 my %Proxy_Lookup;
@@ -60,6 +61,9 @@ my %Paths_Requiring_Edge_Value_Args = map { $Path_Lookup{$_} => 1 } qw(
 
 # paths which do not require edge value args need to compute dim
 my %Path_Get_Dim = (
+    $Path_Lookup{linear}   => \&compute_dim_path_with_edge_values,
+    $Path_Lookup{sine}     => \&compute_dim_path_with_edge_values,
+    $Path_Lookup{circular} => \&compute_dim_path_circular,
 );
 
 sub new {
@@ -90,11 +94,8 @@ sub new {
     # non linear paths only in 2D
     if ($path != 0) {
         # get dim from "from" if we have it, if not, try to ask the path
-        my $dim_provider = $Path_Get_Dim{$path};
-        my $dim =
-            $Proxies_That_Get_Edge_Values{$proxy}?  scalar @{ $path_args->{from} }:
-            $dim_provider                        ?  $dim_provider->($path_args):
-            die 'Cannot compute dimension of tween';
+        my $dim_provider = $Path_Get_Dim{$path} || die 'Cannot compute dimension of tween';
+        my $dim = $dim_provider->($path_args);
         die "Non linear paths only work for 2D, dim=$dim" unless $dim == 2;
     }
   
@@ -119,6 +120,8 @@ sub new {
     return $self;
 }
 
+
+
 sub build_proxy_array {
     my $args = shift;
     my $on = $args->{on} || die 'No "on" array given to array proxy';
@@ -137,6 +140,8 @@ sub build_proxy_method {
     };
 }
 
+
+
 sub init_value_proxy_method {
     my $proxy_args = shift;
     my $method = $proxy_args->{method};
@@ -149,6 +154,18 @@ sub init_value_proxy_array {
     my @v = @{ $proxy_args->{on} };
     return \@v;
 }
+
+
+sub compute_dim_path_with_edge_values {
+    my $path_args = shift;
+    return scalar @{$path_args->{from}};
+}
+
+sub compute_dim_path_circular {
+    my $path_args = shift;
+    return scalar @{$path_args->{center}};
+}
+
 
 1;
 

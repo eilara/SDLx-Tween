@@ -126,7 +126,7 @@ int path_linear_solve(void* thisp, double t, double solved[4]) {
 void* path_sine_build(SV* path_args) {
     SDLx__Tween__Path__Sine this = safemalloc(sizeof(sdl_tween_path_sine));
     if(this == NULL) { warn("unable to create new struct for path"); }
-    this->dim = extract_egde_points(path_args, this->from, this->to);
+    int dim = extract_egde_points(path_args, this->from, this->to);
 
     HV* args     = (HV*) SvRV(path_args);
     SV** amp_sv  = hv_fetch(args, "amp" , 3, 0);
@@ -156,7 +156,48 @@ int path_sine_solve(void* thisp, double t, double solved[4]) {
     solved[0]   = this->from[0] + t * n0 + sine * this->normal[0];
     solved[1]   = this->from[1] + t * n1 + sine * this->normal[1];
 
-    return this->dim;
+    return 2;
+}
+
+
+/* circular path */
+
+void* path_circular_build(SV* path_args) {
+    SDLx__Tween__Path__Circular this = safemalloc(sizeof(sdl_tween_path_circular));
+    if(this == NULL) { warn("unable to create new struct for path"); }
+
+    HV* args            = (HV*) SvRV(path_args);
+    SV** center_sv      = hv_fetch(args, "center", 6, 0);
+    SV** radius_sv      = hv_fetch(args, "radius", 6, 0);
+    SV** begin_angle_sv = hv_fetch(args, "begin" , 5, 0);
+    SV** end_angle_sv   = hv_fetch(args, "end"   , 3, 0);
+    this->radius        = (double) SvNV(*radius_sv);
+    this->begin_angle   = (double) SvNV(*begin_angle_sv);
+    this->end_angle     = (double) SvNV(*end_angle_sv);
+
+    AV* center_arr      = (AV*) SvRV(*center_sv);
+    SV** x              = av_fetch(center_arr, 0, 0);
+    SV** y              = av_fetch(center_arr, 1, 0);
+    this->center[0]     = (double) SvNV(*x);
+    this->center[1]     = (double) SvNV(*y);
+
+    return this;
+}
+
+void path_circular_free(void* thisp) {
+    SDLx__Tween__Path__Circular this = (SDLx__Tween__Path__Circular) thisp;
+    safefree(this);
+}
+
+int path_circular_solve(void* thisp, double t, double solved[4]) {
+    SDLx__Tween__Path__Circular this = (SDLx__Tween__Path__Circular) thisp;
+
+    double delta = this->end_angle - this->begin_angle;
+    double angle = this->begin_angle + delta * t;
+    solved[0]    = this->center[0] + this->radius * cos(angle);
+    solved[1]    = this->center[1] + this->radius * sin(angle);
+
+    return 2;
 }
 
 /* ------------------ proxy ----------------- */
