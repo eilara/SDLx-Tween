@@ -48,17 +48,20 @@ my %Proxy_Builders = (
     $Proxy_Lookup{array}  => \&build_proxy_array,
 );
 
-my %Paths_Requiring_Edge_Value_Args = map { $Path_Lookup{$_} => 1 } qw(
-    linear
-    sine
-);
-
 my %Proxies_That_Get_Edge_Values = (
     $Proxy_Lookup{method} => \&init_value_proxy_method,
     $Proxy_Lookup{array}  => \&init_value_proxy_array,
 );
 
-# * 
+my %Paths_Requiring_Edge_Value_Args = map { $Path_Lookup{$_} => 1 } qw(
+    linear
+    sine
+);
+
+# paths which do not require edge value args need to compute dim
+my %Path_Get_Dim = (
+);
+
 sub new {
     my ($class, %args) = @_;
 
@@ -69,6 +72,8 @@ sub new {
     # proxy args built from top level args
     my $proxy_args = $Proxy_Builders{$proxy}->(\%args);
     my $path_args  = $args{path_args} || {};
+
+    $proxy_args->{round} = $args{round} || 0;
 
     # these paths require "from" and "to" in top level args
     if ($Paths_Requiring_Edge_Value_Args{$path}) {
@@ -84,16 +89,15 @@ sub new {
 
     # non linear paths only in 2D
     if ($path != 0) {
-        # find dim
-        my $dim = $path_args && exists($path_args->{from})? @{$path_args->{from}}:
-                  $proxy == 1                             ? @{$proxy_args->{on}}:
-                  die "Unknown dimension for tween";
-        die "Non-linear paths can only do 2D" unless $dim == 2;
+        # get dim from "from" if we have it, if not, try to ask the path
+        my $dim_provider = $Path_Get_Dim{$path};
+        my $dim =
+            $Proxies_That_Get_Edge_Values{$proxy}?  scalar @{ $path_args->{from} }:
+            $dim_provider                        ?  $dim_provider->($path_args):
+            die 'Cannot compute dimension of tween';
+        die "Non linear paths only work for 2D, dim=$dim" unless $dim == 2;
     }
-
   
-    $proxy_args->{round} = $args{round} || 0;
-
     my $register_cb   = $args{register_cb}   || sub {}; 
     my $unregister_cb = $args{unregister_cb} || sub {};
     my $duration      = $args{duration}      || die 'No positive duration given';

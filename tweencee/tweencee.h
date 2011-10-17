@@ -6,21 +6,10 @@
 
 /* all times duration deltas in ticks (1ms)
  *
- * TODO
  * should be using sv_setsv(SV*, SV*); to set SV* if it is already set
- * what is correct dance with stack when calling perl from xs?
- * how to use SDL.h portably?
  * check stack size instead of using SvIOK in start
- * error checking in perl
  * "Floating point division with a constant or repeated division with the same value should of course be done by multiplying with the reciprocal"
  * final and initial ticks even if stopped externally with accurate init and final values from solver
- * call a perl cb, set a hash, method call, tick cb is what?
- * each path has an output type
- * each proxy has an input type and they must match
- * e.g. circle, path linear, d=1, proxy-> int proxy rounds,distinct,calls method
- *              path out = double, proxy in  -> double 
- * mutli d, multi linear, fast set, sdl sprite you draw opt
- * should call with rv on array ref be mortalized and use freetmps?
  */
 
 /* ------------------------------ tween ------------------------------ */
