@@ -8,7 +8,7 @@
 // warning: initializer element is not constant
 // because some compilers cannot run a func here?
 // what to do? static block?
-static const double PI = 2 * acos(0.0);
+static const double PI = 2.0 * acos(0.0);
 
 void build_struct(
     SDLx__Tween this,
@@ -132,7 +132,7 @@ void* path_sine_build(SV* path_args) {
     SV** amp_sv  = hv_fetch(args, "amp" , 3, 0);
     SV** freq_sv = hv_fetch(args, "freq", 4, 0);
     this->amp    = (double) SvNV(*amp_sv);
-    this->freq   = 2 * PI * ((double) SvNV(*freq_sv));
+    this->freq   = 2.0 * PI * ((double) SvNV(*freq_sv));
 
     double n0 = this->from[1] - this->to[1];
     double n1 = this->to[0] - this->from[0];
@@ -159,7 +159,6 @@ int path_sine_solve(void* thisp, double t, double solved[4]) {
     return 2;
 }
 
-
 /* circular path */
 
 void* path_circular_build(SV* path_args) {
@@ -167,10 +166,10 @@ void* path_circular_build(SV* path_args) {
     if(this == NULL) { warn("unable to create new struct for path"); }
 
     HV* args            = (HV*) SvRV(path_args);
-    SV** center_sv      = hv_fetch(args, "center", 6, 0);
-    SV** radius_sv      = hv_fetch(args, "radius", 6, 0);
-    SV** begin_angle_sv = hv_fetch(args, "begin" , 5, 0);
-    SV** end_angle_sv   = hv_fetch(args, "end"   , 3, 0);
+    SV** center_sv      = hv_fetch(args, "center"     ,  6, 0);
+    SV** radius_sv      = hv_fetch(args, "radius"     ,  6, 0);
+    SV** begin_angle_sv = hv_fetch(args, "begin_angle", 11, 0);
+    SV** end_angle_sv   = hv_fetch(args, "end_angle"  ,  9, 0);
     this->radius        = (double) SvNV(*radius_sv);
     this->begin_angle   = (double) SvNV(*begin_angle_sv);
     this->end_angle     = (double) SvNV(*end_angle_sv);
@@ -196,6 +195,48 @@ int path_circular_solve(void* thisp, double t, double solved[4]) {
     double angle = this->begin_angle + delta * t;
     solved[0]    = this->center[0] + this->radius * cos(angle);
     solved[1]    = this->center[1] + this->radius * sin(angle);
+
+    return 2;
+}
+
+/* spiral path */
+
+void* path_spiral_build(SV* path_args) {
+    SDLx__Tween__Path__Spiral this = safemalloc(sizeof(sdl_tween_path_spiral));
+    if(this == NULL) { warn("unable to create new struct for path"); }
+
+    HV* args             = (HV*) SvRV(path_args);
+    SV** center_sv       = hv_fetch(args, "center"      ,  6, 0);
+    SV** begin_radius_sv = hv_fetch(args, "begin_radius", 12, 0);
+    SV** end_radius_sv   = hv_fetch(args, "end_radius"  , 10, 0);
+    SV** begin_angle_sv  = hv_fetch(args, "begin_angle" , 11, 0);
+    SV** rotations_sv    = hv_fetch(args, "rotations"   ,  9, 0);
+    this->begin_radius   = (double) SvNV(*begin_radius_sv);
+    this->end_radius     = (double) SvNV(*end_radius_sv);
+    this->begin_angle    = (double) SvNV(*begin_angle_sv);
+    this->rotations      = (double) SvNV(*rotations_sv);
+                        
+    AV* center_arr       = (AV*) SvRV(*center_sv);
+    SV** x               = av_fetch(center_arr, 0, 0);
+    SV** y               = av_fetch(center_arr, 1, 0);
+    this->center[0]      = (double) SvNV(*x);
+    this->center[1]      = (double) SvNV(*y);
+
+    return this;
+}
+
+void path_spiral_free(void* thisp) {
+    SDLx__Tween__Path__Spiral this = (SDLx__Tween__Path__Spiral) thisp;
+    safefree(this);
+}
+
+int path_spiral_solve(void* thisp, double t, double solved[4]) {
+    SDLx__Tween__Path__Spiral this = (SDLx__Tween__Path__Spiral) thisp;
+    double angle  = this->begin_angle + 2.0 * PI * this->rotations * t;
+    double radius = this->begin_radius +
+                    (this->end_radius - this->begin_radius) * t;
+    solved[0]    = this->center[0] + radius * cos(angle);
+    solved[1]    = this->center[1] + radius * sin(angle);
 
     return 2;
 }

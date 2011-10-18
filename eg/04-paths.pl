@@ -40,7 +40,7 @@ has tween  => (is => 'rw', lazy_build => 1, handles => [qw(start stop tick)]);
 sub _build_tween {
     my $self = shift;
     return SDLx::Tween->new(
-        duration  => 3_000 * 4,
+        duration  => 3_000 * 2,
         on        => $self,
         set       => 'add_trail',
         from      => 1,
@@ -61,7 +61,7 @@ sub add_trail {
     push @{$self->trails},
          SDLx::Tween::eg_04::Trail->new(
              position => $self->position,
-             radius   => 10 + $i / 5,
+             radius   => 5 + $i / 4,
          );
 }
 
@@ -69,9 +69,6 @@ sub paint {
     my ($self, $surface) = @_;
     $_->paint($surface) for @{$self->trails};
 }
-
-# reminder that method proxy "on" should probably be a weak ref
-sub DESTROY { shift->tween(undef) }
 
 # ------------------------------------------------------------------------------
 
@@ -92,7 +89,10 @@ my %paths = (
     sine     => {from => [100, 100], to => [700, 500],
                  path_args => {amp => 100, freq => 2}},
     circular => {path_args => {center => [400, 300],
-                 radius => 250, begin => 0, end => 2*pi}},
+                 radius => 250, begin_angle => 0, end_angle => 2*pi}},
+    spiral   => {path_args => {center => [400, 300],
+                 begin_radius => 30, end_radius => 250,
+                 begin_angle => 0, rotations => 3}},
 );
 
 my @paths = sort keys %paths;
@@ -120,7 +120,7 @@ my $instructions = SDLx::Text->new(
 );
 
 my $path_label = SDLx::Text->new(
-    x     => $w - 150,
+    x     => $w - 120,
     y     => $h - 25,
     color => [0, 0, 0],
     size  => 20,

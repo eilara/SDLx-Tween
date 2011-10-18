@@ -36,6 +36,7 @@ do { my $i = 0; %Path_Lookup = map { $_ => $i++ } qw(
     linear
     sine
     circular
+    spiral
 )};
 
 my %Proxy_Lookup;
@@ -59,11 +60,11 @@ my %Paths_Requiring_Edge_Value_Args = map { $Path_Lookup{$_} => 1 } qw(
     sine
 );
 
-# paths which do not require edge value args need to compute dim
 my %Path_Get_Dim = (
     $Path_Lookup{linear}   => \&compute_dim_path_with_edge_values,
     $Path_Lookup{sine}     => \&compute_dim_path_with_edge_values,
-    $Path_Lookup{circular} => \&compute_dim_path_circular,
+    $Path_Lookup{circular} => \&compute_dim_path_centered,
+    $Path_Lookup{spiral}   => \&compute_dim_path_centered,
 );
 
 sub new {
@@ -161,7 +162,7 @@ sub compute_dim_path_with_edge_values {
     return scalar @{$path_args->{from}};
 }
 
-sub compute_dim_path_circular {
+sub compute_dim_path_centered {
     my $path_args = shift;
     return scalar @{$path_args->{center}};
 }

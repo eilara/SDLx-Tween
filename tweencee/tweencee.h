@@ -95,6 +95,23 @@ void*  path_circular_build (SV* path_args);
 void   path_circular_free  (void* thisp);
 int    path_circular_solve (void* thisp, double t, double solved[4]);
 
+
+typedef struct sdl_tween_path_spiral {
+
+    double  center[2];
+    double  begin_radius;
+    double  end_radius;
+    double  begin_angle;
+    double  rotations;
+
+} sdl_tween_path_spiral;
+
+typedef sdl_tween_path_spiral* SDLx__Tween__Path__Spiral;
+
+void*  path_spiral_build (SV* path_args);
+void   path_spiral_free  (void* thisp);
+int    path_spiral_solve (void* thisp, double t, double solved[4]);
+
 /* ------------------------------ proxy ------------------------------- */
 
 /* in = double, out = call method with double or distinct int if round is on */
