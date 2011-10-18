@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+use FindBin qw($Bin);
+use lib ("$Bin/..", "$Bin/../blib/arch", "$Bin/../blib/lib");
+
 package SDLx::Tween::eg_04::Circle;
 
 use Moose;
@@ -8,17 +11,73 @@ has position => (is => 'rw', required => 1);
 
 sub paint {
     my ($self, $surface) = @_;
-    $surface->draw_circle_filled($self->position, 30, 0xFFFFFFFF);
+    $surface->draw_circle_filled($self->position, 30, 0xFFFFFDBB);
     $surface->draw_circle($self->position, 30, 0x000000FF, 1);
 }
+
+package SDLx::Tween::eg_04::Trail;
+
+use Moose;
+use SDLx::Tween;
+
+has position => (is => 'rw', required => 1);
+has radius   => (is => 'rw', required => 1);
+
+sub paint {
+    my ($self, $surface) = @_;
+    $surface->draw_circle_filled($self->position, $self->radius, 0xBBBBBB99);
+    $surface->draw_circle($self->position, $self->radius, 0x444444FF, 1);
+}
+
+package SDLx::Tween::eg_04::Trailer;
+
+use Moose;
+
+has circle => (is => 'ro', required   => 1, handles => [qw(position)]);
+has trails => (is => 'rw', default    => sub { [] });
+has tween  => (is => 'rw', lazy_build => 1, handles => [qw(start stop tick)]);
+
+sub _build_tween {
+    my $self = shift;
+    return SDLx::Tween->new(
+        duration  => 3_000 * 4,
+        on        => $self,
+        set       => 'add_trail',
+        from      => 1,
+        to        => 100,
+        round     => 1,
+    );
+}
+
+sub change_path {
+    my $self = shift;
+    $self->stop;
+    $self->trails([]);
+    $self->start;
+}
+
+sub add_trail {
+    my ($self, $i) = @_;
+    push @{$self->trails},
+         SDLx::Tween::eg_04::Trail->new(
+             position => $self->position,
+             radius   => 10 + $i / 5,
+         );
+}
+
+sub paint {
+    my ($self, $surface) = @_;
+    $_->paint($surface) for @{$self->trails};
+}
+
+# reminder that method proxy "on" should probably be a weak ref
+sub DESTROY { shift->tween(undef) }
 
 # ------------------------------------------------------------------------------
 
 package main;
 use strict;
 use warnings;
-use FindBin qw($Bin);
-use lib ("$Bin/..", "$Bin/../blib/arch", "$Bin/../blib/lib");
 use Math::Trig;
 use SDL::Events;
 use SDLx::App;
@@ -50,6 +109,8 @@ my $app = SDLx::App->new(
 
 my $circle = SDLx::Tween::eg_04::Circle->new(position => [100, 100]);
 
+my $trailer = SDLx::Tween::eg_04::Trailer->new(circle => $circle);
+
 my $instructions = SDLx::Text->new(
     x     => 5,
     y     => $h - 25,
@@ -61,13 +122,13 @@ my $instructions = SDLx::Text->new(
 my $path_label = SDLx::Text->new(
     x     => $w - 150,
     y     => $h - 25,
-    text  => "path=$path",
     color => [0, 0, 0],
     size  => 20,
 );
 
 my $show_handler  = sub {
     $app->draw_rect(undef, 0xF3F3F3FF);
+    $trailer->paint($app);
     $instructions->write_to($app);
     $path_label->write_to($app);
     $circle->paint($app);
@@ -77,6 +138,7 @@ my $show_handler  = sub {
 my $move_handler  = sub {
     my $ticks = SDL::get_ticks;
     $tween->tick($ticks);
+    $trailer->tick($ticks);
 };
 
 my $event_handler = sub {
@@ -100,7 +162,7 @@ $app->run;
 
 sub tween_circle {
     $path = shift @paths;
-    $path_label->text($path);
+    $path_label->text("path=$path");
     push @paths, $path;
     my $args = $paths{$path};
     $tween = SDLx::Tween->new(
@@ -113,7 +175,8 @@ sub tween_circle {
         path      => $path,
         %$args
     );
-    $tween->start(SDL::get_ticks);
+    $tween->start;
+    $trailer->change_path;
 }
 
 
