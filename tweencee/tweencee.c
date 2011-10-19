@@ -241,6 +241,80 @@ int path_spiral_solve(void* thisp, double t, double solved[4]) {
     return 2;
 }
 
+/* polyline path */
+
+void* path_polyline_build(SV* path_args) {
+    SDLx__Tween__Path__Polyline this = safemalloc(sizeof(sdl_tween_path_polyline));
+    if(this == NULL) { warn("unable to create new struct for path"); }
+    this->head = NULL;
+
+    HV* args         = (HV*) SvRV(path_args);
+    SV** segments_sv = hv_fetch(args, "segments", 8, 0);
+    AV* segments_arr = (AV*) SvRV(*segments_sv);
+    int segments_len = av_len(segments_arr) + 1;
+    
+    int i;
+    for (i = 0; i < segments_len; i++) {
+        SV** segment_sv = av_fetch(segments_arr, i, 0);
+        AV* segment_parts = (AV*) SvRV(*segment_sv);
+        sdl_tween_path_polyline_segment* segment = safemalloc(sizeof(sdl_tween_path_polyline_segment));
+
+        if(segment == NULL) { warn("unable to create new struct for segment"); }
+        segment->from[0]  = (double) SvNV(*av_fetch(segment_parts, 0, 0));
+        segment->from[1]  = (double) SvNV(*av_fetch(segment_parts, 1, 0));
+        segment->to[0]    = (double) SvNV(*av_fetch(segment_parts, 2, 0));
+        segment->to[1]    = (double) SvNV(*av_fetch(segment_parts, 3, 0));
+        segment->ratio    = (double) SvNV(*av_fetch(segment_parts, 4, 0));
+        segment->progress = (double) SvNV(*av_fetch(segment_parts, 5, 0));
+
+        if (this->head == NULL) {
+            segment->next = NULL;
+            segment->prev = NULL;
+            this->head    = segment;
+            this->current = segment;
+        } else {
+            this->current->next = segment;
+            segment->prev       = this->current;
+            this->current       = segment;
+        }
+    }
+    this->current->next = NULL;
+    this->tail          = this->current;
+    this->current       = this->head;
+
+    return this;
+}
+
+void path_polyline_free(void* thisp) {
+    SDLx__Tween__Path__Polyline this = (SDLx__Tween__Path__Polyline) thisp;
+    sdl_tween_path_polyline_segment* segment = this->head;
+    while (segment != NULL) {
+        sdl_tween_path_polyline_segment* segment_temp = segment;
+        segment = segment->next;
+        safefree(segment_temp);
+    }
+    safefree(this);
+}
+
+int path_polyline_solve(void* thisp, double t, double solved[4]) {
+    SDLx__Tween__Path__Polyline this = (SDLx__Tween__Path__Polyline) thisp;
+
+    sdl_tween_path_polyline_segment* segment = this->current;
+    if (segment->next != NULL && t > segment->progress) {
+        segment = segment->next;
+        this->current = segment;
+    } else if (segment->prev != NULL && t <= segment->prev->progress) {
+        segment = segment->prev;
+        this->current = segment;
+    }
+    sdl_tween_path_polyline_segment* prev = segment->prev;
+    double t_ratio = (t - (prev == NULL? 0 :prev->progress)) / segment->ratio;
+    solved[0] = LERP(t_ratio, segment->from[0], segment->to[0]);
+    solved[1] = LERP(t_ratio, segment->from[1], segment->to[1]);
+
+    return 2;
+}
+
 /* ------------------ proxy ----------------- */
 
 /* method proxy */

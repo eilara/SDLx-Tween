@@ -93,6 +93,13 @@ my %paths = (
     spiral   => {path_args => {center => [400, 300],
                  begin_radius => 30, end_radius => 250,
                  begin_angle => 0, rotations => 3}},
+    polyline => {path_args => {points => [
+                    [200, 200],
+                    [600, 200],
+                    [200, 400],
+                    [600, 400],
+                    [200, 200],
+                 ]}},
 );
 
 my @paths = sort keys %paths;

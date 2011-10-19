@@ -43,7 +43,6 @@ typedef struct sdl_tween {
       void   (*proxy_set_func  ) (void*, double[], int);
 
 } sdl_tween;
-
 typedef sdl_tween* SDLx__Tween;
 
 /* ------------------------------ path ------------------------------- */
@@ -55,7 +54,6 @@ typedef struct sdl_tween_path_linear {
     int     dim;
 
 } sdl_tween_path_linear;
-
 typedef sdl_tween_path_linear* SDLx__Tween__Path__Linear;
 
 void*  path_linear_build (SV* path_args);
@@ -72,7 +70,6 @@ typedef struct sdl_tween_path_sine {
     double  normal[2];
 
 } sdl_tween_path_sine;
-
 typedef sdl_tween_path_sine* SDLx__Tween__Path__Sine;
 
 void*  path_sine_build (SV* path_args);
@@ -88,7 +85,6 @@ typedef struct sdl_tween_path_circular {
     double  end_angle;
 
 } sdl_tween_path_circular;
-
 typedef sdl_tween_path_circular* SDLx__Tween__Path__Circular;
 
 void*  path_circular_build (SV* path_args);
@@ -105,12 +101,36 @@ typedef struct sdl_tween_path_spiral {
     double  rotations;
 
 } sdl_tween_path_spiral;
-
 typedef sdl_tween_path_spiral* SDLx__Tween__Path__Spiral;
 
 void*  path_spiral_build (SV* path_args);
 void   path_spiral_free  (void* thisp);
 int    path_spiral_solve (void* thisp, double t, double solved[4]);
+
+
+typedef struct sdl_tween_path_polyline_segment {
+
+    double  from[4];
+    double  to[4];
+    double  ratio;
+    double  progress;
+    struct  sdl_tween_path_polyline_segment* next;
+    struct  sdl_tween_path_polyline_segment* prev;
+
+} sdl_tween_path_polyline_segment;
+
+typedef struct sdl_tween_path_polyline {
+
+    sdl_tween_path_polyline_segment* head;
+    sdl_tween_path_polyline_segment* tail;
+    sdl_tween_path_polyline_segment* current;
+
+} sdl_tween_path_polyline;
+typedef sdl_tween_path_polyline* SDLx__Tween__Path__Polyline;
+
+void*  path_polyline_build (SV* path_args);
+void   path_polyline_free  (void* thisp);
+int    path_polyline_solve (void* thisp, double t, double solved[4]);
 
 /* ------------------------------ proxy ------------------------------- */
 
@@ -124,7 +144,6 @@ typedef struct sdl_tween_proxy_method {
     bool   is_init;
 
 } sdl_tween_proxy_method;
-
 typedef sdl_tween_proxy_method* SDLx__Tween__Proxy__Method;
 
 void*  proxy_method_build (SV* proxy_args);
@@ -135,10 +154,9 @@ void   proxy_method_set   (void* thisp, double solved[4], int dim);
 /* in = double, out = set in array ref as double, no rounding */
 typedef struct sdl_tween_proxy_array {
 
-    AV*    on;
+    AV*  on;
 
 } sdl_tween_proxy_array;
-
 typedef sdl_tween_proxy_array* SDLx__Tween__Proxy__Array;
 
 void*  proxy_array_build (SV* proxy_args);

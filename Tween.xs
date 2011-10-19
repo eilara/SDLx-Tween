@@ -48,7 +48,8 @@ static double (*ease_table[31]) (double) = {
     path_linear_##kind,   \
     path_sine_##kind,     \
     path_circular_##kind, \
-    path_spiral_##kind
+    path_spiral_##kind,   \
+    path_polyline_##kind
 
 static void* (*path_build_table[5]) (SV*) = {
     PATH_FUNCS(build)
@@ -81,8 +82,6 @@ static void (*proxy_set_table[5]) (void*, double[4], int dim) = {
 };
 
 /* ------------------------------ tween ------------------------------- */
-
-
 
 MODULE = SDLx::Tween		PACKAGE = SDLx::Tween		PREFIX = SDLx__Tween_
 

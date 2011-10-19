@@ -16,8 +16,6 @@ EXAMPLES
 TODO
 
     - paths
-        * circular
-        * spiral
         * bezier
         * polyline path
     - easing
@@ -42,11 +40,18 @@ TODO
     - docs
     - demos
         * paths
-        * add trails to easing demo
+        * add trails to easing demo, make them tween fade
         * follow cursor dynamic properties
     - API
         * validation should be in validation classes to get rid of all those ifs in constructor    
         * lifecycle events -> start,stop,complete
+        * method proxy should not keep strong ref to target
+    - performance
+        * share path_args for polylines
+        * pool tweens
+    - accuracy
+        * overshoot support
+        * chaining tweens passes complete->start cycle times    
 
 INSTALLATION
 
@@ -62,7 +67,7 @@ DEPENDENCIES
 This module requires these other modules and libraries:
 
     SDL
-    XS::Object::Magic
+    Moose
 
 COPYRIGHT AND LICENCE
 

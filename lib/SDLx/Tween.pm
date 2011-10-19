@@ -37,6 +37,7 @@ do { my $i = 0; %Path_Lookup = map { $_ => $i++ } qw(
     sine
     circular
     spiral
+    polyline
 )};
 
 my %Proxy_Lookup;
@@ -65,6 +66,7 @@ my %Path_Get_Dim = (
     $Path_Lookup{sine}     => \&compute_dim_path_with_edge_values,
     $Path_Lookup{circular} => \&compute_dim_path_centered,
     $Path_Lookup{spiral}   => \&compute_dim_path_centered,
+    $Path_Lookup{polyline} => \&compute_dim_path_polyline,
 );
 
 sub new {
@@ -116,6 +118,7 @@ sub new {
         $path, $path_args,
         $proxy, $proxy_args,
     );
+
     my $struct = new_struct(@args);
     my $self = bless($struct, $class);
     return $self;
@@ -165,6 +168,33 @@ sub compute_dim_path_with_edge_values {
 sub compute_dim_path_centered {
     my $path_args = shift;
     return scalar @{$path_args->{center}};
+}
+
+sub compute_dim_path_polyline {
+    my $path_args = shift;
+    my @points = @{$path_args->{points} || die 'No "points given'};
+    my $dim = scalar @{$points[0]};
+    # convert points to segments with distance ratio
+    my @segments;
+    my $last_point = shift @points;
+    my $total_length = 0;
+    while (my $point = shift @points) {
+        my ($dx, $dy) = ($point->[0] - $last_point->[0],
+                         $point->[1] - $last_point->[1]);
+        my $length = sqrt($dx*$dx + $dy*$dy);
+        $total_length += $length;
+        push @segments, [@$last_point, @$point, $length, undef];
+        $last_point = $point;
+    }
+    my $progress = 0;
+    foreach my $segment (@segments) {
+        my $length_ratio = $segment->[4] / $total_length;
+        $progress += $length_ratio;
+        $segment->[4] = $length_ratio;
+        $segment->[5] = $progress;
+    };
+    $path_args->{segments} = [@segments];
+    return $dim;
 }
 
 
