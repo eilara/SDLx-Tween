@@ -39,6 +39,7 @@ TODO
         * paths
         * add trails to easing demo, make them tween fade
         * follow cursor dynamic properties
+        * start/stop of tweens
     - API features
         - dynamic params
         - delay before/after tween

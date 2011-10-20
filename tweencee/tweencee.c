@@ -19,13 +19,16 @@ void build_struct(
     int         repeat,
     bool        bounce
 ) {
-    this->register_cb   = register_cb;
-    this->unregister_cb = unregister_cb;
-    this->duration      = duration;
-    this->forever       = forever;
-    this->repeat        = repeat;
-    this->bounce        = bounce;
-    this->is_active     = 0;
+    this->register_cb      = register_cb;
+    this->unregister_cb    = unregister_cb;
+    this->duration         = duration;
+    this->forever          = forever;
+    this->repeat           = repeat;
+    this->bounce           = bounce;
+    this->is_active        = 0;
+    this->is_paused        = 0;
+    this->pause_start_time = 0;
+    this->total_pause_time = 0;
 }
 
 void start(SV* self, SDLx__Tween this, Uint32 cycle_start_time) {
@@ -46,7 +49,8 @@ void stop(SV* self, SDLx__Tween this) {
     if (!this->is_active) { return; }
 
     this->is_active                = 0;
-    this->last_cycle_complete_time = this->cycle_start_time + this->duration;
+    this->last_cycle_complete_time = this->cycle_start_time + this->duration + this->total_pause_time;
+    this->total_pause_time         = 0;
 
     dSP; PUSHMARK(SP);
     XPUSHs(self);
@@ -55,11 +59,23 @@ void stop(SV* self, SDLx__Tween this) {
     call_sv(this->unregister_cb, G_DISCARD);
 }
 
+void pause_tween(SV* self, SDLx__Tween this, Uint32 pause_time) {
+    this->is_paused = 1;
+    this->pause_start_time = pause_time;
+}
+
+void resume_tween(SV* self, SDLx__Tween this, Uint32 resume_time) {
+    this->is_paused = 0;
+    this->total_pause_time += resume_time - this->pause_start_time;
+    this->pause_start_time = 0;
+}
+
 void tick(SV* self, SDLx__Tween this, Uint32 now) {
+    if (this->is_paused) { return; }
     bool is_complete = 0;
     Uint32 duration  = this->duration;
     Uint32 dt        = now - this->last_tick_time;
-    Uint32 elapsed   = now - this->cycle_start_time;
+    Uint32 elapsed   = now - this->cycle_start_time - this->total_pause_time;
 
     if (elapsed >= duration) {
         is_complete = 1;

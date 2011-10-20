@@ -184,6 +184,28 @@ SDLx__Tween_stop(SV* self)
         stop(self, this);
 
 void
+SDLx__Tween_pause(SV* self, ...)
+    CODE:
+        SELF_TO_THIS;
+        SV* t_sv = ST(1);
+        Uint32 t =
+            SvIOK(t_sv)?
+                (Uint32) SvIV(t_sv):
+                (Uint32) SDL_GetTicks();
+        pause_tween(self, this, t);
+
+void
+SDLx__Tween_resume(SV* self, ...)
+    CODE:
+        SELF_TO_THIS;
+        SV* t_sv = ST(1);
+        Uint32 t =
+            SvIOK(t_sv)?
+                (Uint32) SvIV(t_sv):
+                (Uint32) SDL_GetTicks();
+        resume_tween(self, this, t);
+
+void
 SDLx__Tween_tick(SV* self, Uint32 now)
     CODE:
         SELF_TO_THIS;

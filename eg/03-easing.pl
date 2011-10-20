@@ -116,17 +116,12 @@ my $move_handler  = sub {
 #   print "t=$timeline\n";
     $timeline->tick };
 
-my $is_paused;
 my $event_handler = sub {
     my ($e, $app) = @_;
     if($e->type == SDL_QUIT) {
         $app->stop;
     } elsif ($e->type == SDL_MOUSEBUTTONDOWN) {
-        if ($is_paused) {
-        } else {
-            $timeline->pause;
-        };
-        $is_paused = !$is_paused;
+        $timeline->pause_resume;
     }
     return 0;
 };

@@ -6,6 +6,7 @@
 
 /* all times duration deltas in ticks (1ms)
  *
+ * TODO
  * should be using sv_setsv(SV*, SV*); to set SV* if it is already set
  * check stack size instead of using SvIOK in start
  * "Floating point division with a constant or repeated division with the same value should of course be done by multiplying with the reciprocal"
@@ -26,9 +27,13 @@ typedef struct sdl_tween {
 
       bool   is_reversed;
       bool   is_active;
+      bool   is_paused;
     Uint32   cycle_start_time;
     Uint32   last_tick_time;
     Uint32   last_cycle_complete_time;
+    Uint32   pause_start_time;
+    Uint32   total_pause_time;
+
 
     double   (*ease_func) (double);
 
