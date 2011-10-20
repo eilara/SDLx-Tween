@@ -143,6 +143,8 @@ void
 SDLx__Tween_DESTROY(SV* self)
     CODE:
         SELF_TO_THIS;
+        stop(self, this);
+
         SvREFCNT_dec(this->unregister_cb);
         SvREFCNT_dec(this->register_cb);
         this->path_free_func(this->path);

@@ -43,6 +43,8 @@ void start(SV* self, SDLx__Tween this, Uint32 cycle_start_time) {
 }
 
 void stop(SV* self, SDLx__Tween this) {
+    if (!this->is_active) { return; }
+
     this->is_active                = 0;
     this->last_cycle_complete_time = this->cycle_start_time + this->duration;
 
@@ -307,6 +309,7 @@ int path_polyline_solve(void* thisp, double t, double solved[4]) {
         segment = segment->prev;
         this->current = segment;
     }
+
     sdl_tween_path_polyline_segment* prev = segment->prev;
     double t_ratio = (t - (prev == NULL? 0 :prev->progress)) / segment->ratio;
     solved[0] = LERP(t_ratio, segment->from[0], segment->to[0]);

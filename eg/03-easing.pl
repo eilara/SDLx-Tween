@@ -42,13 +42,13 @@ use SDL::Events;
 use SDLx::App;
 use SDLx::Sprite;
 use SDLx::Tween;
-use Set::Object;
+use SDLx::Tween::Timeline;
 
 my @names = qw(
-        linear
-        p2_in     p3_in     p4_in     p5_in     exponential_in     circular_in      sine_in      bounce_in     elastic_in     back_in     
-        p2_out    p3_out    p4_out    p5_out    exponential_out    circular_out     sine_out     bounce_out    elastic_out    back_out    
-        p2_in_out p3_in_out p4_in_out p5_in_out exponential_in_out circular_in_out  sine_in_out  bounce_in_out elastic_in_out back_in_out 
+    linear
+    p2_in     p3_in     p4_in     p5_in     exponential_in     circular_in      sine_in      bounce_in     elastic_in     back_in     
+    p2_out    p3_out    p4_out    p5_out    exponential_out    circular_out     sine_out     bounce_out    elastic_out    back_out    
+    p2_in_out p3_in_out p4_in_out p5_in_out exponential_in_out circular_in_out  sine_in_out  bounce_in_out elastic_in_out back_in_out 
 );
 my $w          = 800;
 my $h          = 590;
@@ -67,19 +67,18 @@ my $app = SDLx::App->new(
 
 my (@circles, @tweens);
 
-my $active_tweens = Set::Object->new;
-my $i = 0;
+my $timeline = SDLx::Tween::Timeline->new;
+
+my $row = 0;
 for my $ease (@names) {
-    my $y = 2 * $i * $radius + $radius + 1 + $i;
+    my $y = 2 * $row * $radius + $radius + 1 + $row;
     my $circle = SDLx::Tween::eg_03::Circle->new(
         radius     => $radius,
         position   => [$radius + $col_1, $y],
         ball_color => $ball_color,
         ease       => $ease,
     );
-    my $tween = SDLx::Tween->new(
-        register_cb   => sub { $active_tweens->insert(shift) },
-        unregister_cb => sub { $active_tweens->remove(shift) },
+    push @tweens, $timeline->tween(
         duration      => 6_000,
         to            => [$w - $radius, $y],
         on            => $circle,
@@ -89,8 +88,7 @@ for my $ease (@names) {
         ease          => $ease,
     );
     push @circles, $circle;
-    push @tweens, $tween;
-    $i++;
+    $row++;
 }
 
 my $chart = SDLx::Sprite->new(
@@ -114,17 +112,31 @@ my $show_handler  = sub {
 };
 
 my $move_handler  = sub {
-    my $ticks = SDL::get_ticks;
-    $_->tick($ticks) for $active_tweens->members;
-};
+   
+#   print "t=$timeline\n";
+    $timeline->tick };
 
-my $event_handler = sub { my $e = shift; $_[0]->stop if ( $e->type == SDL_QUIT ) };
+my $is_paused;
+my $event_handler = sub {
+    my ($e, $app) = @_;
+    if($e->type == SDL_QUIT) {
+        $app->stop;
+    } elsif ($e->type == SDL_MOUSEBUTTONDOWN) {
+        if ($is_paused) {
+        } else {
+            $timeline->pause;
+        };
+        $is_paused = !$is_paused;
+    }
+    return 0;
+};
 
 $app->add_show_handler($show_handler);
 $app->add_event_handler($event_handler);
 $app->add_move_handler($move_handler);
 
-$_->start(SDL::get_ticks) for @tweens;
+my $ticks = SDL::get_ticks;
+$_->start($ticks) for @tweens;
 
 $app->run;
 

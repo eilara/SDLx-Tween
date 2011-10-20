@@ -17,14 +17,11 @@ TODO
 
     - paths
         * bezier
-        * polyline path
     - easing
         * stepped ease for retro shaky animations    
-    - dynamic params
-    - delay before/after tween
     - timeline control
         * pause/resume
-        * ffw/rewind/seek
+        * ffw/rewind/seek/elasetic time factor
         * sequence/parallel
     - callback proxy
     - custom tweens
@@ -42,13 +39,18 @@ TODO
         * paths
         * add trails to easing demo, make them tween fade
         * follow cursor dynamic properties
-    - API
+    - API features
+        - dynamic params
+        - delay before/after tween
         * validation should be in validation classes to get rid of all those ifs in constructor    
         * lifecycle events -> start,stop,complete
         * method proxy should not keep strong ref to target
+        * speed instead of duration
+        * tween group for sequencing
     - performance
         * share path_args for polylines
         * pool tweens
+        * convert doubles to floats
     - accuracy
         * overshoot support
         * chaining tweens passes complete->start cycle times    
