@@ -51,8 +51,10 @@ my @names = qw(
     p2_in_out p3_in_out p4_in_out p5_in_out exponential_in_out circular_in_out  sine_in_out  bounce_in_out elastic_in_out back_in_out 
 );
 my $w          = 800;
-my $h          = 590;
-my $radius     = ($h - (@names + 1)) / (2 * scalar(@names));
+my $h          = 615;
+my $label_h    = 25;
+my $content_h  = $h - $label_h;
+my $radius     = ($content_h - (@names + 1)) / (2 * scalar(@names));
 my $col_1      = 135;
 my $col_2      = $col_1 + 18 + 1;
 my $bg_color   = 0xF3F3F3FF;
@@ -97,17 +99,35 @@ my $chart = SDLx::Sprite->new(
     image => "$Bin/images/easing_functions_chart.png",
 );
 
+my $pause_instructions = SDLx::Text->new(
+    x     => 5,
+    y     => $h - 26,
+    text  => 'click mouse to pause/resume, +/- for slow/haste',
+    color => [0, 0, 0],
+    size  => 22,
+);
+
+my $pause_message = SDLx::Text->new(
+    x     => 120,
+    y     => 200,
+    text  => 'PAUSED',
+    color => [0, 0, 0],
+    size  => 180,
+);
+
 my $show_handler  = sub {
     $app->draw_rect(undef, $bg_color);
-    $app->draw_line([$col_1, 0], [$col_1, $h], $grid_color);
-    $app->draw_line([$col_2, 0], [$col_2, $h], $grid_color);
+    $app->draw_line([$col_1, 0], [$col_1, $content_h - 1], $grid_color);
+    $app->draw_line([$col_2, 0], [$col_2, $content_h - 1], $grid_color);
     for my $i (0..(@names - 1)) {
         my $y = 2 * $radius * $i + $i;
         $app->draw_line([0, $y], [$w, $y], $grid_color);
     }
-    $app->draw_line([0, $h - 1], [$w, $h - 1], $grid_color);
+    $app->draw_line([0, $content_h - 1], [$w, $content_h - 1], $grid_color);
     $chart->draw($app);
     $_->paint($app) for @circles;
+    $pause_instructions->write_to($app);
+    $pause_message->write_to($app) if $timeline->is_paused;
     $app->update;
 };
 

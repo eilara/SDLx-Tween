@@ -15,19 +15,22 @@ sub paint {
     $surface->draw_circle($self->position, 30, 0x000000FF, 1);
 }
 
+# ------------------------------------------------------------------------------
+
 package SDLx::Tween::eg_04::Trail;
 
 use Moose;
 use SDLx::Tween;
 
-has position => (is => 'rw', required => 1);
-has radius   => (is => 'rw', required => 1);
+has [qw(position radius)] => (is => 'rw', required => 1);
 
 sub paint {
     my ($self, $surface) = @_;
     $surface->draw_circle_filled($self->position, $self->radius, 0xBBBBBB99);
     $surface->draw_circle($self->position, $self->radius, 0x444444FF, 1);
 }
+
+# ------------------------------------------------------------------------------
 
 package SDLx::Tween::eg_04::Trailer;
 
@@ -85,14 +88,19 @@ my $w = 800;
 my $h = 600;
 
 my %paths = (
+
     linear   => {from => [100, 100], to => [700, 500]},
+
     sine     => {from => [100, 100], to => [700, 500],
                  path_args => {amp => 100, freq => 2}},
+
     circular => {path_args => {center => [400, 300],
                  radius => 250, begin_angle => 0, end_angle => 2*pi}},
+
     spiral   => {path_args => {center => [400, 300],
                  begin_radius => 30, end_radius => 250,
                  begin_angle => 0, rotations => 3}},
+
     polyline => {path_args => {points => [
                     [200, 200],
                     [600, 200],
@@ -121,7 +129,7 @@ my $trailer = SDLx::Tween::eg_04::Trailer->new(circle => $circle);
 my $instructions = SDLx::Text->new(
     x     => 5,
     y     => $h - 25,
-    text  => 'click to change path',
+    text  => 'click mouse to change path',
     color => [0, 0, 0],
     size  => 20,
 );
