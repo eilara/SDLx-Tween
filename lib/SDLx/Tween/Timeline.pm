@@ -33,6 +33,7 @@ sub tick {
 sub pause {
     my ($self, $pause_time) = @_;
     $pause_time ||= SDL::get_ticks;
+    $_->pause($pause_time) for $self->members;
 }
 
 1;
