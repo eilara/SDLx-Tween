@@ -181,7 +181,7 @@ $app->add_event_handler($event_handler);
 $app->add_move_handler($move_handler);
 
 my $ticks = SDL::get_ticks;
-$_->start($ticks) for @tweens;
+$timeline->start;
 
 $app->run;
 

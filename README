@@ -41,8 +41,8 @@ TODO
         * follow cursor dynamic properties
         * start/stop of tweens
     - API features
-        - dynamic params
-        - delay before/after tween
+        * dynamic params
+        * delay before/after tween
         * validation should be in validation classes to get rid of all those ifs in constructor    
         * lifecycle events -> start,stop,complete
         * method proxy should not keep strong ref to target

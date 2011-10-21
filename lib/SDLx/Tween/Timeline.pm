@@ -9,35 +9,49 @@ use SDLx::Tween;
 has is_paused       => (is => 'rw', default => 0);
 has last_pause_time => (is => 'rw');
 
-has tweens => (is => 'ro', lazy_build => 1, handles => [qw(members clear)]);
+has all_tweens    => (is => 'ro', lazy_build => 1);
+has active_tweens => (is => 'ro', lazy_build => 1);
 
-sub _build_tweens { weak_set() }
+sub _build_all_tweens    { weak_set() }
+sub _build_active_tweens { weak_set() }
 
 sub tween {
     my ($self, %args) = @_;
-    my $tweens = $self->tweens;
-    weaken $tweens;
+    my $active_tweens = $self->active_tweens;
+    weaken $active_tweens;
     my $tween = SDLx::Tween->new(
-        register_cb   => sub { $tweens->insert(shift) },
-        # "if $tweens" is defensive programming against global destruction warnings
-        unregister_cb => sub { $tweens->remove(shift) if $tweens },
+        register_cb   => sub { $active_tweens->insert(shift) },
+        unregister_cb => sub { $active_tweens->remove(shift) },
         %args,
     );
+    $self->all_tweens->insert($tween);
     return $tween;
 }
 
 sub tick {
-    my $self = shift;
+    my ($self, $ticks) = @_;
     return if $self->is_paused;
-    my $ticks = SDL::get_ticks;
-    $_->tick($ticks) for $self->members;
+    $ticks ||= SDL::get_ticks;
+    $_->tick($ticks) for $self->active_tweens->members;
+}
+
+sub start {
+    my ($self, $ticks) = @_;
+    $ticks ||= SDL::get_ticks;
+    $_->start($ticks) for $self->all_tweens->members;
+}
+
+sub stop {
+    my ($self, $ticks) = @_;
+    $ticks ||= SDL::get_ticks;
+    $_->stop($ticks) for $self->active_tweens->members;
 }
 
 sub pause {
     my ($self, $pause_time) = @_;
     return if $self->is_paused;
     $pause_time ||= SDL::get_ticks;
-    $_->pause($pause_time) for $self->members;
+    $_->pause($pause_time) for $self->active_tweens->members;
     $self->is_paused(1);
 }
 
@@ -45,7 +59,7 @@ sub resume {
     my ($self, $resume_time) = @_;
     return unless $self->is_paused;
     $resume_time ||= SDL::get_ticks;
-    $_->resume($resume_time) for $self->members;
+    $_->resume($resume_time) for $self->active_tweens->members;
     $self->is_paused(0);
 }
 
