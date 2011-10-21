@@ -158,8 +158,9 @@ my $event_handler = sub {
     } elsif ($e->type == SDL_MOUSEBUTTONDOWN) {
         $timeline->pause_resume;
     } elsif ($e->type == SDL_KEYDOWN) {
+        return 0 if $timeline->is_paused;
         my $duration = $tweens[0]->get_duration;
-        my $delta = 100; #ms
+        my $delta = 200; #ms
         if ($e->key_sym == SDLK_LEFT) {
             $duration += $delta;
         } elsif ($e->key_sym == SDLK_RIGHT) {
@@ -167,7 +168,7 @@ my $event_handler = sub {
         } else {
             return 0;
         }
-        $duration = 500   if $duration < 500;
+        $duration = 100   if $duration < 100;
         $duration = 20000 if $duration > 20000;
         my $ticks = SDL::get_ticks; # time of duration change
         $_->set_duration($duration, $ticks) for @tweens;

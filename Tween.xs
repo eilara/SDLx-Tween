@@ -170,15 +170,18 @@ SDLx__Tween_get_duration(SV* self)
 void
 SDLx__Tween_set_duration(SV* self, Uint32 new_duration, ...)
     CODE:
+        /* TODO should do nothing on is_paused? */
         SELF_TO_THIS;
         Uint32 now = items == 3?
            (Uint32) SvIV(ST(2)):
            (Uint32) SDL_GetTicks();
         Uint32 old_duration    = this->duration;
-        double ratio           = (double) new_duration / (double) old_duration;
-        double elapsed         = now - this->cycle_start_time;
+        Uint32 paused          = this->total_pause_time;
+        double ratio           = 1.0 - (double) new_duration / (double) old_duration;
+        double elapsed         = now - this->cycle_start_time - paused;
         this->duration         = new_duration;
-        this->cycle_start_time = this->cycle_start_time + elapsed - elapsed * ratio;
+        this->cycle_start_time = this->cycle_start_time + paused + elapsed * ratio;
+        this->total_pause_time = 0;
     OUTPUT:
 
 bool
