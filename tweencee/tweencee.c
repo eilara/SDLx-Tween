@@ -34,7 +34,6 @@ void build_struct(
 void start(SV* self, SDLx__Tween this, Uint32 cycle_start_time) {
     this->is_active                = 1;
     this->cycle_start_time         = cycle_start_time;
-    this->last_tick_time           = cycle_start_time;
     this->last_cycle_complete_time = 0;
     this->is_reversed              = 0;
 
@@ -74,7 +73,6 @@ void tick(SV* self, SDLx__Tween this, Uint32 now) {
     if (this->is_paused) { return; }
     bool is_complete = 0;
     Uint32 duration  = this->duration;
-    Uint32 dt        = now - this->last_tick_time;
     Uint32 elapsed   = now - this->cycle_start_time - this->total_pause_time;
 
     if (elapsed >= duration) {
@@ -92,8 +90,6 @@ void tick(SV* self, SDLx__Tween this, Uint32 now) {
     int dim = this->path_solve_func(this->path, eased, solved);
     this->proxy_set_func(this->proxy, solved, dim);
 
-    this->last_tick_time = now;
-
     if (!this->is_active) { return; } /* perl code could have stopped the tween */
     if (!is_complete    ) { return; }
 
@@ -109,7 +105,6 @@ void tick(SV* self, SDLx__Tween this, Uint32 now) {
     if (this->bounce) { this->is_reversed = !this->is_reversed; }
 
     this->cycle_start_time        += elapsed;
-    this->last_tick_time           = this->cycle_start_time;
     this->last_cycle_complete_time = 0;
 }
 

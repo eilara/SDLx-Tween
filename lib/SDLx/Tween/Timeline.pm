@@ -19,7 +19,8 @@ sub tween {
     weaken $tweens;
     my $tween = SDLx::Tween->new(
         register_cb   => sub { $tweens->insert(shift) },
-        unregister_cb => sub { $tweens->remove(shift) },
+        # "if $tweens" is defensive programming against global destruction warnings
+        unregister_cb => sub { $tweens->remove(shift) if $tweens },
         %args,
     );
     return $tween;

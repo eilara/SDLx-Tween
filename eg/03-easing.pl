@@ -102,17 +102,24 @@ my $chart = SDLx::Sprite->new(
 my $pause_instructions = SDLx::Text->new(
     x     => 5,
     y     => $h - 26,
-    text  => 'click mouse to pause/resume, +/- for slow/haste',
+    text  => 'click mouse to pause/resume, key left/right for slow/haste',
     color => [0, 0, 0],
     size  => 22,
 );
 
 my $pause_message = SDLx::Text->new(
-    x     => 120,
+    x     => 110,
     y     => 200,
     text  => 'PAUSED',
     color => [0, 0, 0],
     size  => 180,
+);
+
+my $duration_message = SDLx::Text->new(
+    x     => $w - 220,
+    y     => $h - 26,
+    color => [0, 0, 0],
+    size  => 22,
 );
 
 my $show_handler  = sub {
@@ -126,8 +133,13 @@ my $show_handler  = sub {
     $app->draw_line([0, $content_h - 1], [$w, $content_h - 1], $grid_color);
     $chart->draw($app);
     $_->paint($app) for @circles;
+
+    $duration_message->text('cycle_duration='. $tweens[0]->get_duration .'ms');
+
     $pause_instructions->write_to($app);
-    $pause_message->write_to($app) if $timeline->is_paused;
+    $duration_message  ->write_to($app);
+    $pause_message     ->write_to($app) if $timeline->is_paused;
+
     $app->update;
 };
 
@@ -136,12 +148,29 @@ my $move_handler  = sub {
 #   print "t=$timeline\n";
     $timeline->tick };
 
+SDL::Events::enable_key_repeat(600, 100);
 my $event_handler = sub {
     my ($e, $app) = @_;
     if($e->type == SDL_QUIT) {
-        $app->stop;
+        # needed for clean warning-less global destruction from Set::Object
+        undef $timeline; # make sure Set::Objects destroy first in global destruction
+        exit;
     } elsif ($e->type == SDL_MOUSEBUTTONDOWN) {
         $timeline->pause_resume;
+    } elsif ($e->type == SDL_KEYDOWN) {
+        my $duration = $tweens[0]->get_duration;
+        my $delta = 100; #ms
+        if ($e->key_sym == SDLK_LEFT) {
+            $duration += $delta;
+        } elsif ($e->key_sym == SDLK_RIGHT) {
+            $duration -= $delta;
+        } else {
+            return 0;
+        }
+        $duration = 500   if $duration < 500;
+        $duration = 20000 if $duration > 20000;
+        my $ticks = SDL::get_ticks; # time of duration change
+        $_->set_duration($duration, $ticks) for @tweens;
     }
     return 0;
 };

@@ -143,7 +143,8 @@ void
 SDLx__Tween_DESTROY(SV* self)
     CODE:
         SELF_TO_THIS;
-        stop(self, this);
+/* maybe allow user to set per tween if they want it unregistered on destruction */        
+/*        stop(self, this); */
 
         SvREFCNT_dec(this->unregister_cb);
         SvREFCNT_dec(this->register_cb);
@@ -158,6 +159,28 @@ SDLx__Tween_get_cycle_start_time(SV* self)
     OUTPUT:
         RETVAL
 
+Uint32
+SDLx__Tween_get_duration(SV* self)
+    CODE:
+        SELF_TO_THIS;
+        RETVAL = this->duration;
+    OUTPUT:
+        RETVAL
+
+void
+SDLx__Tween_set_duration(SV* self, Uint32 new_duration, ...)
+    CODE:
+        SELF_TO_THIS;
+        Uint32 now = items == 3?
+           (Uint32) SvIV(ST(2)):
+           (Uint32) SDL_GetTicks();
+        Uint32 old_duration    = this->duration;
+        double ratio           = (double) new_duration / (double) old_duration;
+        double elapsed         = now - this->cycle_start_time;
+        this->duration         = new_duration;
+        this->cycle_start_time = this->cycle_start_time + elapsed - elapsed * ratio;
+    OUTPUT:
+
 bool
 SDLx__Tween_is_active(SV* self)
     CODE:
@@ -170,11 +193,9 @@ void
 SDLx__Tween_start(SV* self, ...)
     CODE:
         SELF_TO_THIS;
-        SV* cycle_start_time_sv = ST(1);
-        Uint32 cycle_start_time =
-            SvIOK(cycle_start_time_sv)?
-                (Uint32) SvIV(cycle_start_time_sv):
-                (Uint32) SDL_GetTicks();
+        Uint32 cycle_start_time = items == 2?
+           (Uint32) SvIV(ST(1)):
+           (Uint32) SDL_GetTicks();
         start(self, this, cycle_start_time);
 
 void

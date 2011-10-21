@@ -29,7 +29,6 @@ typedef struct sdl_tween {
       bool   is_active;
       bool   is_paused;
     Uint32   cycle_start_time;
-    Uint32   last_tick_time;
     Uint32   last_cycle_complete_time;
     Uint32   pause_start_time;
     Uint32   total_pause_time;
