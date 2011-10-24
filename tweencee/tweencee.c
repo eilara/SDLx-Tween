@@ -329,6 +329,36 @@ int path_polyline_solve(void* thisp, double t, double solved[4]) {
     return 2;
 }
 
+/* fade color path changes opacity of a color */
+
+void* path_fade_build(SV* path_args) {
+    SDLx__Tween__Path__Fade this = safemalloc(sizeof(sdl_tween_path_fade));
+    if(this == NULL) { warn("unable to create new struct for path"); }
+
+    HV* args     = (HV*) SvRV(path_args);
+    SV** from_sv = hv_fetch(args, "from", 4, 0);
+    SV** to_sv   = hv_fetch(args, "to"  , 2, 0);
+    this->color  = (Uint32) SvIV(*from_sv);
+    this->to     = (Uint8 ) SvIV(*to_sv);
+    this->from   = (Uint8 ) this->color & 0xFF;
+    this->color  = this->color & 0xFFFFFF00;
+
+    return this;
+}
+
+void path_fade_free(void* thisp) {
+    SDLx__Tween__Path__Fade this = (SDLx__Tween__Path__Fade) thisp;
+    safefree(this);
+}
+
+int path_fade_solve(void* thisp, double t, double solved[4]) {
+    SDLx__Tween__Path__Fade this = (SDLx__Tween__Path__Fade) thisp;
+    double delta  = t * ((double) this->from) - ((double) this->to);
+    Uint8 opacity = this->from + delta;
+    solved[0] = this->color | opacity;
+    return 1;
+}
+
 /* ------------------ proxy ----------------- */
 
 /* method proxy */
@@ -342,7 +372,13 @@ void* proxy_method_build(SV* proxy_args) {
     SV** method_sv = hv_fetch(args, "method", 6, 0);
     SV** round_sv  = hv_fetch(args, "round" , 5, 0);
     this->method   = strdup((char*) SvPV_nolen(*method_sv));
-    this->target   = newSVsv(*target_sv);
+
+    /* weak ref to target */
+    this->target   = newRV_noinc(SvRV(*target_sv));
+
+    /* strong ref to target */
+    /*this->target   = newSVsv(*target_sv);*/
+
     this->round    = (bool) SvIV(*round_sv); 
 
     this->last_value = 0;

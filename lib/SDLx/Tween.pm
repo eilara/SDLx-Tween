@@ -38,7 +38,27 @@ do { my $i = 0; %Path_Lookup = map { $_ => $i++ } qw(
     circular
     spiral
     polyline
+    fade
 )};
+
+my %Paths_Requiring_Edge_Value_Args = map { $Path_Lookup{$_} => 1 } qw(
+    linear
+    sine
+    fade
+);
+
+my %Paths_On_Color = map { $Path_Lookup{$_} => 1 } qw(
+    fade
+);
+
+my %Path_Get_Dim = (
+    $Path_Lookup{linear}   => \&compute_dim_path_with_edge_values,
+    $Path_Lookup{sine}     => \&compute_dim_path_with_edge_values,
+    $Path_Lookup{circular} => \&compute_dim_path_centered,
+    $Path_Lookup{spiral}   => \&compute_dim_path_centered,
+    $Path_Lookup{polyline} => \&compute_dim_path_polyline,
+    $Path_Lookup{fade}     => \&compute_dim_path_color,
+);
 
 my %Proxy_Lookup;
 do { my $i = 0; %Proxy_Lookup = map { $_ => $i++ } qw(
@@ -54,19 +74,6 @@ my %Proxy_Builders = (
 my %Proxies_That_Get_Edge_Values = (
     $Proxy_Lookup{method} => \&init_value_proxy_method,
     $Proxy_Lookup{array}  => \&init_value_proxy_array,
-);
-
-my %Paths_Requiring_Edge_Value_Args = map { $Path_Lookup{$_} => 1 } qw(
-    linear
-    sine
-);
-
-my %Path_Get_Dim = (
-    $Path_Lookup{linear}   => \&compute_dim_path_with_edge_values,
-    $Path_Lookup{sine}     => \&compute_dim_path_with_edge_values,
-    $Path_Lookup{circular} => \&compute_dim_path_centered,
-    $Path_Lookup{spiral}   => \&compute_dim_path_centered,
-    $Path_Lookup{polyline} => \&compute_dim_path_polyline,
 );
 
 sub new {
@@ -94,9 +101,8 @@ sub new {
         $path_args->{to}   = $args{to};
     } 
 
-    # non linear paths only in 2D
-    if ($path != 0) {
-        # get dim from "from" if we have it, if not, try to ask the path
+    # non linear paths need dimension check, color paths dont
+    if ($path != 0 && !$Paths_On_Color{$path}) {
         my $dim_provider = $Path_Get_Dim{$path} || die 'Cannot compute dimension of tween';
         my $dim = $dim_provider->($path_args);
         die "Non linear paths only work for 2D, dim=$dim" unless $dim == 2;
@@ -170,6 +176,8 @@ sub compute_dim_path_centered {
     return scalar @{$path_args->{center}};
 }
 
+# convert the list of waypoints into a list of segments, each
+# with its relative length, and its tween progress
 sub compute_dim_path_polyline {
     my $path_args = shift;
     my @points = @{$path_args->{points} || die 'No "points given'};
@@ -195,6 +203,12 @@ sub compute_dim_path_polyline {
     };
     $path_args->{segments} = [@segments];
     return $dim;
+}
+
+sub compute_dim_path_color {
+    my $path_args = shift;
+# TODO arg checks on color args?
+    return 1;
 }
 
 

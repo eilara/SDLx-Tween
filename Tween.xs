@@ -49,17 +49,18 @@ static double (*ease_table[31]) (double) = {
     path_sine_##kind,     \
     path_circular_##kind, \
     path_spiral_##kind,   \
-    path_polyline_##kind
+    path_polyline_##kind, \
+    path_fade_##kind
 
-static void* (*path_build_table[5]) (SV*) = {
+static void* (*path_build_table[6]) (SV*) = {
     PATH_FUNCS(build)
 };
 
-static void (*path_free_table[5]) (void*) = {
+static void (*path_free_table[6]) (void*) = {
     PATH_FUNCS(free)
 };
 
-static int (*path_solve_table[5]) (void*, double, double[4]) = {
+static int (*path_solve_table[6]) (void*, double, double[4]) = {
     PATH_FUNCS(solve)
 };
 
@@ -69,15 +70,15 @@ static int (*path_solve_table[5]) (void*, double, double[4]) = {
     proxy_method_##kind,  \
     proxy_array_##kind
 
-static void* (*proxy_build_table[5]) (SV*) = {
+static void* (*proxy_build_table[2]) (SV*) = {
     PROXY_FUNCS(build)
 };
 
-static void (*proxy_free_table[5]) (void*) = {
+static void (*proxy_free_table[2]) (void*) = {
     PROXY_FUNCS(free)
 };
 
-static void (*proxy_set_table[5]) (void*, double[4], int dim) = {
+static void (*proxy_set_table[2]) (void*, double[4], int dim) = {
     PROXY_FUNCS(set)
 };
 

@@ -38,7 +38,7 @@ use Moose;
 
 has circle => (is => 'ro', required   => 1, handles => [qw(position)]);
 has trails => (is => 'rw', default    => sub { [] });
-has tween  => (is => 'rw', lazy_build => 1, handles => [qw(start stop tick)]);
+has tween  => (is => 'ro', lazy_build => 1, handles => [qw(start stop tick)]);
 
 sub _build_tween {
     my $self = shift;
@@ -159,7 +159,9 @@ my $move_handler  = sub {
 my $event_handler = sub {
     my ($e, $app) = @_;
     if($e->type == SDL_QUIT) {
-        $app->stop;
+        # avoid warnings on global destruction
+        $trailer = undef;
+        exit;
     } elsif ($e->type == SDL_MOUSEBUTTONDOWN) {
         $tween->stop;
         tween_circle();

@@ -34,7 +34,7 @@ $iut->start(20_000);
 
 ok($iut->is_active, 'active after start');
 is($registered, $iut, 'registered with clock');
-is($iut->get_cycle_start_time, 20_000, 'cycle start time');
+is($registered->get_cycle_start_time, 20_000, 'cycle start time');
 
 $iut->tick(23_000);
 is($circle->radius, 510, '1st tick radius');

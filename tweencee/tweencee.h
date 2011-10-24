@@ -8,7 +8,6 @@
  *
  * TODO
  * should be using sv_setsv(SV*, SV*); to set SV* if it is already set
- * check stack size instead of using SvIOK in start
  * "Floating point division with a constant or repeated division with the same value should of course be done by multiplying with the reciprocal"
  * final and initial ticks even if stopped externally with accurate init and final values from solver
  */
@@ -32,7 +31,6 @@ typedef struct sdl_tween {
     Uint32   last_cycle_complete_time;
     Uint32   pause_start_time;
     Uint32   total_pause_time;
-
 
     double   (*ease_func) (double);
 
@@ -135,6 +133,20 @@ typedef sdl_tween_path_polyline* SDLx__Tween__Path__Polyline;
 void*  path_polyline_build (SV* path_args);
 void   path_polyline_free  (void* thisp);
 int    path_polyline_solve (void* thisp, double t, double solved[4]);
+
+
+typedef struct sdl_tween_path_fade {
+
+    Uint32 color; /* initial color                   */
+    Uint8  from;  /* inital opacity of initial color */
+    Uint8  to;    /* final opacity                   */
+
+} sdl_tween_path_fade;
+typedef sdl_tween_path_fade* SDLx__Tween__Path__Fade;
+
+void*  path_fade_build (SV* path_args);
+void   path_fade_free  (void* thisp);
+int    path_fade_solve (void* thisp, double t, double solved[4]);
 
 /* ------------------------------ proxy ------------------------------- */
 

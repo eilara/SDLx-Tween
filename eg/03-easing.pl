@@ -116,7 +116,7 @@ my $pause_message = SDLx::Text->new(
 );
 
 my $duration_message = SDLx::Text->new(
-    x     => $w - 220,
+    x     => $w - 228,
     y     => $h - 26,
     color => [0, 0, 0],
     size  => 22,
