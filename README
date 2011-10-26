@@ -1,11 +1,11 @@
 SDLx-Tween version 0.01
 ======================
 
-XS tween engine in for SDL Perl.
+SDL Perl XS tweening lib
 
-STATUS: Ready enough to be useful
+STATUS: Starting to be almost ready enough to be somewhat useful
 
-Only built on Linux so far.
+Only built on Linux.
 
 Writing Perl SDL game move handlers is hard. Consider a missile with 3 states:
 
@@ -15,27 +15,29 @@ Writing Perl SDL game move handlers is hard. Consider a missile with 3 states:
 
 The move handler for this game object (GOB) is hard to write, because it needs to:
 
-    * update (GOB) properties
-    * you must take into account acceleration and paths in the computation of these values
+    * update GOB properties
+    * you must take into account acceleration and paths in the computation of
+      these values
     * you need to set limits of the values, wait for the limits
-    * GOBs need to act differently according to their state, so you need to manage that as well
+    * GOBs need to act differently according to their state, so you need to
+      manage that as well
     * it all must be very accurate, or animations will miss each other
-    * and it has to be fast- this code is run per each GOB per each update
+    * it has to be fast- this code is run per each GOB per each update
 
-SDLx::Tween saves you the work of writing move handlers. Instead you declare tweens
-on your GOBs. The tweens will update your properties on game updates.
+SDLx::Tween lib can do some of these things. Instead of writing a move handler,
+declare tweens on your GOBs. SDLx::Tween will take over the move handler for
+you.
 
-So instead of writing a move handler which updates a $my_gob position from x=0
-to x=100 in 1 second, we can write:
+Instead of writing a move handler which updates a $my_gob position from x=0
+to x=100 in 1 second, you can go:
 
     SDLx::Tween::Timeline->tween
-        (duration => 1000, from_to => [0, 100], on => [x => $my_gob]);
+        (on => [x => $my_gob], range => [0, 100], t => 1_000);
 
 And SDLx::Tween will setup the correct move handler.
 
-Being able to just tween a property in a linear progression is not enough to
-replace all of our move handlers. The tween library provides many other features
-to help you declare changes in GOB so you don't have to write move handlers:
+Move handlers are rarely a simple linear progression. The tween library
+can change GOBs in many ways:
 
     - tween any property, to a callback, or directly on an array
     - tween a property with several dimensions, e.g. xy position, 4D color space
@@ -73,7 +75,6 @@ TODO
     - easing
         * stepped ease for retro shaky animations    
     - timeline control
-        * pause/resume
         * ffw/rewind/seek/elasetic time factor
         * sequence/parallel
     - callback proxy
@@ -82,13 +83,12 @@ TODO
         * sprite animation
         * spawner
         * rotation/scaling
-        * position - with distinct int optimization in 2D
+        * distinct int optimization in 2D for position
         * shape tweening using lots of particles
     - timeline
         * auto connect directly to SDL app
     - docs
     - demos
-        * paths
         * add trails to easing demo, make them tween fade
         * follow cursor dynamic properties
         * start/stop of tweens
