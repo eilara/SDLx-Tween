@@ -7,6 +7,7 @@ STATUS: Starting to be almost ready enough to be somewhat useful
 
 Only built on Linux.
 
+
 Writing Perl SDL game move handlers is hard. Consider a missile with 3 states:
 
     - firing - some sprite animation
@@ -31,8 +32,9 @@ you.
 Instead of writing a move handler which updates a $my_gob position from x=0
 to x=100 in 1 second, you can go:
 
-    SDLx::Tween::Timeline->tween
-        (on => [x => $my_gob], range => [0, 100], t => 1_000);
+    SDLx::Tween::Timeline
+        ->tween(on => [x => $my_gob], range => [0, 100], t => 1_000)
+        ->start;
 
 And SDLx::Tween will setup the correct move handler.
 
@@ -51,6 +53,31 @@ can change GOBs in many ways:
     - tween sprite frames, color/opacity/brightness/saturation/hue, volume/pitch,
       spawning, rotation, size, camera position
 
+According to:
+
+    http://en.wikipedia.org/wiki/Tweening
+
+    "In the inbetweening workflow of traditional hand-drawn animation, the
+    senior or key artist would draw the keyframes ... and then would hand over
+    the scene to his or her assistant the inbetweener who does the rest."
+
+Let SDLx-Tween be your inbetweener.    
+
+Cool implementations of the tweening idea to learn from:
+
+    - http://www.greensock.com/tweenlite/
+    - http://drawlogic.com/2010/04/11/itween-tweening-and-easing-animation-library-for-unity-3d/
+    - http://www.leebyron.com/else/shapetween/
+
+
+EXAMPLES
+
+    01-circle.pl       - the hello world of tweening, a growing circle
+    02-starfield.pl    - demo of 4000 concurrent tweens
+    03-easing.pl       - demo of all easing functions
+    04-paths.pl        - demo of all paths
+
+
 TODO: syntax sugar above is still unimplemented, current syntax is:
 
     SDLx::Tween::Timeline->tween(
@@ -59,14 +86,8 @@ TODO: syntax sugar above is still unimplemented, current syntax is:
         to       => 100,
         on       => $my_gob,
         set      => 'x',
-    );
+    )->start;
 
-EXAMPLES
-
-    01-circle.pl       - the hello world of tweening, a growing circle
-    02-starfield.pl    - demo of 4000 concurrent tweens
-    03-easing.pl       - demo of all easing functions
-    04-paths.pl        - demo of all paths
 
 TODO
 
@@ -127,6 +148,21 @@ This module requires these other modules and libraries:
     Moose
 
 COPYRIGHT AND LICENCE
+
+
+Big thanks to:
+
+    Sam Hocevar, from 14 rue de Plaisance, 75014 Paris, France
+    https://raw.github.com/warrenm
+
+For his most excellent AHEasing lib which SDLx-Tween uses for easing
+functions. The licence is in the tweencee/ dir. It is at:
+
+    https://github.com/warrenm/AHEasing
+
+Check that page for some great info about easing functions.
+
+
 
 Put the correct copyright and licence information here.
 
