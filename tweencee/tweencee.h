@@ -137,9 +137,9 @@ int    path_polyline_solve (void* thisp, double t, double solved[4]);
 
 typedef struct sdl_tween_path_fade {
 
-    Uint32 color; /* initial color                   */
-    Uint8  from;  /* inital opacity of initial color */
-    Uint8  to;    /* final opacity                   */
+    Uint8 color[4]; /* initial color with no opacity   */
+    Uint8 from;     /* inital opacity of initial color */
+    Uint8 to;       /* final opacity                   */
 
 } sdl_tween_path_fade;
 typedef sdl_tween_path_fade* SDLx__Tween__Path__Fade;
@@ -150,14 +150,15 @@ int    path_fade_solve (void* thisp, double t, double solved[4]);
 
 /* ------------------------------ proxy ------------------------------- */
 
-/* in = double, out = call method with double or distinct int if round is on */
 typedef struct sdl_tween_proxy_method {
 
-    SV*    target;
-    char*  method;
-    bool   round;
-    int    last_value;
-    bool   is_init;
+    SV*     target;
+    char*   method;
+    bool    round;
+    int     last_value;
+    Uint32  last_uint32_value;
+    bool    is_uint32;
+    bool    is_init;
 
 } sdl_tween_proxy_method;
 typedef sdl_tween_proxy_method* SDLx__Tween__Proxy__Method;
@@ -167,7 +168,6 @@ void   proxy_method_free  (void* thisp);
 void   proxy_method_set   (void* thisp, double solved[4], int dim);
 
 
-/* in = double, out = set in array ref as double, no rounding */
 typedef struct sdl_tween_proxy_array {
 
     AV*  on;

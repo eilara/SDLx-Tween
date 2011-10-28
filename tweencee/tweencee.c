@@ -335,13 +335,17 @@ void* path_fade_build(SV* path_args) {
     SDLx__Tween__Path__Fade this = safemalloc(sizeof(sdl_tween_path_fade));
     if(this == NULL) { warn("unable to create new struct for path"); }
 
-    HV* args     = (HV*) SvRV(path_args);
-    SV** from_sv = hv_fetch(args, "from", 4, 0);
-    SV** to_sv   = hv_fetch(args, "to"  , 2, 0);
-    this->color  = (Uint32) SvIV(*from_sv);
-    this->to     = (Uint8 ) SvIV(*to_sv);
-    this->from   = (Uint8 ) this->color & 0xFF;
-    this->color  = this->color & 0xFFFFFF00;
+    HV* args       = (HV*) SvRV(path_args);
+    SV** from_sv   = hv_fetch(args, "from", 4, 0);
+    SV** to_sv     = hv_fetch(args, "to"  , 2, 0);
+    Uint32 color   = (Uint32) SvIV(*from_sv);
+    this->to       = (Uint8 ) SvIV(*to_sv);
+    this->from     = (Uint8 ) color & 0xFF;
+    color          = color & 0xFFFFFF00;
+    this->color[3] = (color & 0x000000FF);
+    this->color[2] = (color & 0x0000FF00) >> 8;
+    this->color[1] = (color & 0x00FF0000) >> 16;
+    this->color[0] = (color & 0xFF000000) >> 24;
 
     return this;
 }
@@ -355,8 +359,11 @@ int path_fade_solve(void* thisp, double t, double solved[4]) {
     SDLx__Tween__Path__Fade this = (SDLx__Tween__Path__Fade) thisp;
     double delta  = t * ((double) this->from) - ((double) this->to);
     Uint8 opacity = this->from + delta;
-    solved[0] = this->color | opacity;
-    return 1;
+    solved[0] = this->color[0];
+    solved[1] = this->color[1];
+    solved[2] = this->color[2];
+    solved[3] = opacity;
+    return 4;
 }
 
 /* ------------------ proxy ----------------- */
@@ -367,22 +374,24 @@ void* proxy_method_build(SV* proxy_args) {
     SDLx__Tween__Proxy__Method this = safemalloc(sizeof(sdl_tween_proxy_method));
     if(this == NULL) { warn("unable to create new struct for proxy"); }
 
-    HV* args       = (HV*) SvRV(proxy_args);
-    SV** target_sv = hv_fetch(args, "target", 6, 0);
-    SV** method_sv = hv_fetch(args, "method", 6, 0);
-    SV** round_sv  = hv_fetch(args, "round" , 5, 0);
-    this->method   = strdup((char*) SvPV_nolen(*method_sv));
+    HV* args          = (HV*) SvRV(proxy_args);
+    SV** target_sv    = hv_fetch(args, "target"    , 6, 0);
+    SV** method_sv    = hv_fetch(args, "method"    , 6, 0);
+    SV** round_sv     = hv_fetch(args, "round"     , 5, 0);
+    SV** is_uint32_sv = hv_fetch(args, "is_uint32" , 9, 0);
+    this->method      = strdup((char*) SvPV_nolen(*method_sv));
 
     /* weak ref to target */
-    this->target   = newRV_noinc(SvRV(*target_sv));
+    this->target      = newRV_noinc(SvRV(*target_sv));
 
     /* strong ref to target */
     /*this->target   = newSVsv(*target_sv);*/
 
-    this->round    = (bool) SvIV(*round_sv); 
+    this->round       = (bool) SvIV(*round_sv); 
+    this->is_uint32   = (bool) SvIV(*is_uint32_sv); 
 
-    this->last_value = 0;
-    this->is_init    = 0;
+    this->last_value  = 0;
+    this->is_init     = 0;
 
     return this;
 }
@@ -420,6 +429,23 @@ void proxy_method_set(void* thisp, double solved[4], int dim) {
 
         FREETMPS; LEAVE;
 
+    } else if (this->is_uint32) {
+        Uint32 color = ((Uint8) solved[0] << 24) | ((Uint8) solved[1] << 16) | ((Uint8) solved[2] << 8) | (Uint8) solved[3];
+        if (this->is_init) {
+            if (color == this->last_uint32_value) { return; }
+        } else {
+            this->is_init = 1;
+        }
+        this->last_uint32_value = color;
+
+        dSP; ENTER; SAVETMPS;PUSHMARK(SP); EXTEND(SP, 2);
+        XPUSHs(this->target);
+        XPUSHs(sv_2mortal(newSViv(color)));
+        PUTBACK;
+
+        call_method(this->method, G_DISCARD);
+
+        FREETMPS; LEAVE;
     } else {
         AV* out = newAV();
         av_extend(out, dim - 1);

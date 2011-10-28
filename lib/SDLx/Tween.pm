@@ -87,8 +87,6 @@ sub new {
     my $proxy_args = $Proxy_Builders{$proxy}->(\%args);
     my $path_args  = $args{path_args} || {};
 
-    $proxy_args->{round} = $args{round} || 0;
-
     # these paths require "from" and "to" in top level args
     if ($Paths_Requiring_Edge_Value_Args{$path}) {
         if (!exists($args{from})) { # auto get "from"
@@ -108,6 +106,8 @@ sub new {
         die "Non linear paths only work for 2D, dim=$dim" unless $dim == 2;
     }
   
+    $proxy_args->{is_uint32} = $Paths_On_Color{$path}? 1: 0;
+
     my $register_cb   = $args{register_cb}   || sub {}; 
     my $unregister_cb = $args{unregister_cb} || sub {};
     my $duration      = $args{duration}      || die 'No positive duration given';
@@ -147,6 +147,7 @@ sub build_proxy_method {
     return {
         target => $args->{on},
         method => $args->{set},
+        round  => $args->{round} || 0,
     };
 }
 

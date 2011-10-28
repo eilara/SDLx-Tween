@@ -1,5 +1,5 @@
 SDLx-Tween version 0.01
-======================
+=======================
 
 SDL Perl XS tweening lib
 
@@ -104,7 +104,8 @@ TODO
         * sprite animation
         * spawner
         * rotation/scaling
-        * distinct int optimization in 2D for position
+        * distinct int optimization in 2D for position, and for array proxy
+        * Uint32 join feature for array proxy
         * shape tweening using lots of particles
     - timeline
         * auto connect directly to SDL app
