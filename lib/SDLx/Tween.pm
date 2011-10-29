@@ -132,6 +132,22 @@ sub new {
 
 
 
+sub build_proxy_method {
+    my $args = shift;
+    my $on = $args->{on};
+    die 'No "on" given' unless $on;
+    if (ref($on) eq 'ARRAY') {
+        $args->{set} = $on->[0];
+        $on          = $on->[1];
+    }
+    die 'No "set" given' unless exists $args->{set};
+    return {
+        target => $on,
+        method => $args->{set},
+        round  => $args->{round} || 0,
+    };
+}
+
 sub build_proxy_array {
     my $args = shift;
     my $on = $args->{on} || die 'No "on" array given to array proxy';
@@ -139,16 +155,6 @@ sub build_proxy_array {
     # is there no better way?! SvNOK_on seems to fail need to replace scalar?
     for (@$on) { $_ += 0.000000000001 }
     return {on => $on};
-}
-
-sub build_proxy_method {
-    my $args = shift;
-    die 'No "set"/"on" given' unless exists($args->{set}) && exists ($args->{on});
-    return {
-        target => $args->{on},
-        method => $args->{set},
-        round  => $args->{round} || 0,
-    };
 }
 
 

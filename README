@@ -81,11 +81,10 @@ EXAMPLES
 TODO: syntax sugar above is still unimplemented, current syntax is:
 
     SDLx::Tween::Timeline->tween(
+        on       => [x => $my_gob],
         duration => 1000,
         from     => 0,
         to       => 100,
-        on       => $my_gob,
-        set      => 'x',
     )->start;
 
 
