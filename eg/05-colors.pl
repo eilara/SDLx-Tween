@@ -28,7 +28,6 @@ sub _build_tween {
 
 sub paint {
     my ($self, $surface) = @_;
-#printf("color=%x\n",$self->color);
     $surface->draw_circle_filled($self->position, 100, $self->color);
     $surface->draw_circle($self->position, 100, 0x000000FF, 1);
 }
@@ -53,6 +52,14 @@ my @circle_defs = (
     ["path=rgba from=0x00FF0044 to=0x0000FFCC",
         [200, 320], 0x00FF0044,
         {path => 'rgba', to => 0x0000FFCC},
+    ],
+    ["path=rgba from=0xFF00FF77 to=0x00000077",
+        [330, 150], 0xFF00FF77,
+        {path => 'rgba', to => 0x00000077},
+    ],
+    ["path=rgba from=0xFFFF0088 to=0xFFFFFF88",
+        [330, 320], 0xFFFF0088,
+        {path => 'rgba', to => 0xFFFFFF88},
     ],
 );
 
