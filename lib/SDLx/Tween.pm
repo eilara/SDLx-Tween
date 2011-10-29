@@ -39,16 +39,19 @@ do { my $i = 0; %Path_Lookup = map { $_ => $i++ } qw(
     spiral
     polyline
     fade
+    rgba
 )};
 
 my %Paths_Requiring_Edge_Value_Args = map { $Path_Lookup{$_} => 1 } qw(
     linear
     sine
     fade
+    rgba
 );
 
 my %Paths_On_Color = map { $Path_Lookup{$_} => 1 } qw(
     fade
+    rgba
 );
 
 my %Path_Get_Dim = (
@@ -57,7 +60,6 @@ my %Path_Get_Dim = (
     $Path_Lookup{circular} => \&compute_dim_path_centered,
     $Path_Lookup{spiral}   => \&compute_dim_path_centered,
     $Path_Lookup{polyline} => \&compute_dim_path_polyline,
-    $Path_Lookup{fade}     => \&compute_dim_path_color,
 );
 
 my %Proxy_Lookup;
@@ -124,7 +126,6 @@ sub new {
         $path, $path_args,
         $proxy, $proxy_args,
     );
-
     my $struct = new_struct(@args);
     my $self = bless($struct, $class);
     return $self;
@@ -211,13 +212,6 @@ sub compute_dim_path_polyline {
     $path_args->{segments} = [@segments];
     return $dim;
 }
-
-sub compute_dim_path_color {
-    my $path_args = shift;
-# TODO arg checks on color args?
-    return 1;
-}
-
 
 1;
 

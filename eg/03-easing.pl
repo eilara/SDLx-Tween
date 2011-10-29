@@ -81,13 +81,12 @@ for my $ease (@names) {
         ease       => $ease,
     );
     push @tweens, $timeline->tween(
-        duration      => 6_000,
-        to            => [$w - $radius, $y],
-        on            => $circle,
-        set           => 'position',
-        bounce        => 1,
-        forever       => 1,
-        ease          => $ease,
+        duration => 6_000,
+        to       => [$w - $radius, $y],
+        on       => [position => $circle],
+        bounce   => 1,
+        forever  => 1,
+        ease     => $ease,
     );
     push @circles, $circle;
     $row++;

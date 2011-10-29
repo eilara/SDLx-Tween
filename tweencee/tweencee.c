@@ -365,6 +365,36 @@ int path_fade_solve(void* thisp, double t, double solved[4]) {
     return 4;
 }
 
+/* rgba linear tween on any of individual rgba components of color */
+
+void* path_rgba_build(SV* path_args) {
+    SDLx__Tween__Path__Linear this = safemalloc(sizeof(sdl_tween_path_linear));
+    if(this == NULL) { warn("unable to create new struct for path"); }
+    HV* args      = (HV*) SvRV(path_args);
+    SV** from_sv  = hv_fetch(args, "from", 4, 0);
+    SV** to_sv    = hv_fetch(args, "to"  , 2, 0);
+    Uint32 from   = (Uint32) SvIV(*from_sv);
+    Uint32 to     = (Uint32) SvIV(*to_sv);
+    this->from[3] = (from & 0x000000FF);
+    this->from[2] = (from & 0x0000FF00) >> 8;
+    this->from[1] = (from & 0x00FF0000) >> 16;
+    this->from[0] = (from & 0xFF000000) >> 24;
+    this->to[3]   = (to   & 0x000000FF);
+    this->to[2]   = (to   & 0x0000FF00) >> 8;
+    this->to[1]   = (to   & 0x00FF0000) >> 16;
+    this->to[0]   = (to   & 0xFF000000) >> 24;
+    this->dim     = 4;
+    return this;
+}
+
+void path_rgba_free(void* thisp) {
+    path_linear_free(thisp);
+}
+
+int path_rgba_solve(void* thisp, double t, double solved[4]) {
+    return path_linear_solve(thisp, t, solved);
+}
+
 /* ------------------ proxy ----------------- */
 
 /* method proxy */

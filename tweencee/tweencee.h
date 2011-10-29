@@ -148,6 +148,10 @@ void*  path_fade_build (SV* path_args);
 void   path_fade_free  (void* thisp);
 int    path_fade_solve (void* thisp, double t, double solved[4]);
 
+void*  path_rgba_build (SV* path_args);
+void   path_rgba_free  (void* thisp);
+int    path_rgba_solve (void* thisp, double t, double solved[4]);
+
 /* ------------------------------ proxy ------------------------------- */
 
 typedef struct sdl_tween_proxy_method {
