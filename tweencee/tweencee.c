@@ -346,7 +346,6 @@ void* path_fade_build(SV* path_args) {
     this->color[2] = (color & 0x0000FF00) >> 8;
     this->color[1] = (color & 0x00FF0000) >> 16;
     this->color[0] = (color & 0xFF000000) >> 24;
-
     return this;
 }
 
@@ -357,12 +356,12 @@ void path_fade_free(void* thisp) {
 
 int path_fade_solve(void* thisp, double t, double solved[4]) {
     SDLx__Tween__Path__Fade this = (SDLx__Tween__Path__Fade) thisp;
-    double delta  = t * ((double) this->from) - ((double) this->to);
-    Uint8 opacity = this->from + delta;
-    solved[0] = this->color[0];
-    solved[1] = this->color[1];
-    solved[2] = this->color[2];
-    solved[3] = opacity;
+    double delta  = t * (double) (this->to - this->from);
+    Uint8 opacity = ((double) this->from) + delta;
+    solved[0]     = this->color[0];
+    solved[1]     = this->color[1];
+    solved[2]     = this->color[2];
+    solved[3]     = opacity;
     return 4;
 }
 
@@ -430,7 +429,10 @@ void proxy_method_set(void* thisp, double solved[4], int dim) {
         FREETMPS; LEAVE;
 
     } else if (this->is_uint32) {
-        Uint32 color = ((Uint8) solved[0] << 24) | ((Uint8) solved[1] << 16) | ((Uint8) solved[2] << 8) | (Uint8) solved[3];
+        Uint32 color = ((Uint8) solved[0] << 24) |
+                       ((Uint8) solved[1] << 16) |
+                       ((Uint8) solved[2] <<  8) |
+                        (Uint8) solved[3];
         if (this->is_init) {
             if (color == this->last_uint32_value) { return; }
         } else {
