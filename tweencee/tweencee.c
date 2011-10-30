@@ -4,11 +4,7 @@
 
 #define LERP(T, A, B)  ( (A) + (T) * ((B) - (A)) )
 
-// this throws warning:
-// warning: initializer element is not constant
-// because some compilers cannot run a func here?
-// what to do? static block?
-static const double PI = 2.0 * acos(0.0);
+static const double PI = 3.141592653589793238;
 
 void build_struct(
     SDLx__Tween this,
@@ -341,7 +337,7 @@ void* path_fade_build(SV* path_args) {
     Uint32 color   = (Uint32) SvIV(*from_sv);
     this->to       = (Uint8 ) SvIV(*to_sv);
     this->from     = (Uint8 ) color & 0xFF;
-    color          = color & 0xFFFFFF00;
+    color          =  color & 0xFFFFFF00;
     this->color[3] = (color & 0x000000FF);
     this->color[2] = (color & 0x0000FF00) >> 8;
     this->color[1] = (color & 0x00FF0000) >> 16;

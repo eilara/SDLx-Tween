@@ -1,6 +1,6 @@
-Revision history for Perl extension SDL::Tween.
+Revision history for Perl extension SDLx::Tween.
 
-0.01  Wed Sep 28 16:18:00 2011
+0.9  Wed Sep 28 16:18:00 2011
 	- original version; created by h2xs 1.23 with options
-		-O -n SDL::Tween ./SDL-Tween/tweencee/tweencee.h
+		-O -n SDLx::Tween ./SDLx-Tween/tweencee/tweencee.h
 
