@@ -255,7 +255,7 @@ If you have a web site set up for your module, mention it here.
 
 =head1 AUTHOR
 
-Ran Eilam, E<lt>eilara@E<gt>
+Ran Eilam <eilara@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 

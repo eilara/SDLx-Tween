@@ -1,26 +1,22 @@
 use 5.010001;
 use ExtUtils::MakeMaker;
-
-# dont compile on Win32 - need to use Alien::SDL
+use Alien::SDL;
 
 WriteMakefile(
     NAME              => 'SDLx::Tween',
     VERSION_FROM      => 'lib/SDLx/Tween.pm', # finds $VERSION
     PREREQ_PM         => {
-        'SDL'               => 2.533,
-        'Moose'             => 2.0204,
-        'Set::Object'       => 1.28,
-    }, # e.g., Module::Name => 1.1
-    ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-      (ABSTRACT_FROM  => 'lib/SDLx/Tween.pm', # retrieve abstract from module
-       AUTHOR         => 'Ran Eilam <eilara@cpan.org>') : ()),
-    LIBS              => ['-lm -lSDL'], # e.g., '-lm'
+        'SDL'         => 2.533,
+        'Moose'       => 2.0204,
+        'Set::Object' => 1.28,
+    },
+    ABSTRACT_FROM     => 'lib/SDLx/Tween.pm',
+    AUTHOR            => 'Ran Eilam <eilara@cpan.org>',
+    LIBS              => Alien::SDL->config('libs', '-lm'),
     DEFINE            => '', # e.g., '-DHAVE_SOMETHING'
-    INC               => '-I.', # e.g., '-I. -I/usr/include/other'
+    INC               => Alien::SDL->config('cflags'). ' -I.',
     'MYEXTLIB'        => 'tweencee/libtweencee$(LIB_EXT)',
-#    OBJECT            => q/$(O_FILES)/,
-	# Un-comment this if you add C files to link with later:
-    # OBJECT            => '$(O_FILES)', # link all the C files too
+#   OBJECT            => q/$(O_FILES)/,
 );
 
 sub MY::postamble {

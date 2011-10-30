@@ -147,8 +147,7 @@ This module requires these other modules and libraries:
     SDL
     Moose
 
-COPYRIGHT AND LICENCE
-
+COPYRIGHT AND LICENSE
 
 Big thanks to:
 
@@ -156,7 +155,7 @@ Big thanks to:
     https://raw.github.com/warrenm
 
 For his most excellent AHEasing lib which SDLx-Tween uses for easing
-functions. The licence is in the tweencee/ dir. It is at:
+functions. The license is in the tweencee/ dir. It is at:
 
     https://github.com/warrenm/AHEasing
 
