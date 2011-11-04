@@ -154,20 +154,6 @@ void*  path_rgba_build (SV* path_args);
 void   path_rgba_free  (void* thisp);
 int    path_rgba_solve (void* thisp, double t, double solved[4]);
 
-
-typedef struct sdl_tween_path_tail {
-
-    double  from[4];
-    double  prev[4];
-    AV*     to;
-
-} sdl_tween_path_tail;
-typedef sdl_tween_path_tail* SDLx__Tween__Path__Tail;
-
-void*  path_tail_build (SV* path_args);
-void   path_tail_free  (void* thisp);
-int    path_tail_solve (void* thisp, double t, double solved[4]);
-
 /* ------------------------------ proxy ------------------------------- */
 
 typedef struct sdl_tween_proxy_method {

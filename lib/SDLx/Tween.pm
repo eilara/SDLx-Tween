@@ -40,7 +40,6 @@ do { my $i = 0; %Path_Lookup = map { $_ => $i++ } qw(
     polyline
     fade
     rgba
-    tail
 )};
 
 my %Paths_Requiring_Edge_Value_Args = map { $Path_Lookup{$_} => 1 } qw(
@@ -48,7 +47,6 @@ my %Paths_Requiring_Edge_Value_Args = map { $Path_Lookup{$_} => 1 } qw(
     sine
     fade
     rgba
-    tail
 );
 
 my %Paths_On_Color = map { $Path_Lookup{$_} => 1 } qw(
@@ -62,7 +60,6 @@ my %Path_Get_Dim = (
     $Path_Lookup{circular} => \&compute_dim_path_centered,
     $Path_Lookup{spiral}   => \&compute_dim_path_centered,
     $Path_Lookup{polyline} => \&compute_dim_path_polyline,
-    $Path_Lookup{tail}     => \&compute_dim_path_with_edge_values,
 );
 
 my %Proxy_Lookup;
