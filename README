@@ -98,10 +98,11 @@ TODO
         * ffw/rewind/seek/elasetic time factor
         * sequence/parallel
     - callback proxy
-    - custom tweens
-        * color/brightness/opacity
+    - tween types
+        * more color transforms
         * sprite animation
         * spawner
+        * follow angle
         * rotation/scaling
         * distinct int optimization in 2D for position, and for array proxy
         * Uint32 join feature for array proxy
