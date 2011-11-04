@@ -102,6 +102,7 @@ TODO
         * more color transforms
         * sprite animation
         * spawner
+        * follow angle
         * rotation/scaling
         * distinct int optimization in 2D for position, and for array proxy
         * shape tweening using lots of particles

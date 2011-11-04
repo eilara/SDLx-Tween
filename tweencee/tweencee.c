@@ -396,6 +396,72 @@ int path_rgba_solve(void* thisp, double t, double solved[4]) {
     return path_linear_solve(thisp, t, solved);
 }
 
+/* tail path - follow values on an array, like linear but "to" is dynamic */
+
+void* path_tail_build(SV* path_args) {
+    SDLx__Tween__Path__Tail this = safemalloc(sizeof(sdl_tween_path_tail));
+    if(this == NULL) { warn("unable to create new struct for path"); }
+    HV* args      = (HV*) SvRV(path_args);
+
+    SV** from_sv  = hv_fetch(args, "from", 4, 0);
+    AV* from_arr  = (AV*) SvRV(*from_sv);
+    SV** from_x   = av_fetch(from_arr, 0, 0);
+    SV** from_y   = av_fetch(from_arr, 1, 0);
+    this->from[0] = (double) SvNV(*from_x);
+    this->from[1] = (double) SvNV(*from_y);
+    this->prev[0] = from[0];
+    this->prev[1] = from[1];
+
+    SV** to_sv    = hv_fetch(args, "to", 2, 0);
+    this->to      = (AV*) SvRV(*to_sv);
+
+    return this;
+}
+
+void path_tail_free(void* thisp) {
+    SDLx__Tween__Path__Tail this = (SDLx__Tween__Path__Tail) thisp;
+    safefree(this);
+}
+
+int path_tail_solve(void* thisp, double t, double solved[4]) {
+    SDLx__Tween__Path__Tail this = (SDLx__Tween__Path__Tail) thisp;
+    AV* to        = this->to;
+    SV** to_x_sv  = av_fetch(to, 0, 0);
+    SV** to_y_sv  = av_fetch(to, 1, 0);
+    double to_x   = (double) SvNV(*to_x_sv);
+    double to_y   = (double) SvNV(*to_y_sv);
+    solved[0]     = LERP(t, this->from[0], to_x);
+    solved[1]     = LERP(t, this->from[1], to_y);
+
+    double to_new_to_dx    = solved[0] - to_x;
+    double to_new_to_dy    = solved[1] - to_y;
+    double to_new_to       = to_new_from_dx*to_prev_from_dx + to_prev_from_dy*to_prev_from_dy;
+    double to_new_from     = sqrt(to_new_to) * (t / (1-t));
+
+    x(1-1/t)=tnt * t / (t-1)
+        X+tnt=TOTAL
+
+X+d * t = X
+Xt +dt - x = 0
+X(t - 1) = -dt
+X = d * t/(1-t)
+t=1/4
+d=3/4
+3/4 1/4 4/3
+
+
+
+    double to_prev_from_dx = solved[0] - prev[0];
+    double to_prev_from_dy = solved[1] - prev[1];
+    double to_prev_from    = to_prev_from_dx*to_prev_from_dx + to_prev_from_dy*to_prev_from_dy;
+    this->from[0] = solved[0];
+    this->from[1] = solved[1];
+
+    this->prev[0] = solved[0];
+    this->prev[1] = solved[1];
+    return 2;
+}
+
 /* ------------------ proxy ----------------- */
 
 /* method proxy */
