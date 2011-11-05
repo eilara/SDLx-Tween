@@ -102,21 +102,17 @@ TODO
         * more color transforms
         * sprite animation
         * spawner
-        * follow angle
         * rotation/scaling
         * distinct int optimization in 2D for position, and for array proxy
-        * Uint32 join feature for array proxy
         * shape tweening using lots of particles
     - timeline
         * auto connect directly to SDL app
     - docs
     - demos
         * add trails to easing demo, make them tween fade
-        * follow cursor dynamic properties
         * start/stop of tweens
         * rain falling
     - API features
-        * dynamic params
         * delay before/after tween
         * validation should be in validation classes to get rid of all those ifs in constructor    
         * lifecycle events -> start,stop,complete
@@ -171,4 +167,7 @@ Copyright (C) 2011 by Ran Eilam
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.10.1 or,
 at your option, any later version of Perl 5 you may have available.
+
+
+
 

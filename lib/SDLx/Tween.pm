@@ -210,6 +210,7 @@ sub compute_dim_path_polyline {
         $segment->[5] = $progress;
     };
     $path_args->{segments} = [@segments];
+    $path_args->{distance} = $total_length;
     return $dim;
 }
 
