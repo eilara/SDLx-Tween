@@ -218,12 +218,12 @@ sub compute_dim_path_polyline {
 
 =head1 NAME
 
-SDLx::Tween - Perl extension for blah blah blah
+SDLx::Tween - Perl SDL XS Tweening Library
 
 =head1 SYNOPSIS
 
   use SDLx::Tween;
-  blah blah blah
+  
 
 =head1 DESCRIPTION
 
