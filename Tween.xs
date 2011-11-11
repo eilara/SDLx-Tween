@@ -51,18 +51,17 @@ static double (*ease_table[31]) (double) = {
     path_spiral_##kind,   \
     path_polyline_##kind, \
     path_fade_##kind,     \
-    path_rgba_##kind,     \
-    path_tail_##kind
+    path_rgba_##kind,
 
-static void* (*path_build_table[8]) (SV*) = {
+static void* (*path_build_table[7]) (SV*) = {
     PATH_FUNCS(build)
 };
 
-static void (*path_free_table[8]) (void*) = {
+static void (*path_free_table[7]) (void*) = {
     PATH_FUNCS(free)
 };
 
-static int (*path_solve_table[8]) (void*, double, double[4]) = {
+static int (*path_solve_table[7]) (void*, double, double[4]) = {
     PATH_FUNCS(solve)
 };
 
