@@ -1,0 +1,37 @@
+
+- docs
+- paths
+    * bezier
+- easing
+    * stepped ease for retro shaky animations    
+-proxy        
+    * callback proxy
+- timeline control
+    * ffw/rewind/seek/elasetic time factor
+    * sequence/parallel
+    * delay before or after
+    * auto connect directly to SDL app
+- tween types
+    * more color transforms
+    * sprite animation
+    * spawner
+    * rotation/scaling
+    * distinct int optimization in 2D for position, and for array proxy
+- demos
+    * add trails to easing demo, make them tween fade
+    * start/stop of tweens
+    * rain falling
+    * shape tweening using lots of particles
+- API features
+    * validation should be in validation classes to get rid of all those ifs in constructor
+    * lifecycle events -> start,stop,complete
+    * speed instead of duration
+    * sequence/parallel
+    * sugarize, connect to SDL controller
+- performance
+    * share path_args for polylines
+    * pool tweens
+    * convert doubles to floats
+- accuracy
+    * overshoot support
+    * chaining tweens passes complete->start cycle times    

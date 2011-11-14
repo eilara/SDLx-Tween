@@ -36,21 +36,23 @@ package SDLx::Tween::eg_04::Trailer;
 
 use Moose;
 
-has circle => (is => 'ro', required   => 1, handles => [qw(position)]);
-has trails => (is => 'rw', default    => sub { [] });
-has tween  => (is => 'ro', lazy_build => 1, handles => [qw(start stop tick)]);
+has circle   => (is => 'ro', required   => 1, handles => [qw(position)]);
+has trails   => (is => 'rw', default    => sub { [] });
+has timeline => (is => 'ro', required => 1, weak_ref => 1);
+has tween    => (is => 'ro', lazy_build => 1, handles => [qw(start stop)]);
 
 sub _build_tween {
     my $self = shift;
-    return SDLx::Tween->new(
-        duration  => 3_000 * 2,
-        on        => $self,
-        set       => 'add_trail',
-        from      => 1,
-        to        => 100,
-        round     => 1,
+    return $self->timeline->tween(
+        duration => 3_000 * 2,
+        on       => [add_trail => $self],
+        from     => 1,
+        to       => 100,
+        round    => 1,
     );
 }
+
+sub BUILD { shift->tween }
 
 sub change_path {
     my $self = shift;
@@ -82,7 +84,7 @@ use Math::Trig;
 use SDL::Events;
 use SDLx::App;
 use SDLx::Text;
-use SDLx::Tween;
+use SDLx::Tween::Timeline;
 
 my $w = 800;
 my $h = 600;
@@ -122,9 +124,14 @@ my $app = SDLx::App->new(
     height => $h,
 );
 
+my $timeline = SDLx::Tween::Timeline->new(sdlx_app => $app);
+
 my $circle = SDLx::Tween::eg_04::Circle->new(position => [100, 100]);
 
-my $trailer = SDLx::Tween::eg_04::Trailer->new(circle => $circle);
+my $trailer = SDLx::Tween::eg_04::Trailer->new(
+    circle   => $circle,
+    timeline => $timeline,
+);
 
 my $instructions = SDLx::Text->new(
     x     => 5,
@@ -150,12 +157,6 @@ my $show_handler  = sub {
     $app->update;
 };
 
-my $move_handler  = sub {
-    my $ticks = SDL::get_ticks;
-    $tween->tick($ticks);
-    $trailer->tick($ticks);
-};
-
 my $event_handler = sub {
     my ($e, $app) = @_;
     if($e->type == SDL_QUIT) {
@@ -171,7 +172,6 @@ my $event_handler = sub {
 
 $app->add_show_handler($show_handler);
 $app->add_event_handler($event_handler);
-$app->add_move_handler($move_handler);
 
 tween_circle();
 
@@ -182,10 +182,10 @@ sub tween_circle {
     $path_label->text("path=$path");
     push @paths, $path;
     my $args = $paths{$path};
-    $tween = SDLx::Tween->new(
+    $tween->stop if $tween;
+    $tween = $timeline->tween(
         duration  => 3_000,
-        on        => $circle,
-        set       => 'position',
+        on        => [position => $circle],
         bounce    => 1,
         forever   => 1,
         ease      => 'sine_in_out',

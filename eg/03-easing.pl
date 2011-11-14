@@ -41,7 +41,6 @@ use lib ("$Bin/..", "$Bin/../blib/arch", "$Bin/../blib/lib");
 use SDL::Events;
 use SDLx::App;
 use SDLx::Sprite;
-use SDLx::Tween;
 use SDLx::Tween::Timeline;
 
 my @names = qw(
@@ -69,7 +68,7 @@ my $app = SDLx::App->new(
 
 my (@circles, @tweens);
 
-my $timeline = SDLx::Tween::Timeline->new;
+my $timeline = SDLx::Tween::Timeline->new(sdlx_app => $app);
 
 my $row = 0;
 for my $ease (@names) {
@@ -142,11 +141,6 @@ my $show_handler  = sub {
     $app->update;
 };
 
-my $move_handler  = sub {
-   
-#   print "t=$timeline\n";
-    $timeline->tick };
-
 SDL::Events::enable_key_repeat(600, 100);
 my $event_handler = sub {
     my ($e, $app) = @_;
@@ -177,7 +171,6 @@ my $event_handler = sub {
 
 $app->add_show_handler($show_handler);
 $app->add_event_handler($event_handler);
-$app->add_move_handler($move_handler);
 
 my $ticks = SDL::get_ticks;
 $timeline->start;

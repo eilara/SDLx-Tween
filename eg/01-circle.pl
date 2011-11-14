@@ -11,7 +11,7 @@ use FindBin qw($Bin);
 use lib ("$Bin/..", "$Bin/../blib/arch", "$Bin/../blib/lib");
 use SDL::Events;
 use SDLx::App;
-use SDLx::Tween;
+use SDLx::Tween::Timeline;
 
 my $circle = SDLx::Tween::eg_01::Circle->new;
 
@@ -21,10 +21,10 @@ my $app = SDLx::App->new(
     height => 480,
 );
 
-my $tween = SDLx::Tween->new(
-    register_cb   => sub { register(@_) },
-    unregister_cb => sub { unregister(@_) },
-    duration      => 4_000,
+my $timeline = SDLx::Tween::Timeline->new(sdlx_app => $app);
+
+my $tween = $timeline->tween(
+    t             => 4_000,
     to            => 200,
     on            => [radius => $circle],
     round         => 1,
@@ -33,8 +33,13 @@ my $tween = SDLx::Tween->new(
     ease          => 'p3_in_out',
 );
 
-my $move_handler  = sub { $tween->tick(SDL::get_ticks) };
-my $event_handler = sub { my $e = shift; $_[0]->stop if ( $e->type == SDL_QUIT ) };
+my $event_handler = sub {
+    my $e = shift;
+    if ($e->type == SDL_QUIT) {
+        undef $timeline;
+        $app->stop;
+    }
+};
 
 my $show_handler  = sub {
     $app->draw_rect(undef, 0x000000FF);
@@ -47,16 +52,4 @@ $app->add_show_handler($show_handler );
 
 $tween->start;
 $app->run;
-
-sub register {
-    my $tween = shift;
-    $app->add_move_handler($move_handler);
-}
-
-sub unregister {
-    my $tween = shift;
-    $app->remove_move_handler($move_handler);
-}
-
-
 

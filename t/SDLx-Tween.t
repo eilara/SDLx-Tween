@@ -22,8 +22,7 @@ my $iut = SDLx::Tween->new(
     duration      => 30_000,
     from          => 500,
     to            => 600,
-    on            => $circle,
-    set           => 'radius',
+    on            => [radius => $circle],
     round         => 1,
 );
 
@@ -56,8 +55,7 @@ my $iut = SDLx::Tween->new(
     duration      => 10_000,
     from          => [100, 200],
     to            => [200, 400],
-    on            => $circle,
-    set           => 'position',
+    on            => [position => $circle],
 );
 
 $iut->start(10_000);

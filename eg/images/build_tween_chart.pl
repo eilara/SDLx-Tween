@@ -30,7 +30,6 @@ for my $name (@names) {
         to       => [$size],
         on       => $val,
         ease     => $name,
-        proxy    => 'array',
     );
     $tween->start(0);
     $img->box(filled => 1, color => $white);

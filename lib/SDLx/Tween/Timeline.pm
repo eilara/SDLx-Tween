@@ -12,13 +12,35 @@ has last_pause_time => (is => 'rw');
 has all_tweens    => (is => 'ro', lazy_build => 1);
 has active_tweens => (is => 'ro', lazy_build => 1);
 
+has sdlx_app      => (is => 'ro', handles => [qw(add_move_handler remove_move_handler)]);
+has move_handler  => (is => 'ro', lazy_build => 1);
+
 sub _build_all_tweens    { weak_set() }
 sub _build_active_tweens { weak_set() }
+
+sub _build_move_handler {
+    my $self = shift;
+    weaken $self;
+    return sub { $self->tick };
+}
+
+sub BUILD {
+    my $self = shift;
+    my $app = $self->sdlx_app;
+    return unless $app;
+    $app->add_move_handler($self->move_handler);
+}
+
+sub DESTROY {
+    my $self = shift;
+    $self->remove_move_handler($self->move_handler) if $self->sdlx_app;
+}
 
 sub tween {
     my ($self, %args) = @_;
     my $active_tweens = $self->active_tweens;
     weaken $active_tweens;
+    # callbacks need not be regenerated for each tween
     my $tween = SDLx::Tween->new(
         register_cb   => sub { $active_tweens->insert(shift) },
         unregister_cb => sub { $active_tweens->remove(shift) },

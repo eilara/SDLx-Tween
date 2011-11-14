@@ -33,12 +33,11 @@ my $i; while($i++ < $STAR_COUNT) {
     my $to    = [cos($theta)*640 + 320, sin($theta)*480 + 240];
     my $star  = SDLx::Tween::eg_02::Star->new;
     my $tween = SDLx::Tween->new(
-        duration      => (int(rand 8_000) + 1000),
-        to            => $to,
-        on            => $star->[0],
-        forever       => 1,
-        ease          => 'exponential_in',
-        proxy         => 'array',
+        duration => (int(rand 8_000) + 1000),
+        to       => $to,
+        on       => $star->[0],
+        forever  => 1,
+        ease     => 'exponential_in',
     );
     $star->[1] = $tween;
 

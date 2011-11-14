@@ -84,6 +84,15 @@ my %Proxies_That_Get_Edge_Values = (
 sub new {
     my ($class, %args) = @_;
 
+    my $on_arg = $args{on} || die 'No "on" give';
+    # if "on" is ARRAY and 2nd member is not a ref, then 
+    # we want an array proxy
+    if (ref($on_arg) eq 'ARRAY') {
+        die '"on" is empty array ref' unless @$on_arg;
+        $args{proxy} ||= 'array' if
+           (@$on_arg == 1) || !ref($on_arg->[1]);
+    }
+
     my $ease  = $Ease_Lookup{  $args{ease}  || 'linear' };
     my $path  = $Path_Lookup{  $args{path}  || 'linear' };
     my $proxy = $Proxy_Lookup{ $args{proxy} || 'method' };
@@ -115,7 +124,8 @@ sub new {
 
     my $register_cb   = $args{register_cb}   || sub {}; 
     my $unregister_cb = $args{unregister_cb} || sub {};
-    my $duration      = $args{duration}      || die 'No positive duration given';
+
+    my $duration = $args{duration} || $args{t} || die "No positive duration given";
 
     my @args = (
 
@@ -221,12 +231,19 @@ sub compute_dim_path_polyline {
 
 =head1 NAME
 
-SDLx::Tween - Perl SDL XS Tweening Library
+SDLx::Tween - SDL Perl XS Tweening Library
 
 =head1 SYNOPSIS
 
-  use SDLx::Tween;
+  use SDLx::Tween::Timeline;
   
+  $xy       = [0, 0];
+  $sdlx_app = SDLx::App->new(...);
+  $timeline = SDLx::Tween::Timeline->new(app => $sdlx_app);
+  $tween    = $timeline->tween(on => $xy, t => 1_000, to => [640, 480]);
+  $tween->start;
+
+  $sdlx_app->run;
 
 =head1 DESCRIPTION
 

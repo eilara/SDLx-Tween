@@ -6,18 +6,17 @@ use lib ("$Bin/..", "$Bin/../blib/arch", "$Bin/../blib/lib");
 package SDLx::Tween::eg_05::Circle;
 
 use Moose;
-use SDLx::Tween;
 
 has color      => (is => 'rw', default => 0x000000FF);
 has position   => (is => 'ro', required => 1);
 has tween_args => (is => 'ro', required => 1);
-has tween      => (is => 'ro', lazy_build => 1, handles => [qw(start tick)]);
+has timeline   => (is => 'ro', required => 1, weak_ref => 1);
+has tween      => (is => 'ro', lazy_build => 1);
 
 sub _build_tween {
     my $self = shift;
-    SDLx::Tween->new(
-        on       => $self,
-        set      => 'color',
+    return $self->timeline->tween(
+        on       => [color => $self],
         duration => 2_000,
         forever  => 1,
         bounce   => 1,
@@ -32,6 +31,9 @@ sub paint {
     $surface->draw_circle($self->position, 100, 0x000000FF, 1);
 }
 
+# force tween build
+sub BUILD { shift->tween }
+
 # ------------------------------------------------------------------------------
 
 package main;
@@ -40,6 +42,7 @@ use warnings;
 use SDL::Events;
 use SDLx::App;
 use SDLx::Text;
+use SDLx::Tween::Timeline;
 
 my $w = 800;
 my $h = 600;
@@ -71,12 +74,15 @@ my $app = SDLx::App->new(
     height => $h,
 );
 
+my $timeline = SDLx::Tween::Timeline->new(sdlx_app => $app);
+
 for my $def (@circle_defs) {
     my $xy = $def->[1];
     push @circles, SDLx::Tween::eg_05::Circle->new(
         position   => $xy,
         color      => $def->[2],
         tween_args => $def->[3],
+        timeline   => $timeline,
     );
     my $row; for my $part (split / /, $def->[0]) {
         push @text, SDLx::Text->new(
@@ -96,14 +102,10 @@ my $show_handler  = sub {
     $app->update;
 };
 
-my $move_handler  = sub {
-    my $ticks = SDL::get_ticks;
-    $_->tick($ticks) for @circles;
-};
-
 my $event_handler = sub {
     my ($e, $app) = @_;
     if($e->type == SDL_QUIT) {
+        undef $timeline;
         exit;
     }
     return 0;
@@ -111,8 +113,7 @@ my $event_handler = sub {
 
 $app->add_show_handler($show_handler);
 $app->add_event_handler($event_handler);
-$app->add_move_handler($move_handler);
 
-$_->start for @circles;
+$timeline->start;
 
 $app->run;

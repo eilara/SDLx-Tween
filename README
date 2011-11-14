@@ -1,7 +1,7 @@
 SDLx-Tween version 0.01
 =======================
 
-SDL Perl XS tweening lib
+SDL Perl XS Tweening Library
 
 STATUS: Starting to be almost ready enough to be somewhat useful
 
@@ -29,24 +29,25 @@ SDLx::Tween lib can do some of these things. Instead of writing a move handler,
 declare tweens on your GOBs. SDLx::Tween will take over the move handler for
 you.
 
-Instead of writing a move handler which updates a $my_gob position from x=0
-to x=100 in 1 second, you can go:
+Instead of writing a move handler which updates the position of $my_gob 
+from its current position to x=100 in 1 second, you can go:
 
     SDLx::Tween::Timeline
-        ->tween(on => [x => $my_gob], range => [0, 100], t => 1_000)
+        ->tween(on => [x => $my_gob], to =>100, t => 1_000)
         ->start;
 
 And SDLx::Tween will setup the correct move handler.
 
-Move handlers are rarely a simple linear progression. The tween library
-can change GOBs in many ways:
+Perl SDL move handlers are rarely a simple linear progression. The tween
+library should be able to change GOBs in many ways:
 
     - tween any property, to a callback, or directly on an array
     - tween a property with several dimensions, e.g. xy position, 4D color space
     - tween xy position not on a line, but on some curve
     - smooth the motion with acceleration/deceleration
-    - chain tweens, paralellize tween, e.g start explode tween after reaching target
     - make the tween bounce, repeat for N cycles or forever
+    - delay before/after tweens
+    - chain tweens, paralellize tween, e.g start explode tween after reaching target
     - pause/resume/rewind/ffw/reverse/seek tweens, and generaly play with elastic time
       for making the game faster or slower
     - hasten/slow a tween, for example when creeps are suddenly given a speed bonus
@@ -61,7 +62,7 @@ According to:
     senior or key artist would draw the keyframes ... and then would hand over
     the scene to his or her assistant the inbetweener who does the rest."
 
-Let SDLx-Tween be your inbetweener.    
+Let SDLx-Tween be your inbetweener.
 
 Cool implementations of the tweening idea to learn from:
 
@@ -72,62 +73,12 @@ Cool implementations of the tweening idea to learn from:
 
 EXAMPLES
 
-    01-circle.pl       - the hello world of tweening, a growing circle
-    02-starfield.pl    - demo of 4000 concurrent tweens
-    03-easing.pl       - demo of all easing functions
-    04-paths.pl        - demo of all paths
+    01-circle.pl    - the hello world of tweening, a growing circle
+    02-starfield.pl - demo of 4000 concurrent tweens
+    03-easing.pl    - demo of all easing functions
+    04-paths.pl     - demo of all paths
+    05-colors.pl    - demo of color transitions
 
-
-TODO: syntax sugar above is still unimplemented, current syntax is:
-
-    SDLx::Tween::Timeline->tween(
-        on       => [x => $my_gob],
-        duration => 1000,
-        from     => 0,
-        to       => 100,
-    )->start;
-
-
-TODO
-
-    - paths
-        * bezier
-    - easing
-        * stepped ease for retro shaky animations    
-    - timeline control
-        * ffw/rewind/seek/elasetic time factor
-        * sequence/parallel
-    - callback proxy
-    - tween types
-        * more color transforms
-        * sprite animation
-        * spawner
-        * follow angle
-        * rotation/scaling
-        * distinct int optimization in 2D for position, and for array proxy
-        * shape tweening using lots of particles
-    - timeline
-        * auto connect directly to SDL app
-    - docs
-    - demos
-        * add trails to easing demo, make them tween fade
-        * start/stop of tweens
-        * rain falling
-    - API features
-        * delay before/after tween
-        * validation should be in validation classes to get rid of all those ifs in constructor    
-        * lifecycle events -> start,stop,complete
-        * method proxy should not keep strong ref to target
-        * speed instead of duration
-        * tween group for sequencing
-        * sugarize
-    - performance
-        * share path_args for polylines
-        * pool tweens
-        * convert doubles to floats
-    - accuracy
-        * overshoot support
-        * chaining tweens passes complete->start cycle times    
 
 INSTALLATION
 
@@ -159,9 +110,6 @@ functions. The license is in the tweencee/ dir. It is at:
 
 Check that page for some great info about easing functions.
 
-
-
-Put the correct copyright and licence information here.
 
 Copyright (C) 2011 by Ran Eilam
 
