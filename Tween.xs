@@ -91,8 +91,11 @@ PROTOTYPES: DISABLE
 
 INCLUDE: const-xs.inc
 
+
 #define SELF_TO_THIS \
-    SDLx__Tween this = (SDLx__Tween) SvIV((SV*)SvRV(self))
+    AV*         self_arr    = (AV*) SvRV(self);                          \
+    SV**        self_arr_v  = av_fetch(self_arr, 0, 0);                  \
+    SDLx__Tween this        = (SDLx__Tween) SvIV((SV*)SvRV(*self_arr_v))
 
 SDLx__Tween
 SDLx__Tween_new_struct(register_cb, unregister_cb, duration, forever, repeat, bounce, ease, path, path_args, proxy, proxy_args)
@@ -144,9 +147,11 @@ SDLx__Tween_new_struct(register_cb, unregister_cb, duration, forever, repeat, bo
 void
 SDLx__Tween_DESTROY(SV* self)
     CODE:
-        SELF_TO_THIS;
-/* maybe allow user to set per tween if they want it unregistered on destruction */        
-/*        stop(self, this); */
+        AV*  self_arr    = (AV*) SvRV(self);
+        SV** self_arr_v  = av_fetch(self_arr, 0, 0);
+        if (self_arr_v == NULL) return;
+        if (!SvOK(*self_arr_v)) return;
+        SDLx__Tween this = (SDLx__Tween) SvIV((SV*)SvRV(*self_arr_v));
 
         SvREFCNT_dec(this->unregister_cb);
         SvREFCNT_dec(this->register_cb);

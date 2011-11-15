@@ -102,17 +102,8 @@ my $show_handler  = sub {
     $app->update;
 };
 
-my $event_handler = sub {
-    my ($e, $app) = @_;
-    if($e->type == SDL_QUIT) {
-        undef $timeline;
-        exit;
-    }
-    return 0;
-};
-
 $app->add_show_handler($show_handler);
-$app->add_event_handler($event_handler);
+$app->add_event_handler(sub { exit if shift->type == SDL_QUIT });
 
 $timeline->start;
 

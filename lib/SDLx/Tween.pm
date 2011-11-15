@@ -140,7 +140,7 @@ sub new {
         $proxy, $proxy_args,
     );
     my $struct = new_struct(@args);
-    my $self = bless($struct, $class);
+    my $self = bless([$struct], $class);
     return $self;
 }
 

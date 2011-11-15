@@ -145,9 +145,7 @@ SDL::Events::enable_key_repeat(600, 100);
 my $event_handler = sub {
     my ($e, $app) = @_;
     if($e->type == SDL_QUIT) {
-        # needed for clean warning-less global destruction from Set::Object
-        undef $timeline; # make sure Set::Objects destroy first in global destruction
-        exit;
+        $app->stop;
     } elsif ($e->type == SDL_MOUSEBUTTONDOWN) {
         $timeline->pause_resume;
     } elsif ($e->type == SDL_KEYDOWN) {
@@ -161,6 +159,7 @@ my $event_handler = sub {
         } else {
             return 0;
         }
+        # clamp duration between 100 and 20000
         $duration = 100   if $duration < 100;
         $duration = 20000 if $duration > 20000;
         my $ticks = SDL::get_ticks; # time of duration change
@@ -172,7 +171,6 @@ my $event_handler = sub {
 $app->add_show_handler($show_handler);
 $app->add_event_handler($event_handler);
 
-my $ticks = SDL::get_ticks;
 $timeline->start;
 
 $app->run;

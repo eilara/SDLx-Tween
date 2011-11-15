@@ -18,7 +18,7 @@ use SDL::Events;
 use SDLx::App;
 use SDLx::Tween;
 
-my $STAR_COUNT = 4000;
+my $STAR_COUNT = 6000;
 
 my $app = SDLx::App->new(
     title  => 'Starfield',
@@ -48,13 +48,16 @@ my $i; while($i++ < $STAR_COUNT) {
     push @tweens, $tween;
 }
 
+use SDL::GFX::Primitives;
 my $show_handler  = sub {
     my $ticks = SDL::get_ticks;
     my $star = $first_star;
     $app->draw_rect(undef, 0x000000FF);
+    my ($x, $y);
     while ($star) {
         $star->[1]->tick($ticks);
-        $app->draw_rect([@{$star->[0]}, 1, 1], 0xFFFFFFFF);
+        ($x, $y) = @{$star->[0]};
+        SDL::GFX::Primitives::pixel_color($app, $x, $y, 0xFFFFFFFF);
         $star = $star->[2];
     }
     $app->update;

@@ -33,13 +33,7 @@ my $tween = $timeline->tween(
     ease          => 'p3_in_out',
 );
 
-my $event_handler = sub {
-    my $e = shift;
-    if ($e->type == SDL_QUIT) {
-        undef $timeline;
-        $app->stop;
-    }
-};
+my $event_handler = sub { $app->stop if shift->type == SDL_QUIT };
 
 my $show_handler  = sub {
     $app->draw_rect(undef, 0x000000FF);

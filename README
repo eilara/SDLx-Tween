@@ -120,3 +120,8 @@ at your option, any later version of Perl 5 you may have available.
 
 
 
+/*
+#define SELF_TO_THIS \
+    SDLx__Tween this = (SDLx__Tween) SvIV((SV*)SvRV(self))
+*/
+

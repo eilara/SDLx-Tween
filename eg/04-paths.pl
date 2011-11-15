@@ -160,9 +160,7 @@ my $show_handler  = sub {
 my $event_handler = sub {
     my ($e, $app) = @_;
     if($e->type == SDL_QUIT) {
-        # avoid warnings on global destruction
-        $trailer = undef;
-        exit;
+        $app->stop;
     } elsif ($e->type == SDL_MOUSEBUTTONDOWN) {
         $tween->stop;
         tween_circle();
