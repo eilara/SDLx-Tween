@@ -74,7 +74,7 @@ Cool implementations of the tweening idea to learn from:
 EXAMPLES
 
     01-circle.pl    - the hello world of tweening, a growing circle
-    02-starfield.pl - demo of 4000 concurrent tweens
+    02-starfield.pl - demo of 6000 concurrent tweens
     03-easing.pl    - demo of all easing functions
     04-paths.pl     - demo of all paths
     05-colors.pl    - demo of color transitions

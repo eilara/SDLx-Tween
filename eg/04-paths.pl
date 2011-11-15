@@ -7,10 +7,11 @@ package SDLx::Tween::eg_04::Circle;
 
 use Moose;
 
-has position => (is => 'rw', required => 1);
+has position => (is => 'rw');
 
 sub paint {
     my ($self, $surface) = @_;
+    return unless $self->position;
     $surface->draw_circle_filled($self->position, 30, 0xFFFFFDBB);
     $surface->draw_circle($self->position, 30, 0x000000FF, 1);
 }
@@ -63,6 +64,7 @@ sub change_path {
 
 sub add_trail {
     my ($self, $i) = @_;
+    return unless $self->position;
     push @{$self->trails},
          SDLx::Tween::eg_04::Trail->new(
              position => $self->position,
@@ -126,7 +128,7 @@ my $app = SDLx::App->new(
 
 my $timeline = SDLx::Tween::Timeline->new(sdlx_app => $app);
 
-my $circle = SDLx::Tween::eg_04::Circle->new(position => [100, 100]);
+my $circle = SDLx::Tween::eg_04::Circle->new;
 
 my $trailer = SDLx::Tween::eg_04::Trailer->new(
     circle   => $circle,
@@ -162,7 +164,6 @@ my $event_handler = sub {
     if($e->type == SDL_QUIT) {
         $app->stop;
     } elsif ($e->type == SDL_MOUSEBUTTONDOWN) {
-        $tween->stop;
         tween_circle();
     }
     return 0;
@@ -181,6 +182,7 @@ sub tween_circle {
     push @paths, $path;
     my $args = $paths{$path};
     $tween->stop if $tween;
+    $circle->position(undef);
     $tween = $timeline->tween(
         duration  => 3_000,
         on        => [position => $circle],
@@ -194,6 +196,5 @@ sub tween_circle {
     $trailer->change_path;
 }
 
-
-
-
+# avoid global destruction phase "Attempt to free unreferenced scalar" warning
+undef $trailer;
