@@ -1,10 +1,12 @@
 use ExtUtils::MakeMaker;
+use Alien::SDL;
 
 $Verbose = 1;
 
 WriteMakefile(
     NAME   => 'TweenCee::tweencee',
     SKIP   => [qw(all static static_lib dynamic dynamic_lib)],
+    INC    => Alien::SDL->config('cflags'). ' -I.',
     clean  => {'FILES' => 'libtweencee$(LIB_EXT)'},
 );
 
