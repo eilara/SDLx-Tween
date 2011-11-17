@@ -87,6 +87,9 @@ static void (*proxy_set_table[2]) (void*, double[4], int dim) = {
 
 MODULE = SDLx::Tween		PACKAGE = SDLx::Tween		PREFIX = SDLx__Tween_
 
+BOOT:
+    boot_SDLx__Tween__Tail(aTHX_ cv);
+
 PROTOTYPES: DISABLE
 
 INCLUDE: const-xs.inc

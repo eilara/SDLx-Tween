@@ -86,11 +86,6 @@ void tick(SV* self, SDLx__Tween this, Uint32 now) {
     int dim = this->path_solve_func(this->path, eased, solved);
     this->proxy_set_func(this->proxy, solved, dim);
 
-
-    /*
-       this->cycle_start_time = now - this->total_pause_time;
-       */
-
     if (!this->is_active) { return; } /* perl code could have stopped the tween */
     if (!is_complete    ) { return; }
 
@@ -508,7 +503,7 @@ void* proxy_array_build(SV* proxy_args) {
     SV* on_raw = *on_sv;
     AV* on     = (AV*) SvRV(on_raw);
     this->on   = on;
-    SvREFCNT_inc(on);
+/*    SvREFCNT_inc(on); */
 
     /* make sure all svs are floats not ints */
     /* why dont it do anything? 
@@ -525,7 +520,7 @@ void* proxy_array_build(SV* proxy_args) {
 
 void proxy_array_free(void* thisp) {
     SDLx__Tween__Proxy__Array this = (SDLx__Tween__Proxy__Array) thisp;
-    SvREFCNT_dec(this->on);
+/*    SvREFCNT_dec(this->on); */
     safefree(this);
 }
 
