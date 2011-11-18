@@ -5,6 +5,7 @@ use Scalar::Util qw(weaken);
 use Set::Object::Weak qw(weak_set);
 use SDL;
 use SDLx::Tween;
+use SDLx::Tween::Tail;
 
 has is_paused       => (is => 'rw', default => 0);
 has last_pause_time => (is => 'rw');
@@ -42,6 +43,20 @@ sub tween {
     weaken $active_tweens;
     # callbacks need not be regenerated for each tween
     my $tween = SDLx::Tween->new(
+        register_cb   => sub { $active_tweens->insert(shift) },
+        unregister_cb => sub { $active_tweens->remove(shift) },
+        %args,
+    );
+    $self->all_tweens->insert($tween);
+    return $tween;
+}
+
+sub tail {
+    my ($self, %args) = @_;
+    my $active_tweens = $self->active_tweens;
+    weaken $active_tweens;
+    # callbacks need not be regenerated for each tween
+    my $tween = SDLx::Tween::Tail->new(
         register_cb   => sub { $active_tweens->insert(shift) },
         unregister_cb => sub { $active_tweens->remove(shift) },
         %args,
