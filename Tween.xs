@@ -134,7 +134,7 @@ SDLx__Tween_new_struct(register_cb, unregister_cb, duration, forever, repeat, bo
 
         this->proxy = this->proxy_build_func(proxy_args);
 
-        build_struct(
+        tween_build_struct(
             this,
             register_cb_clone,
             unregister_cb_clone,
@@ -209,13 +209,13 @@ SDLx__Tween_start(SV* self, ...)
         Uint32 cycle_start_time = items == 2?
            (Uint32) SvIV(ST(1)):
            (Uint32) SDL_GetTicks();
-        start(self, this, cycle_start_time);
+        tween_start(self, this, cycle_start_time);
 
 void
 SDLx__Tween_stop(SV* self)
     CODE:
         SELF_TO_THIS;
-        stop(self, this);
+        tween_stop(self, this);
 
 void
 SDLx__Tween_pause(SV* self, ...)
@@ -226,7 +226,7 @@ SDLx__Tween_pause(SV* self, ...)
             SvIOK(t_sv)?
                 (Uint32) SvIV(t_sv):
                 (Uint32) SDL_GetTicks();
-        pause_tween(self, this, t);
+        tween_pause(self, this, t);
 
 void
 SDLx__Tween_resume(SV* self, ...)
@@ -237,12 +237,12 @@ SDLx__Tween_resume(SV* self, ...)
             SvIOK(t_sv)?
                 (Uint32) SvIV(t_sv):
                 (Uint32) SDL_GetTicks();
-        resume_tween(self, this, t);
+        tween_resume(self, this, t);
 
 void
 SDLx__Tween_tick(SV* self, Uint32 now)
     CODE:
         SELF_TO_THIS;
-        tick(self, this, now);
+        tween_tick(self, this, now);
 
 

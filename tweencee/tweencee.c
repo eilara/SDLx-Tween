@@ -6,7 +6,7 @@
 
 static const double PI = 3.141592653589793238;
 
-void build_struct(
+void tween_build_struct(
     SDLx__Tween this,
     SV*         register_cb,
     SV*         unregister_cb,
@@ -27,7 +27,7 @@ void build_struct(
     this->total_pause_time = 0;
 }
 
-void start(SV* self, SDLx__Tween this, Uint32 cycle_start_time) {
+void tween_start(SV* self, SDLx__Tween this, Uint32 cycle_start_time) {
     this->is_active                = 1;
     this->cycle_start_time         = cycle_start_time;
     this->last_cycle_complete_time = 0;
@@ -40,7 +40,7 @@ void start(SV* self, SDLx__Tween this, Uint32 cycle_start_time) {
     call_sv(this->register_cb, G_DISCARD);
 }
 
-void stop(SV* self, SDLx__Tween this) {
+void tween_stop(SV* self, SDLx__Tween this) {
     if (!this->is_active) { return; }
 
     this->is_active                = 0;
@@ -54,18 +54,18 @@ void stop(SV* self, SDLx__Tween this) {
     call_sv(this->unregister_cb, G_DISCARD);
 }
 
-void pause_tween(SV* self, SDLx__Tween this, Uint32 pause_time) {
+void tween_pause(SV* self, SDLx__Tween this, Uint32 pause_time) {
     this->is_paused = 1;
     this->pause_start_time = pause_time;
 }
 
-void resume_tween(SV* self, SDLx__Tween this, Uint32 resume_time) {
+void tween_resume(SV* self, SDLx__Tween this, Uint32 resume_time) {
     this->is_paused = 0;
     this->total_pause_time += resume_time - this->pause_start_time;
     this->pause_start_time = 0;
 }
 
-void tick(SV* self, SDLx__Tween this, Uint32 now) {
+void tween_tick(SV* self, SDLx__Tween this, Uint32 now) {
     if (this->is_paused) { return; }
     bool is_complete = 0;
     Uint32 duration  = this->duration;
@@ -93,7 +93,7 @@ void tick(SV* self, SDLx__Tween this, Uint32 now) {
     bool repeat  = this->repeat;
 
     if (!forever && repeat <= 1) {
-        stop(self, this);
+        tween_stop(self, this);
         return;
     }
 
