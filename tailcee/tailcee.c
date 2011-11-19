@@ -98,6 +98,22 @@ void tail_tick(SV* self, SDLx__Tween__Tail this, Uint32 now) {
         tail_stop(self, this);
         return;
     }
+
+    if (
+        (
+            ((dir_x > 0 && ndir_x < 0) || (dir_x < 0 && ndir_x > 0)) &&
+            ((dir_y > 0 && ndir_y < 0) || (dir_y < 0 && ndir_y > 0))
+        ) ||
+        (
+            ((dir_x == 0) && (ndir_x == 0) && (dir_y*ndir_y < 0)) ||
+            ((dir_y == 0) && (ndir_y == 0) && (dir_x*ndir_x < 0))
+        )
+    ) {
+        tail_stop(self, this);
+        SvIV_set(*tx_sv, (int) hx);
+        SvIV_set(*ty_sv, (int) hy);
+    }
+
 }
 
 

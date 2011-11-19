@@ -21,7 +21,7 @@ my $follower = [  0, 0];
 my $cursor   = [100, 100];
 
 my $tween = $timeline->tail(
-    speed => 100/1000,
+    speed => 1000/1000,
     head  => $cursor,
     tail  => $follower,
 );
@@ -31,6 +31,7 @@ my $event_handler = sub {
     if($e->type == SDL_QUIT) {
         $app->stop;
     } elsif ($e->type == SDL_MOUSEMOTION) {
+        $tween->start unless $tween->is_active;
         $cursor->[0] = $e->motion_x;
         $cursor->[1] = $e->motion_y;
     }
@@ -39,7 +40,7 @@ my $event_handler = sub {
 my $show_handler  = sub {
     $app->draw_rect(undef, 0x000000FF);
     my ($x, $y) = @$follower;
-    $app->draw_circle_filled([$x, $y], 30, 0xFFFFFFFF);
+    $app->draw_circle_filled([$x, $y], 30, [255,255,0]);
     $app->update;
 };
 
