@@ -99,6 +99,7 @@ void tail_tick(SV* self, SDLx__Tween__Tail this, Uint32 now) {
         return;
     }
 
+    /* we could overshoot the target, in which case dir vector changes sign */
     if (
         (
             ((dir_x > 0 && ndir_x < 0) || (dir_x < 0 && ndir_x > 0)) &&
