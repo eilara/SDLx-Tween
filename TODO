@@ -19,9 +19,9 @@
     * distinct int optimization in 2D for position, and for array proxy
 - demos
     * add trails to easing demo, make them tween fade
-    * start/stop of tweens
     * rain falling
     * shape tweening using lots of particles
+    * theatrical demo showing parallel and sequenced tweens
 - API features
     * validation should be in validation classes to get rid of all those ifs in constructor
     * lifecycle events -> start,stop,complete

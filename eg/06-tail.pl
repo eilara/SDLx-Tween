@@ -22,8 +22,7 @@ my $cursor = [100, 100];
 my (@followers, @tweens);
 
 for my $i (1..100) {
-    my $follower = [0, 0];
-    push @followers, $follower;
+    push @followers, my $follower = [0, 0];
     push @tweens, $timeline->tail(
         speed => (50+$i*5)/1000,
         head  => $cursor,
@@ -33,21 +32,16 @@ for my $i (1..100) {
 
 my $event_handler = sub {
     my ($e, $app) = @_;
-    if($e->type == SDL_QUIT) {
-        $app->stop;
-    } elsif ($e->type == SDL_MOUSEMOTION) {
+    if    ($e->type == SDL_QUIT)        { $app->stop }
+    elsif ($e->type == SDL_MOUSEMOTION) {
         for (@tweens) { $_->start unless $_->is_active }
-        $cursor->[0] = $e->motion_x;
-        $cursor->[1] = $e->motion_y;
+        @$cursor = ($e->motion_x, $e->motion_y);
     }
 };
 
 my $show_handler  = sub {
     $app->draw_rect(undef, 0x000000FF);
-    for my $follower (@followers) {
-        my ($x, $y) = @$follower;
-        $app->draw_circle([$x, $y], 20, [255,255,255]);
-    }
+    $app->draw_circle($_, 20, 0xFFFFFFFF) for @followers;
     $app->update;
 };
 

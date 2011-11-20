@@ -235,15 +235,70 @@ SDLx::Tween - SDL Perl XS Tweening Library
 
 =head1 SYNOPSIS
 
+  # simple linear tween
   use SDLx::Tween::Timeline;
   
-  $xy       = [0, 0];
   $sdlx_app = SDLx::App->new(...);
+
+  # timeline gets its ticks from the SDLx app controller move handler
   $timeline = SDLx::Tween::Timeline->new(app => $sdlx_app);
-  $tween    = $timeline->tween(on => $xy, t => 1_000, to => [640, 480]);
+
+  $xy = [0, 0]; # tween the position stored in this array ref
+
+  # create tweens from the timeline, setting the target ($xy), the
+  # duration (1 second), and the final requested value ([640, 480])
+  $tween = $timeline->tween(on => $xy, t => 1_000, to => [640, 480]);
+
+  # tween will not do anything until started
   $tween->start;
 
+  # xy will now be tweened between [0, 0] and [640, 480] for 1 second 
+  # and then the tween will stop
   $sdlx_app->run;
+
+  # tween methods
+  $ticks = $tween->get_cycle_start_time;
+  $ticks = $tween->get_duration;
+  $tween->set_duration($new_duration_in_ticks); # haste/slow a tween
+  $bool = $tween->is_active;
+  $tween->start($optional_ideal_cycle_start_time_in_ticks);  
+  $tween->stop;
+  $tween->pause($optional_ideal_pause_time_in_ticks);
+  $tween->resume($optional_ideal_resume_time_in_ticks);
+  $tween->tick($ticks); # called internaly by timeline or SDLx app
+
+  # tweening an integer get/set accessor
+  $tween = $timeline->tween(
+      on            => [radius => $circle], # set $circle->radius
+      t             => 4_000,               # tween duration
+      from          => 200,                 # initial value
+      to            => 200,                 # final value
+      round         => 1,                   # round values before setting
+      bounce        => 1,                   # reverse when repeating
+      forever       => 1,                   # continue forever
+      ease          => 'p3_in_out',         # use easing function
+  );
+
+  # tweening 2D position using a non-linear path 4 times
+  $tween = $timeline->tween(
+      on            => [xy => $circle],     # set values in a xy array ref field
+      t             => 4_000,               # tween duration
+      to            => [640,480],           # final value, initial taken from $xy
+      repeat        => 4,                   # repeat tween 4 times
+      path          => 'sine',              # use a sine path
+      path_args     => {                    # sine path needs path_args
+         {amp => 100, freq => 2},
+      }
+  );
+
+  # tail behavior makes one position follow another at given speed
+  # unlike other tweens, trails only allow the following 3 contructor args
+  $tail = $timeline->tail(
+      speed => 50/1000,                     # advance a distance of 50 pixels a sec 
+      head  => $head,                       # position to follow array ref
+      tail  => $tail,                       # position to set array ref
+  );
+
 
 =head1 DESCRIPTION
 

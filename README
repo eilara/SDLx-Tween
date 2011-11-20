@@ -78,6 +78,7 @@ EXAMPLES
     03-easing.pl    - demo of all easing functions
     04-paths.pl     - demo of all paths
     05-colors.pl    - demo of color transitions
+    06-colors.pl    - demo of 100 tail behaviors
 
 
 INSTALLATION
