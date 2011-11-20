@@ -303,37 +303,70 @@ SDLx::Tween - SDL Perl XS Tweening Library
 
 =head1 DESCRIPTION
 
-SDLx::Tween is a library for tweening Perl SDL elements. It lets you to move
+C<SDLx::Tween> is a library for tweening Perl SDL elements. It lets you to move
 game objects (GOBs) around in various ways, rotate and scale things, animate
 sprites and colors, make GOBs spawn at a given rate, and generally bring about
 changes in the game over time. It lets you do these things declaratively,
-without writing complex SDLx::Controller move_handlers.
+without writing complex C<SDLx::Controller> C<move_handlers()>.
 
 =head1 WHY
 
 Writing Perl SDL game move handlers is hard. Consider a missile with 3 states:
 
-    - firing - some sprite animation
-    - flying towards enemy - need to update its position until it hits enemy
-    - exploding - another sprite animation
+=over 4
+
+=item *
+
+firing - some sprite animation
+
+=item *
+
+flying towards enemy - need to update its position until it hits enemy
+
+=item *
+
+exploding - another sprite animation
+
+=back    
 
 The move handler for this game object (GOB) is hard to write, because it needs to:
 
-    * update GOB properties
-    * you must take into account acceleration and paths in the computation of
-      these values
-    * you need to set limits of the values, wait for the limits
-    * GOBs need to act differently according to their state, so you need to
-      manage that as well
-    * it all must be very accurate, or animations will miss each other
-    * it has to be fast- this code is run per each GOB per each update
+=over 4
+
+=item *
+
+update GOB properties
+
+=item *
+
+you must take into account acceleration and paths in the computation of these
+values
+
+=item *
+
+you need to set limits of the values, wait for the limits
+
+=item *
+
+GOBs need to act differently according to their state, so you need to manage
+that as well
+
+=item *
+
+it all must be very accurate, or animations will miss each other
+
+=item *
+
+it has to be fast- this code is run per each GOB per each update
+
+=back
 
 As a game becomes more wonderful, the GOB move handlers become more hellish.
 Brave souls have done it, but even they could not do it in a way us mortals
 can reuse or even understand.
 
-SDLx::Tween solves the missile requirements. Instead of writing a move
-handler, declare tweens on your GOBs. SDLx::Tween will take care of the move
+C<SDLx::Tween> solves the missile requirements. Instead of writing a move
+handler, declare tweens on your GOBs. C<SDLx::Tween> will take care of the move
 handler for you.
 
 Instead of writing a move handler which updates the position of $my_gob 
@@ -341,30 +374,9 @@ from its current position to x=100 in 1 second, you can go:
 
     $tween = $timline->tween(on => [x => $my_gob], to =>100, t => 1_000);
 
-And SDLx::Tween will setup the correct move handler.
+C<SDLx::Tween> will setup the correct move handler.
 
-Perl SDL move handlers are rarely a simple linear progression. The tween
-library should be able to change GOBs in many ways.
-
-
-=head2 FEATURES
-
-    - tween any property, to a callback, or directly on an array
-    - tween a property with several dimensions, e.g. xy position, 4D color space
-    - tween xy position not on a line, but on some curve
-    - smooth the motion with acceleration/deceleration
-    - make the tween bounce, repeat for N cycles or forever
-    - delay before/after tweens
-    - chain tweens, paralellize tween, e.g start explode tween after reaching target
-    - pause/resume/rewind/ffw/reverse/seek tweens, and generaly play with elastic time
-      for making the game faster or slower
-    - hasten/slow a tween, for example when creeps are suddenly given a speed bonus
-    - tween sprite frames, color/opacity/brightness/saturation/hue, volume/pitch,
-      spawning, rotation, size, camera position
-
-According to:
-
-    http://en.wikipedia.org/wiki/Tweening
+According to L<http://en.wikipedia.org/wiki/Tweening>:
 
     "In the inbetweening workflow of traditional hand-drawn animation, the
     senior or key artist would draw the keyframes ... and then would hand over
@@ -373,40 +385,117 @@ According to:
 Let SDLx-Tween be your inbetweener.
 
 
-Blah blah blah.
+=head1 FEATURES
 
-=head2 EXPORT
+Perl SDL move handlers are rarely a simple linear progression. C<SDLx::Tween>
+features:
 
-None by default.
+=over 4
 
-=head2 Exportable constants
+=item *
 
-  TESTVAL
+tween any method, e.g. a Moose get/set accessor, or directly on an array
 
+=item *
+
+tween a property with several dimensions, e.g. xy position, 4D color space
+
+=item *
+
+tween xy position not on a line, but on some curve
+
+=item *
+
+smooth the motion with acceleration/deceleration using easing functions
+
+=item *
+
+make the tween bounce, repeat for N cycles or forever
+
+=item *
+
+pause/resume tweens
+
+=item *
+
+hasten/slow a tween, for example when creeps are suddenly given a speed bonus
+
+=item *
+
+follow a moving target, e.g. for a homing missile with constant acceleration
+
+=item *
+
+chain tweens, paralellize tween, e.g start explode tween after reaching target
+
+=item *
+
+tween sprite frames, color/opacity/brightness/saturation/hue, volume/pitch,
+spawning, rotation, size, camera position
+
+=item *
+
+delay before/after tweens
+
+=item *
+
+rewind/ffw/reverse/seek tweens, and generaly play with elastic time for making
+the game faster or slower
+
+=back
+
+All but the last 4 features are ready for use. The 4 C<TODO> features need some
+sugaring and examples.
+
+See the C<TODO> file in the distribution for more planned features.
 
 
 =head1 SEE ALSO
 
-Mention other useful documentation such as the documentation of
-related modules or operating system documentation (such as man pages
-in UNIX), or any relevant external documentation such as RFCs or
-standards.
+Development is at L<https://github.com/PerlGameDev/SDLx-Tween>.
 
-If you have a mailing list set up for your module, mention it here.
+Interesting implementations of the tweening idea:
 
-If you have a web site set up for your module, mention it here.
+=over 4
+
+=item *
+
+http://www.greensock.com/tweenlite/
+
+=item *
+
+http://drawlogic.com/2010/04/11/itween-tweening-and-easing-animation-library-for-unity-3d/
+
+=item *
+
+http://www.leebyron.com/else/shapetween/
+
+=back
+
 
 =head1 AUTHOR
 
-Ran Eilam <eilara@cpan.org>
+eilara <ran.eilam@gmail.com>
+
 
 =head1 COPYRIGHT AND LICENSE
+
+Big thanks to:
+
+  Sam Hocevar, from 14 rue de Plaisance, 75014 Paris, France
+  https://raw.github.com/warrenm
+
+For his most excellent AHEasing lib which C<SDLx-Tween> uses for easing
+functions. The license is in the C<tweencee/> dir. The library is at
+L<https://github.com/warrenm/AHEasing>.
+
+Check that page for some great info about easing functions.
+
 
 Copyright (C) 2011 by Ran Eilam
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.10.1 or,
 at your option, any later version of Perl 5 you may have available.
-
 
 =cut
