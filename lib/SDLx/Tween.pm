@@ -309,7 +309,7 @@ sprites and colors, make GOBs spawn at a given rate, and generally bring about
 changes in the game over time. It lets you do these things declaratively,
 without writing complex C<SDLx::Controller> C<move_handlers()>.
 
-=head1 WHY
+=head1 WHY?
 
 Writing Perl SDL game move handlers is hard. Consider a missile with 3 states:
 
@@ -448,6 +448,39 @@ All but the last 4 features are ready for use. The 4 C<TODO> features need some
 sugaring and examples.
 
 See the C<TODO> file in the distribution for more planned features.
+
+
+=head1 Examples
+
+The distribution includes a few tweening examples:
+
+=over 4
+
+=item C<01-circle.pl>
+
+the hello world of tweening, a growing circle
+
+=item C<02-starfield.pl>
+
+demo of 6000 concurrent tweens
+
+=item C<03-easing.pl>
+
+demo of all easing functions
+
+=item C<04-paths.pl>
+
+demo of all paths
+
+=item C<05-colors.pl>
+
+demo of color transitions
+
+=item C<06-colors.pl>
+
+demo of 100 tail behaviors
+
+=back
 
 
 =head1 SEE ALSO
