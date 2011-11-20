@@ -259,27 +259,27 @@ SDLx::Tween - SDL Perl XS Tweening Library
   # tween methods
   $ticks = $tween->get_cycle_start_time;
   $ticks = $tween->get_duration;
-  $tween->set_duration($new_duration_in_ticks); # haste/slow a tween
+  $tween->set_duration($new_duration_in_ticks); # hasten/slow a tween
   $bool = $tween->is_active;
   $tween->start($optional_ideal_cycle_start_time_in_ticks);  
   $tween->stop;
   $tween->pause($optional_ideal_pause_time_in_ticks);
   $tween->resume($optional_ideal_resume_time_in_ticks);
-  $tween->tick($ticks); # called internaly by timeline or SDLx app
+  $tween->tick($ticks); # called internally by timeline or SDLx app
 
   # tweening an integer get/set accessor
   $tween = $timeline->tween(
       on            => [radius => $circle], # set $circle->radius
       t             => 4_000,               # tween duration
-      from          => 200,                 # initial value
-      to            => 200,                 # final value
+      from          => 100,                 # initial value
+      to            => 300,                 # final value
       round         => 1,                   # round values before setting
       bounce        => 1,                   # reverse when repeating
       forever       => 1,                   # continue forever
       ease          => 'p3_in_out',         # use easing function
   );
 
-  # tweening 2D position using a non-linear path 4 times
+  # tweening 2D position using a non-linear path, repeats 4 times
   $tween = $timeline->tween(
       on            => [xy => $circle],     # set values in a xy array ref field
       t             => 4_000,               # tween duration
@@ -292,7 +292,8 @@ SDLx::Tween - SDL Perl XS Tweening Library
   );
 
   # tail behavior makes one position follow another at given speed
-  # unlike other tweens, trails only allow the following 3 contructor args
+  # the behavior makes the tail follow the head
+  # unlike other tweens, tails only allow the following 3 contructor args
   $tail = $timeline->tail(
       speed => 50/1000,                     # advance a distance of 50 pixels a sec 
       head  => $head,                       # position to follow array ref
@@ -302,9 +303,75 @@ SDLx::Tween - SDL Perl XS Tweening Library
 
 =head1 DESCRIPTION
 
-Stub documentation for SDLx::Tween, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
+SDLx::Tween is a library for tweening Perl SDL elements. It lets you to move
+game objects (GOBs) around in various ways, rotate and scale things, animate
+sprites and colors, make GOBs spawn at a given rate, and generally bring about
+changes in the game over time. It lets you do these things declaratively,
+without writing complex SDLx::Controller move_handlers.
+
+=head1 WHY
+
+Writing Perl SDL game move handlers is hard. Consider a missile with 3 states:
+
+    - firing - some sprite animation
+    - flying towards enemy - need to update its position until it hits enemy
+    - exploding - another sprite animation
+
+The move handler for this game object (GOB) is hard to write, because it needs to:
+
+    * update GOB properties
+    * you must take into account acceleration and paths in the computation of
+      these values
+    * you need to set limits of the values, wait for the limits
+    * GOBs need to act differently according to their state, so you need to
+      manage that as well
+    * it all must be very accurate, or animations will miss each other
+    * it has to be fast- this code is run per each GOB per each update
+
+As a game becomes more wonderful, the GOB move handlers become more hellish.
+Brave souls have done it, but even they could not do it in a way us mortals
+can reuse or even understand.
+
+SDLx::Tween solves the missile requirements. Instead of writing a move
+handler, declare tweens on your GOBs. SDLx::Tween will take care of the move
+handler for you.
+
+Instead of writing a move handler which updates the position of $my_gob 
+from its current position to x=100 in 1 second, you can go:
+
+    $tween = $timline->tween(on => [x => $my_gob], to =>100, t => 1_000);
+
+And SDLx::Tween will setup the correct move handler.
+
+Perl SDL move handlers are rarely a simple linear progression. The tween
+library should be able to change GOBs in many ways.
+
+
+=head2 FEATURES
+
+    - tween any property, to a callback, or directly on an array
+    - tween a property with several dimensions, e.g. xy position, 4D color space
+    - tween xy position not on a line, but on some curve
+    - smooth the motion with acceleration/deceleration
+    - make the tween bounce, repeat for N cycles or forever
+    - delay before/after tweens
+    - chain tweens, paralellize tween, e.g start explode tween after reaching target
+    - pause/resume/rewind/ffw/reverse/seek tweens, and generaly play with elastic time
+      for making the game faster or slower
+    - hasten/slow a tween, for example when creeps are suddenly given a speed bonus
+    - tween sprite frames, color/opacity/brightness/saturation/hue, volume/pitch,
+      spawning, rotation, size, camera position
+
+According to:
+
+    http://en.wikipedia.org/wiki/Tweening
+
+    "In the inbetweening workflow of traditional hand-drawn animation, the
+    senior or key artist would draw the keyframes ... and then would hand over
+    the scene to his or her assistant the inbetweener who does the rest."
+
+Let SDLx-Tween be your inbetweener.
+
 
 Blah blah blah.
 
