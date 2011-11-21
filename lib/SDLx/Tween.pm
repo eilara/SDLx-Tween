@@ -101,6 +101,12 @@ sub new {
     my $proxy_args = $Proxy_Builders{$proxy}->(\%args);
     my $path_args  = $args{path_args} || {};
 
+    # range is sugar for "from" and "to" together
+    if ($args{range}) {
+        $path_args->{from} = $args{range}->[0];
+        $path_args->{to}   = $args{range}->[1];
+    }
+
     # these paths require "from" and "to" in top level args
     if ($Paths_Requiring_Edge_Value_Args{$path}) {
         if (!exists($args{from})) { # auto get "from"
@@ -256,16 +262,18 @@ SDLx::Tween - SDL Perl XS Tweening Library
   # and then the tween will stop
   $sdlx_app->run;
 
-  # tween methods
+  # tween accessors
   $ticks = $tween->get_cycle_start_time;
+  $bool  = $tween->is_active;
   $ticks = $tween->get_duration;
+
+  # tween methods
   $tween->set_duration($new_duration_in_ticks); # hasten/slow a tween
-  $bool = $tween->is_active;
   $tween->start($optional_ideal_cycle_start_time_in_ticks);  
   $tween->stop;
   $tween->pause($optional_ideal_pause_time_in_ticks);
   $tween->resume($optional_ideal_resume_time_in_ticks);
-  $tween->tick($ticks); # called internally by timeline or SDLx app
+  $tween->tick($now_in_ticks); # called internally by timeline or SDLx app
 
   # tweening an integer get/set accessor
   $tween = $timeline->tween(
@@ -279,7 +287,7 @@ SDLx::Tween - SDL Perl XS Tweening Library
       ease          => 'p3_in_out',         # use easing function
   );
 
-  # tweening 2D position using a non-linear path, repeats 4 times
+  # tweening 2D position using a non-linear path, repeat 4 times
   $tween = $timeline->tween(
       on            => [xy => $circle],     # set values in a xy array ref field
       t             => 4_000,               # tween duration
@@ -308,6 +316,282 @@ game objects (GOBs) around in various ways, rotate and scale things, animate
 sprites and colors, make GOBs spawn at a given rate, and generally bring about
 changes in the game over time. It lets you do these things declaratively,
 without writing complex C<SDLx::Controller> C<move_handlers()>.
+
+See L</WHY> and L</FEATURES> for an introduction to tweening, or continue for
+the technical details.
+
+
+=head1 DECLARING TWEENING BEHAVIORS
+
+
+=head2 THE TIMLINE
+
+The timeline is the tween factory. It is created with an C<SDLx::App>:
+
+  $timeline = SDLx::Tween::Timeline->new(sdlx_app => $app);
+
+Now you can create tweens through the timeline, and control the cycle
+of all the timeline controlled tweens through the timeline:
+C< start/stop/pause/resume>. You can create as many timelines as you like to
+control different tween groups.
+
+
+=head2 THE TWEEN
+
+A tween is a behavior of some game property vs. time. It sets the target game
+property using a proxy, according to some path, at a time computed by an easing
+function, which obeys certain cycle rules, for a given duration.
+
+A tween is created from a timeline, which passes C<tick()> to the tween from
+the C<SDLx::App> C<move_handler>.  Once you create the tween you can control
+its cycle: set ideal cycle times, start/stop, pause/resume, and change cycle
+duration.
+
+The simplest tween uses the method proxy and calls a game method with the
+tweened value. It uses the default linear path to tween a value between a
+range given by the C<range> arg. Speed of change will be constant, because
+the tween uses the default linear easing function.
+
+The simplest tween, animating a turret turning 180 degrees in 1 second:
+
+  $tween = $timeline->tween(
+      on    => [angle => $turret],
+      t     => 1_000,
+      range => [0, pi],
+  );
+
+
+=head2 CYCLE CONTROL
+
+A tween has a duration and a cycle start time. These define its cycle. Several
+tween constructor arguments help to control the tween cycle:
+
+=over4
+
+=item t
+
+C<integer> Ticks (milliseconds) duration of the tween from start to stop.
+
+=item forever
+
+C<boolean> Repeat the cycle forever, restarting on each cycle completion.
+
+=item repeat
+
+C<integer> Repeat the cycle C<n> times, then stop.
+
+=item bounce
+
+C<bool> If the cycle is repeating, on each cycle completion reverse the
+tween direction, I<bouncing> the tween between its edge points.
+
+=back
+
+Cycle control methods:
+
+=over4
+
+=item start/stop/pause/resume
+
+These all take an optional ideal event time in SDL ticks, see L</ACCURACY> for
+more info. The difference between C<start/stop> and C<pause/resume> is that
+C<start/stop> resets the tween, while C<pause/resume> works so that the tween
+starts from where it left off.
+
+These can also be called on the C<SDLx::Tween::Timeline>. It will broadcast
+the call to all tweens it has created.
+
+=item get_cycle_start_time
+
+Returns the tween cycle start time, in SDL ticks.
+
+=item get/set_duration
+
+Get/set the tween duration, in ticks.
+
+=back
+
+
+=head2 PROXIES
+
+The tween translates ticks from the C<SDLx::Controller> into changes in game
+elements. To change these elements it uses a proxy. The proxy calls methods on
+your game objects, or changes array refs directly.
+
+=over4
+
+=item method proxy
+
+If the tween constructor arg C<on> is an array ref of 2 elements, a string and
+a blessed ref, eg:
+
+  # as part of the tween constructor arg hash
+  on => [method_name => $game_object],
+
+Then the tween will use the method proxy. The tween value will be set by calling
+the given method on the given object.
+
+If the path requires a C<from> arg (e.g. C<linear> path), and none is supplied,
+the method defined for the proxy is used to I<get> the initial tween value. In
+this case the proxy method shoud be able to do get/set.
+
+=item array proxy
+
+If the tween constructor arg C<on> is an array ref of numbers, eg:
+
+  $pos = [320, 200];
+  ...
+  # as part of the tween constructor arg hash
+  on => $pos,
+
+Then the tween will use the array proxy. The elements of the array ref C<$pos>
+will be changed directly by the tween. This is very fast, but you lose any
+semblance of encapsulation.
+
+=back
+
+
+=head2 EASING
+
+
+The deault tween changes in constant speed because it uses the C<linear> easing
+function. The time used by the path to compute position of the tween value,
+advances in a linear rate.
+
+By setting the C<ease> arg in the tween constructor you can make time advance
+according to a non-linear curve. For example to make the tween go slow at
+first, then go fast:
+
+  # as part of the tween constructor arg hash
+  ease => 'p2',
+
+This will cause time to advance in a quadratic curve. At normalized time
+C<$t> where C< $t=$elapsed/$duration 0≤$t≤1>, the C<p2> tween will be where a
+linear tween would be at time C<$t**2>.
+
+All easing functions except C<linear> have 3 variants: C<_in>, C<_out>, and
+C<_in_out>. To get C<exponential> easing on the forward dir of the tween, you
+use C<exponential_in> easing. To get it on both dirs, you use
+C<exponential_in_out>.
+
+These are the available easing functions. See C<eg/03-easing.pl> in the
+distribution for a visual explanation. See
+L<https://github.com/warrenm/AHEasing/blob/master/AHEasing/easing.c> for a math
+explanation. The tweening functions originate from
+L<http://robertpenner.com/easing/penner_chapter7_tweening.pdf>.
+
+=over4
+
+=item *
+
+linear
+
+=item *
+
+p2
+
+=item *
+
+p3
+
+=item *
+
+p4
+
+=item *
+
+p5
+
+=item *
+
+sine
+
+=item *
+
+circular
+
+=item *
+
+exponential
+
+=item *
+
+elastic
+
+=item *
+
+back
+
+=item *
+
+bounce
+
+=back
+
+=head2 PATHS
+
+
+=head2 COLOR TWEENING
+
+
+=head2 SPAWNING IS TWEENING
+
+
+=head2 THE TAIL
+
+
+=head2 MEMORY MANAGEMENT
+
+
+=head2 ACCURACY
+
+C<SDLx::Tween> takes into account rounding errors, the inaccuracy of the
+C<SDLx::Controller> C<move_handler>, and the inaccuracy of time/distance limits
+on behaviors. Used correctly, 2 tweens on the same path, one with duration 1
+sec and the other 2 sec, will always meet every 2 cycles, even 100 years later.
+
+To get this absolute accuracy with no errors growing over time, you need to set
+ideal C< start/pause/resume> times when controling tween cycles.
+
+Here is an example of starting 2 tweens which is I<NOT> accurate:
+
+  # dont do this!
+  $t1 = $timeline->tween(...);
+  $t1->start;
+  $t2 = $timeline->tween(...);
+  $t2->start;
+
+C<$t1> and C<$t2> will not have the same C<cycle_start_time>, and this applies
+to all cycle control methods.  One way to get accuracy, is to start the tweens
+through the timeline:
+
+  # do this
+  $t1 = $timeline->tween(...);
+  $t2 = $timeline->tween(...);
+  $timeline->start;
+  
+
+The timeline will make sure both tweens share the same C<cycle_start_time>.
+Another way to get accuracy is to use the optional ideal time argument
+of the cycle control methods:
+
+  # or this
+  $start_time = SDL::get_ticks;
+  $t1 = $timeline->tween(...);
+  $t1->start($start_time);
+  $t2 = $timeline->tween(...);
+  $t2->start($start_time);
+
+
+When chaining tweens, the 2nd tween ideal start time should be set as the 1st  
+tween start time + the tween duration.
+
+When spawning tweens, compute the ideal spawn time, and make that the cycle
+start time.
+
+B<TODO> sugarize this and allow implicit passing of ideal times for
+sequence/parallel/spawn tweens then delete this section.
+
 
 =head1 WHY?
 
@@ -387,8 +671,8 @@ Let SDLx-Tween be your inbetweener.
 
 =head1 FEATURES
 
-Perl SDL move handlers are rarely a simple linear progression. C<SDLx::Tween>
-features:
+Perl SDL move handlers are rarely a simple linear progression. An ideal
+tweening library should feature:
 
 =over 4
 
@@ -398,11 +682,15 @@ tween any method, e.g. a Moose get/set accessor, or directly on an array
 
 =item *
 
-tween a property with several dimensions, e.g. xy position, 4D color space
+tween a property with several dimensions, e.g. xy position, some 4D color space
 
 =item *
 
 tween xy position not on a line, but on some curve
+
+=item *
+
+round the tween values, and pass only values when they change
 
 =item *
 
@@ -422,7 +710,7 @@ hasten/slow a tween, for example when creeps are suddenly given a speed bonus
 
 =item *
 
-follow a moving target, e.g. for a homing missile with constant acceleration
+follow a moving target, e.g. a homing missile with constant acceleration
 
 =item *
 
@@ -444,15 +732,13 @@ the game faster or slower
 
 =back
 
-All but the last 4 features are ready for use. The 4 C<TODO> features need some
-sugaring and examples.
-
-See the C<TODO> file in the distribution for more planned features.
+C<SDLx::Tween> doesn't do everything yet.  See the C<TODO> file in the
+distribution for planned features, and the docs above for supported features.
 
 
-=head1 Examples
+=head1 EXAMPLES
 
-The distribution includes a few tweening examples:
+Tweening examples in the distribution dir C< eg/>:
 
 =over 4
 
@@ -530,5 +816,9 @@ Copyright (C) 2011 by Ran Eilam
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.10.1 or,
 at your option, any later version of Perl 5 you may have available.
+
+
+
+B<round> feature
 
 =cut
