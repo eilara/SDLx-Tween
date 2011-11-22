@@ -565,10 +565,37 @@ Two special paths exists from tweening SDL colors in a linear path through the
 =item rgba
 
 =back
+
+
 =head2 SPAWNING IS TWEENING
 
 
 =head2 THE TAIL
+
+The tail is a simple behavior for making one position follow another at a given
+velocity. It is constructed from the timeline, like tweens, and takes 3
+constructor args: speed, head, and tail. The speed is given in changes per
+tick.  Head and tail should be given as array refs. The tail behavior will move
+the position in the tail array ref towards the head array ref, even if the
+head position changes.
+
+For example, if you want a game object to follow the cursor, create an array
+ref C<$cursor_pos> and set its elements on mouse move. This will be the head.
+Create another array ref C<$gob_pos> for the game object position. This will be
+the tail, whose elements will be changed by the behavior. It is the position 
+array ref that you read in your paint handler. Then create the behavior:
+
+  $trail = $timeline->trail(
+      speed => 100/1000,
+      head  => $cursor_pos,
+      tail  => $gob_pos,
+  );      
+
+
+You can then control the trail as you would a tween.
+
+The tail will stop when the distance to the head is smaller than 1, or when the
+head passes through the tail.
 
 
 =head2 MEMORY MANAGEMENT
@@ -621,7 +648,7 @@ When spawning tweens, compute the ideal spawn time, and make that the cycle
 start time.
 
 B<TODO> sugarize this and allow implicit passing of ideal times for
-sequence/parallel/spawn tweens then delete this section.
+sequence/parallel/spawn tweens, then delete this section.
 
 
 =head1 WHY?
