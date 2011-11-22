@@ -40,7 +40,6 @@ do { my $i = 0; %Path_Lookup = map { $_ => $i++ } qw(
     polyline
     fade
     rgba
-    tail
 )};
 
 my %Paths_Requiring_Edge_Value_Args = map { $Path_Lookup{$_} => 1 } qw(
@@ -48,7 +47,6 @@ my %Paths_Requiring_Edge_Value_Args = map { $Path_Lookup{$_} => 1 } qw(
     sine
     fade
     rgba
-    tail
 );
 
 my %Paths_On_Color = map { $Path_Lookup{$_} => 1 } qw(
@@ -62,7 +60,6 @@ my %Path_Get_Dim = (
     $Path_Lookup{circular} => \&compute_dim_path_centered,
     $Path_Lookup{spiral}   => \&compute_dim_path_centered,
     $Path_Lookup{polyline} => \&compute_dim_path_polyline,
-    $Path_Lookup{tail}     => \&compute_dim_path_with_edge_values,
 );
 
 my %Proxy_Lookup;
@@ -431,7 +428,7 @@ a blessed ref, eg:
 Then the tween will use the method proxy. The tween value will be set by calling
 the given method on the given object.
 
-If the path requires a C<from> arg (e.g. C<linear> path), and none is supplied,
+If the path requires a C<from> arg (e.g. linear path), and none is supplied,
 the method defined for the proxy is used to I<get> the initial tween value. In
 this case the proxy method shoud be able to do get/set.
 
@@ -454,7 +451,7 @@ semblance of encapsulation.
 =head2 EASING
 
 
-The deault tween changes in constant speed because it uses the C<linear> easing
+The deault tween changes in constant speed because it uses the linear easing
 function. The time used by the path to compute position of the tween value,
 advances in a linear rate.
 
@@ -469,7 +466,7 @@ This will cause time to advance in a quadratic curve. At normalized time
 C<$t> where C< $t=$elapsed/$duration 0≤$t≤1>, the C<p2> tween will be where a
 linear tween would be at time C<$t**2>.
 
-All easing functions except C<linear> have 3 variants: C<_in>, C<_out>, and
+All easing functions except linear ease have 3 variants: C<_in>, C<_out>, and
 C<_in_out>. To get C<exponential> easing on the forward dir of the tween, you
 use C<exponential_in> easing. To get it on both dirs, you use
 C<exponential_in_out>.
@@ -531,9 +528,43 @@ bounce
 =head2 PATHS
 
 
+The simplest tween follows a linear path, the only option when tweening a 1
+dimensional value. You can also use the linear path for tweening values up
+to 4D, by constructing the tween with array refs of size 4 as C<from> and
+C<to> values.
+
+When tweening 2D values, you can customize the path the tween takes through the
+plane. The path is given in the C<path> arg of the tween constructor hash. Some
+paths also require a C<path_args> key to configure the path. Here are paths
+available:
+
+=over4
+
+=item linear
+
+=item sine
+
+=item circular
+
+=item spiral
+
+=item polyline
+
+=back
+
+
 =head2 COLOR TWEENING
 
+Two special paths exists from tweening SDL colors in a linear path through the
+4D space of RGBA.
 
+=over4
+
+=item fade
+
+=item rgba
+
+=back
 =head2 SPAWNING IS TWEENING
 
 
