@@ -600,6 +600,20 @@ head passes through the tail.
 
 =head2 MEMORY MANAGEMENT
 
+There are 2 issues with tween memory management: how do you keep a ref to the
+tween in game objects, and how does the tween keep ref to the game elements it 
+changes.
+
+The timeline only keeps weak refs to the tweens it creates, active or inactive.
+This means you must keep a strong ref to the tween somewhere, usually in the
+game object. When the game object goes out of the scope, the tween will stop,
+be destroyed, and cleaned out of the timeline automatically.
+
+The tween only keeps weak refs to the game elements (objects or array refs) it
+changes. Usually other game object will have strong refs to them, as part of
+the game scene graph. When the game object that is the target of the tween
+goes out of scope, you must stop the tween, and never use it again. B<TODO> add
+event for this and allow changing of targets.
 
 =head2 ACCURACY
 
@@ -618,6 +632,7 @@ Here is an example of starting 2 tweens which is I<NOT> accurate:
   $t1->start;
   $t2 = $timeline->tween(...);
   $t2->start;
+
 
 C<$t1> and C<$t2> will not have the same C<cycle_start_time>, and this applies
 to all cycle control methods.  One way to get accuracy, is to start the tweens
@@ -848,6 +863,12 @@ http://drawlogic.com/2010/04/11/itween-tweening-and-easing-animation-library-for
 http://www.leebyron.com/else/shapetween/
 
 =back
+
+
+=head1 BUGS
+
+Very little safety in XS code. Lose your ref to the tween target (object or
+array ref being set) and horrible things will happen.
 
 
 =head1 AUTHOR

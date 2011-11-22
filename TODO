@@ -26,6 +26,7 @@
     * lifecycle events -> start,stop,complete
     * speed instead of duration
     * better safety and error messages on tween misconfiguring
+    * tail behavior event on tween target going out of scope
 - performance
     * share path_args for polylines
     * pool tweens
