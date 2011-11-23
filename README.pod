@@ -130,7 +130,7 @@ The simplest tween, animating a turret turning 180 degrees in 1 second:
 A tween has a duration and a cycle start time. These define its cycle. Several
 tween constructor arguments help to control the tween cycle:
 
-=over4
+=over 4
 
 =item t
 
@@ -153,7 +153,7 @@ tween direction, I<bouncing> the tween between its edge points.
 
 Cycle control methods:
 
-=over4
+=over 4
 
 =item start/stop/pause/resume
 
@@ -182,7 +182,7 @@ The tween translates ticks from the C<SDLx::Controller> into changes in game
 elements. To change these elements it uses a proxy. The proxy calls methods on
 your game objects, or changes array refs directly.
 
-=over4
+=over 4
 
 =item method proxy
 
@@ -249,7 +249,7 @@ L<https://github.com/warrenm/AHEasing/blob/master/AHEasing/easing.c> for a math
 explanation. The tweening functions originate from
 L<http://robertpenner.com/easing/penner_chapter7_tweening.pdf>.
 
-=over4
+=over 4
 
 =item *
 
@@ -312,7 +312,7 @@ plane. The path is given in the C<path> arg of the tween constructor hash. Some
 paths also require a C<path_args> key to configure the path. Here are paths
 available:
 
-=over4
+=over 4
 
 =item linear
 
@@ -390,7 +390,7 @@ last following a linear path.
 Two special paths exists from tweening SDL colors in a linear path through the
 4D space of RGBA.
 
-=over4
+=over 4
 
 =item fade
 
