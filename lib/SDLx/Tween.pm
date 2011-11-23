@@ -432,6 +432,11 @@ If the path requires a C<from> arg (e.g. linear path), and none is supplied,
 the method defined for the proxy is used to I<get> the initial tween value. In
 this case the proxy method shoud be able to do get/set.
 
+When using the method proxy you can use the optional C<round> flag when
+creating the tween. If true, values will be rounded and made distinct by
+dropping repeated values.
+
+
 =item array proxy
 
 If the tween constructor arg C<on> is an array ref of numbers, eg:
@@ -460,7 +465,7 @@ according to a non-linear curve. For example to make the tween go slow at
 first, then go fast:
 
   # as part of the tween constructor arg hash
-  ease => 'p2',
+  ease => 'p2_in',
 
 This will cause time to advance in a quadratic curve. At normalized time
 C<$t> where C< $t=$elapsed/$duration 0≤$t≤1>, the C<p2> tween will be where a
@@ -530,8 +535,10 @@ bounce
 
 The simplest tween follows a linear path, the only option when tweening a 1
 dimensional value. You can also use the linear path for tweening values up
-to 4D, by constructing the tween with array refs of size 4 as C<from> and
-C<to> values.
+to 4D, by providing the tween with an array ref of size 4 as the range:
+
+  # constructing a tween in 4D
+  range => [[0, 0, 0, 0], [320, 200, 10, 640]],
 
 When tweening 2D values, you can customize the path the tween takes through the
 plane. The path is given in the C<path> arg of the tween constructor hash. Some
@@ -542,13 +549,71 @@ available:
 
 =item linear
 
+Requires one of 2 constructor args: C<range> or C<from + to>. If no C<range>
+and no C<from> are given then the value is taken from the tween target using
+the proxy. Thus you can tween a GOB from its current position to another
+without specifying the current position twice. Here are the 3 options for
+using the default linear path:
+
+  # option 1: construct a tween only with "to", from is taken from the target
+  to       => [320, 200]
+
+  # option 2: provide "from" + "to"
+  from     => [  0,   0]
+  to       => [320, 200]
+
+  # option 3: provide "range"
+  range    => [[0, 0], [320, 200]]
+
 =item sine
+
+Tweens a value along a sine curve. Uses the same C<from + to> setup as the
+linear path, but requires C<path_args> with amplitude and frequency.
+
+  range     => [[0, 0], [320, 200]]
+  path      => 'sine',
+  path_args => {amp => 100, freq => 2},
 
 =item circular
 
+Tweens a value along a circle with a given radius and center, between 2 angles.
+
+  path      => 'circle',
+  path_args => {
+      center       => [320, 200],
+      radius       => 100,
+      begin_angle  => 0,
+      end_angle    => 2*pi,
+  },
+
 =item spiral
 
+Tweens a value along a spiral.
+
+  path      => 'spiral',
+  path_args => {
+      center       => [320, 200],
+      begin_radius => 50,
+      end_radius   => 150,
+      begin_angle  => 0,
+      rotations    => 3,
+  },
+
+
 =item polyline
+
+Tweens a value along an array of segments, specified by the xy coordinates of
+the waypoints. The tween will start at the 1st waypoint and continue until the
+last following a linear path.
+
+  path      => 'polyline',
+  path_args => { points => [
+        [200, 200],
+        [600, 200],
+        [200, 400],
+        [600, 400],
+        [200, 200],
+  ]},
 
 =back
 
@@ -562,12 +627,41 @@ Two special paths exists from tweening SDL colors in a linear path through the
 
 =item fade
 
+Tween the opacity of a color between 2 values. To tween the opacity of some red
+color from opaque to transparent:
+
+  path => 'fade',
+  from => 0xFF0000FF,
+  to   => 0x00,
+
 =item rgba
+
+Tween a linear path between 2 points in the 4D color space. To transform red into
+semi-transparent green:
+
+  path => 'rgba',
+  from => 0xFF0000FF,
+  to   => 0x00FF00AA,
 
 =back
 
 
 =head2 SPAWNING IS TWEENING
+
+If you need to spawn creeps, missiles, or whatever, you can tween the spawn 
+method on your spawner with an integer wave number:
+
+    $spawn_tween = $timeline->tween(
+        duration => 10_000,
+        on       => [spawn_creep => $gob],
+        range    => [0, 9],
+        round    => 1,
+    );
+
+
+Will call C<spawn_creep> once a second for 10 seconds with the numbers 0
+through 9 as the only arg. You can use the value as the wave number. You
+can also set an easing function to change the rate of spawning.
 
 
 =head2 THE TAIL
@@ -585,14 +679,14 @@ Create another array ref C<$gob_pos> for the game object position. This will be
 the tail, whose elements will be changed by the behavior. It is the position 
 array ref that you read in your paint handler. Then create the behavior:
 
-  $trail = $timeline->trail(
+  $rail = $timeline->tail(
       speed => 100/1000,
       head  => $cursor_pos,
       tail  => $gob_pos,
   );      
 
 
-You can then control the trail as you would a tween.
+You can then control the tail as you would a tween.
 
 The tail will stop when the distance to the head is smaller than 1, or when the
 head passes through the tail.
@@ -600,7 +694,7 @@ head passes through the tail.
 
 =head2 MEMORY MANAGEMENT
 
-There are 2 issues with tween memory management: how do you keep a ref to the
+There are two issues with tween memory management: how do you keep a ref to the
 tween in game objects, and how does the tween keep ref to the game elements it 
 changes.
 
@@ -868,15 +962,12 @@ http://www.leebyron.com/else/shapetween/
 =head1 BUGS
 
 Very little safety in XS code. Lose your ref to the tween target (object or
-array ref being set) and horrible things will happen.
+array ref being set) and horrible things will happen on next tick.
 
 
 =head1 AUTHOR
 
 eilara <ran.eilam@gmail.com>
-
-
-=head1 COPYRIGHT AND LICENSE
 
 Big thanks to:
 
@@ -889,15 +980,16 @@ L<https://github.com/warrenm/AHEasing>.
 
 Check that page for some great info about easing functions.
 
+Huge thanks to Zohar Kelrich <lumimies@gmail.com> for patient listening and
+advice.
 
+
+=head1 COPYRIGHT AND LICENSE
 Copyright (C) 2011 by Ran Eilam
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.10.1 or,
 at your option, any later version of Perl 5 you may have available.
 
-
-
-B<round> feature
 
 =cut
