@@ -527,7 +527,7 @@ B<TODO> sugarize this and allow implicit passing of ideal times for
 sequence/parallel/spawn tweens, then delete this section.
 
 
-=head1 WHY?
+=head1 WHY
 
 Writing Perl SDL game move handlers is hard. Consider a missile with 3 states:
 
