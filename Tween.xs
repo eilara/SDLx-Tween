@@ -101,9 +101,10 @@ INCLUDE: const-xs.inc
     SDLx__Tween this        = (SDLx__Tween) SvIV((SV*)SvRV(*self_arr_v))
 
 SDLx__Tween
-SDLx__Tween_new_struct(register_cb, unregister_cb, duration, forever, repeat, bounce, ease, path, path_args, proxy, proxy_args)
+SDLx__Tween_new_struct(register_cb, unregister_cb, complete_cb, duration, forever, repeat, bounce, ease, path, path_args, proxy, proxy_args)
     SV*    register_cb
     SV*    unregister_cb
+    SV*    complete_cb
     Uint32 duration
     bool   forever
     int    repeat
@@ -119,6 +120,7 @@ SDLx__Tween_new_struct(register_cb, unregister_cb, duration, forever, repeat, bo
 
         SV* register_cb_clone   = newSVsv(register_cb);
         SV* unregister_cb_clone = newSVsv(unregister_cb);
+        SV* complete_cb_clone   = newSVsv(complete_cb);
 
         this->ease_func = ease_table[ease];
 
@@ -138,6 +140,7 @@ SDLx__Tween_new_struct(register_cb, unregister_cb, duration, forever, repeat, bo
             this,
             register_cb_clone,
             unregister_cb_clone,
+            complete_cb_clone,
             duration,
             forever,
             repeat,
@@ -158,6 +161,7 @@ SDLx__Tween_DESTROY(SV* self)
 
         SvREFCNT_dec(this->unregister_cb);
         SvREFCNT_dec(this->register_cb);
+        SvREFCNT_dec(this->complete_cb);
         this->path_free_func(this->path);
         safefree(this);
 

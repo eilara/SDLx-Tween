@@ -8,7 +8,7 @@
     * callback proxy
 - timeline control
     * ffw/rewind/seek/elasetic time factor
-    * sequence/parallel sugar
+    * sequence/parallel sugar and methods to skip tweens
     * delay before or after
 - tween types
     * more color transforms
@@ -27,9 +27,11 @@
     * speed instead of duration
     * better safety and error messages on tween misconfiguring
     * tail behavior event on tween target going out of scope
+    * sugar - path/path_args should unite
 - performance
     * share path_args for polylines
     * pool tweens
     * convert doubles to floats
+    * tween group loop in XS
 - accuracy
     * overshoot support

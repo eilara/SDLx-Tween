@@ -6,9 +6,10 @@ use Set::Object::Weak qw(weak_set);
 use SDL;
 use SDLx::Tween;
 use SDLx::Tween::Tail;
+use SDLx::Tween::Parallel;
+use SDLx::Tween::Sequence;
 
-has is_paused       => (is => 'rw', default => 0);
-has last_pause_time => (is => 'rw');
+has is_paused     => (is => 'rw', default => 0);
 
 has all_tweens    => (is => 'ro', lazy_build => 1);
 has active_tweens => (is => 'ro', lazy_build => 1);
@@ -37,29 +38,19 @@ sub DESTROY {
     $self->remove_move_handler($self->move_handler) if $self->sdlx_app;
 }
 
-sub tween {
-    my ($self, %args) = @_;
-    my $active_tweens = $self->active_tweens;
-    weaken $active_tweens;
-    # callbacks need not be regenerated for each tween
-    my $tween = SDLx::Tween->new(
-        register_cb   => sub { $active_tweens->insert(shift) },
-        unregister_cb => sub { $active_tweens->remove(shift) },
-        %args,
-    );
-    $self->all_tweens->insert($tween);
-    return $tween;
-}
+sub tween    { shift->add_child('SDLx::Tween'           , @_) }
+sub tail     { shift->add_child('SDLx::Tail'            , @_) }
+sub parallel { shift->add_child('SDLx::Tween::Parallel' , @_) }
+sub sequence { shift->add_child('SDLx::Tween::Sequence' , @_) }
 
-sub tail {
-    my ($self, %args) = @_;
+sub add_child {
+    my ($self, $class, %args) = @_;
     my $active_tweens = $self->active_tweens;
     weaken $active_tweens;
-    # callbacks need not be regenerated for each tween
-    my $tween = SDLx::Tween::Tail->new(
-        register_cb   => sub { $active_tweens->insert(shift) },
-        unregister_cb => sub { $active_tweens->remove(shift) },
-        %args,
+    my $tween = $class->new(
+      register_cb   => sub { $active_tweens->insert(shift) },
+      unregister_cb => sub { $active_tweens->remove(shift) },
+      %args,
     );
     $self->all_tweens->insert($tween);
     return $tween;
@@ -72,6 +63,7 @@ sub tick {
     $_->tick($ticks) for $self->active_tweens->members;
 }
 
+
 sub start {
     my ($self, $ticks) = @_;
     $ticks ||= SDL::get_ticks;
@@ -79,10 +71,10 @@ sub start {
 }
 
 sub stop {
-    my ($self, $ticks) = @_;
-    $ticks ||= SDL::get_ticks;
-    $_->stop($ticks) for $self->active_tweens->members;
+    my $self = shift;
+    $_->stop for $self->active_tweens->members;
 }
+
 
 sub pause {
     my ($self, $pause_time) = @_;

@@ -10,6 +10,7 @@ void tween_build_struct(
     SDLx__Tween this,
     SV*         register_cb,
     SV*         unregister_cb,
+    SV*         complete_cb,
     Uint32      duration,
     bool        forever,
     int         repeat,
@@ -17,6 +18,7 @@ void tween_build_struct(
 ) {
     this->register_cb      = register_cb;
     this->unregister_cb    = unregister_cb;
+    this->complete_cb      = complete_cb;
     this->duration         = duration;
     this->forever          = forever;
     this->repeat           = repeat;
@@ -36,7 +38,6 @@ void tween_start(SV* self, SDLx__Tween this, Uint32 cycle_start_time) {
     dSP; PUSHMARK(SP);
     XPUSHs(self);
     PUTBACK;
-
     call_sv(this->register_cb, G_DISCARD);
 }
 
@@ -50,7 +51,6 @@ void tween_stop(SV* self, SDLx__Tween this) {
     dSP; PUSHMARK(SP);
     XPUSHs(self);
     PUTBACK;
-
     call_sv(this->unregister_cb, G_DISCARD);
 }
 
@@ -94,6 +94,10 @@ void tween_tick(SV* self, SDLx__Tween this, Uint32 now) {
 
     if (!forever && repeat <= 1) {
         tween_stop(self, this);
+        dSP; PUSHMARK(SP);
+        XPUSHs(self);
+        PUTBACK;
+        call_sv(this->complete_cb, G_DISCARD);
         return;
     }
 

@@ -18,6 +18,7 @@ typedef struct sdl_tween {
 
        SV*   register_cb;
        SV*   unregister_cb;
+       SV*   complete_cb;
 
     Uint32   duration;
       bool   forever;

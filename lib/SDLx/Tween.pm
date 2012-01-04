@@ -127,12 +127,12 @@ sub new {
 
     my $register_cb   = $args{register_cb}   || sub {}; 
     my $unregister_cb = $args{unregister_cb} || sub {};
-
-    my $duration = $args{duration} || $args{t} || die "No positive duration given";
+    my $complete_cb   = $args{done}          || sub {};
+    my $duration      = $args{duration} || $args{t} || die "No positive duration given";
 
     my @args = (
 
-        $register_cb, $unregister_cb, $duration,
+        $register_cb, $unregister_cb, $complete_cb, $duration,
 
         $args{forever} || 0,
         $args{repeat}  || 0,
@@ -468,8 +468,8 @@ first, then go fast:
   ease => 'p2_in',
 
 This will cause time to advance in a quadratic curve. At normalized time
-C<$t> where C< $t=$elapsed/$duration 0≤$t≤1>, the C<p2> tween will be where a
-linear tween would be at time C<$t**2>.
+C<$t> where C< $t=$elapsed/$duration > and $t is between 0 and 1, the C<p2_in>
+tween will be where a linear tween would be at time C<$t**2>.
 
 All easing functions except linear ease have 3 variants: C<_in>, C<_out>, and
 C<_in_out>. To get C<exponential> easing on the forward dir of the tween, you

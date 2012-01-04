@@ -84,6 +84,7 @@ for my $def (@circle_defs) {
         tween_args => $def->[3],
         timeline   => $timeline,
     );
+    # push description text of circle into @text
     my $row; for my $part (split / /, $def->[0]) {
         push @text, SDLx::Text->new(
             x       => $xy->[0] - 45,
